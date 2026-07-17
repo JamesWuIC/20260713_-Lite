@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>洲遊幣 Lite · InterCoins</title>
+<link rel="icon" type="image/png" href="assets/coin.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+TC:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <!-- three.js 模組對應（動態 import 用；WebGL 不支援時走 CSS 退回，不載入） -->
@@ -33,6 +34,8 @@ img{display:block;max-width:100%}
   overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.25)}
 .screen{display:none;flex-direction:column;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 14px) 18px 24px}
 .screen.active{display:flex}
+/* 轉盤頁鎖定單屏：不捲動，舞台吃剩餘空間釘在底部（任務頁維持可捲動） */
+#wheel{height:100dvh;overflow:hidden}
 
 /* header */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -100,17 +103,16 @@ img{display:block;max-width:100%}
 .stage{
   /* ╔══════════════════ 🎡 轉盤控制列（整顆一起調）══════════════════╗
      轉盤是單一群組，只改這幾個值＝整組移動／縮放，內部部件比例不變。
-       • 大小 --wheel-size：100%=完整置中不裁切；>100 放大(超出視窗會被切掉)
+       • 大小 --wheel-size：轉盤寬（占舞台寬%）；轉盤頂端貼齊舞台頂端
        • 左右 --wheel-x   ：50%=水平置中；<50 往左、>50 往右
-       • 上下 --wheel-y   ：50%=垂直置中；<50 往上(下緣進來)、>50 往下(下緣被切)
-     ─────────── 顯示視窗（決定上下左右會不會被切）───────────
-       • 視窗高 --stage-ratio：寬/高 比。1/1=正方；調小(如 3/4、2/3)視窗變高、
-         露出更多上下；被切掉的下方就是這個視窗底邊，把它調高即可補回。
+     ─────────── 顯示視窗（底部出血設計）───────────
+       • 舞台高 --stage-h：舞台釘在畫面底部，只露出轉盤上方這個高度，
+         其餘下緣自然被畫面底邊裁切（=截圖比例）。73vw≈露出轉盤上方78%。
+         調大→露更多；調 94vw→整顆全露不裁切。
      ╚════════════════════════════════════════════════════════════╝ */
-  --wheel-size:   94%;    /* 保留完整盤面與獎項文字，避免手機裁切 */
+  --wheel-size:   94%;    /* 轉盤寬度（各尺寸維持等比） */
   --wheel-x:      50%;    /* 轉盤中心 左右（0%~100%，50=正中） */
-  --wheel-y:      50%;    /* 置中，讓完整盤面留在可視範圍 */
-  --stage-ratio:  1/1;    /* 正方形舞台，完整呈現轉盤 */
+  --stage-h: min(73vw, 314px);  /* 顯示轉盤上方約78%，底部出血（#app 上限430→cap 314px） */
 
   --label-size:  46px;    /* 獎品金字大小上限（1920 座標系） */
   /* Z軸（數字大=上層）— 依 PSD 疊序 */
@@ -126,13 +128,15 @@ img{display:block;max-width:100%}
 /* ⚙️ 金字擺放半徑在 <script> 的 PLATE.tr（1920 座標系，最大 960） */
 
 /* ── 以下規則吃上面的變數，通常不用改 ───────────────────── */
-.stage{position:relative;width:calc(100% + 36px);margin:-2px -18px 0;
-  aspect-ratio:var(--stage-ratio);overflow:hidden}
+/* 舞台：margin-top:auto 把它推到畫面最底、margin-bottom:-24px 抵銷 .screen 底 padding
+   → 舞台底邊＝螢幕底邊；高度固定 --stage-h → 轉盤下緣在所有機型一致地自然出血。 */
+.stage{position:relative;width:calc(100% + 36px);margin:auto -18px -24px;
+  height:var(--stage-h);overflow:hidden}
 /* 🔒 disc＝整顆轉盤的「單一群組」：所有部件(方框/等級盤/軌道/獎項盤/穹頂/金字/投幣口/發光)
    都在此容器內、只吃它的位置與縮放。★內部任何部件不再單獨移動或縮放，只透過
-   --wheel-x/y/size 整組控制★。投幣口 disc-slot 用 % 定位 → 與整組等比連動。 */
-.disc{position:absolute;left:var(--wheel-x);top:var(--wheel-y);
-  width:var(--wheel-size);aspect-ratio:1/1;transform:translate(-50%,-50%)}
+   --wheel-x/size 整組控制★。頂端貼齊舞台頂（badge/投幣口恆可見），底部超出被裁。 */
+.disc{position:absolute;left:var(--wheel-x);top:0;
+  width:var(--wheel-size);aspect-ratio:1/1;transform:translateX(-50%)}
 /* 所有層同框：1920² 圓心置中 → inset:0 天然同心 */
 .dl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .dl-bg{z-index:var(--z-bg)} .dl-tier{z-index:var(--z-tier)}
@@ -431,7 +435,7 @@ img{display:block;max-width:100%}
       <div class="pf-field"><label>Email</label><input id="pf-email" type="email" placeholder="you@example.com"></div>
       <div class="pf-terms">
         <p><b>個人資料蒐集告知（個資法第 8 條）</b>　版本 v0.1（草稿）</p>
-        <p><b>【蒐集者】</b>本活動由下列二家公司各自為蒐集者，各自獨立蒐集、處理及利用您所提供之個人資料；您同意提供予哪一家，該公司始取得您的資料，未經勾選之公司不會取得。<br>・高雄洲際酒店（公司全名【待填】／統編【待填】）<br>・臺北洲際酒店（公司全名【待填】／統編【待填】）</p>
+        <p><b>【蒐集者】</b>本活動由下列二家公司各自為蒐集者，各自獨立蒐集、處理及利用您所提供之個人資料；您同意提供予哪一家，該公司始取得您的資料，未經勾選之公司不會取得。<br>・高雄洲際酒店（公司全名：遠洋投資股份有限公司高雄分公司／統一編號：91097496）<br>・臺北洲際酒店（公司全名：遠雄巨蛋事業股份有限公司逸仙酒店分公司／統一編號：60613318）</p>
         <p><b>【蒐集目的】</b>會員管理(052)、消費者/客戶管理與服務(090)、行銷(040)、調查統計與研究分析(157，含會員分析、貼標與個人化推薦)。</p>
         <p><b>【個資類別】</b>辨識個人者(C001)：姓名、行動電話、電子郵件；及您透過 LINE 登入之 userID、顯示名稱。</p>
         <p><b>【利用期間】</b>自您同意時起，至您撤回同意、請求刪除，或該酒店停止相關營業時止（本公司並將定期檢視保存必要性）。</p>
@@ -793,6 +797,8 @@ function positionBrowse(){
   btn.style.top =(sr.top-st.top+sr.height*0.25)+'px';
 }
 addEventListener('resize', ()=>{ positionDrawBtn(); positionBrowse(); });
+// 字型載入完成會改變上方內容高度 → 舞台(margin-top:auto)位移，浮鈕需重定位
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ positionDrawBtn(); positionBrowse(); });
 
 /* ---------- 任務頁：追蹤社群，每完成一項 +1 洲遊幣（一次性） ---------- */
 const TASKS=[
