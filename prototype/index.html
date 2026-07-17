@@ -35,7 +35,7 @@ img{display:block;max-width:100%}
 .screen.active{display:flex}
 
 /* header */
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .brand{font-family:var(--display);font-size:15px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase}
 .brand small{display:block;font-family:var(--serif);font-size:11px;letter-spacing:.3em;color:var(--muted)}
 .balance{display:flex;align-items:center;gap:6px;flex:none;background:var(--surface);border:1px solid rgba(161,98,7,.28);
@@ -49,20 +49,20 @@ img{display:block;max-width:100%}
 .invested{font-family:var(--serif);font-size:14px;color:var(--ink);letter-spacing:.08em}
 .invested b{color:var(--gold);font-family:var(--display);font-size:20px;margin:0 3px}
 .cta{width:100%;font-family:var(--serif);font-weight:700;font-size:19px;letter-spacing:.12em;color:#fff;
-  background:linear-gradient(180deg,#c99a3b,#9c6410);border-radius:14px;padding:16px;margin:130px 0 10px;
+  background:linear-gradient(180deg,#c99a3b,#9c6410);border-radius:14px;padding:16px;margin:24px 0 8px;
   box-shadow:0 6px 18px rgba(161,98,7,.4),inset 0 1px 0 rgba(255,255,255,.4);transition:.2s}
 .cta:disabled{background:linear-gradient(180deg,#d7d1c4,#bdb6a6);box-shadow:none;color:#f5f3ee}
 .cta:not(:disabled):active{transform:scale(.98)}
-.hint-row{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.hint-row{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
 .hint{background:var(--surface);border:1px solid rgba(161,98,7,.18);border-radius:10px;padding:9px;text-align:center;
   font-family:var(--serif);font-size:13px;color:var(--muted);letter-spacing:.06em}
 
 /* coin wallet — 純 CSS 3D 旋轉金幣（跨平台穩定；拖進投幣口投入、可新增） */
-.wallet{position:relative;margin:6px 0 2px;text-align:center}
+.wallet{position:relative;margin:3px 0 0;text-align:center}
 .stack-label{font-family:var(--serif);font-size:12px;color:var(--muted);letter-spacing:.1em}
 .need-hint{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.06em;margin-top:3px;min-height:18px}
-#coin-stack{position:relative;height:118px;margin:6px 0 6px;perspective:640px}
-.coin-wrap{position:absolute;top:26px;width:66px;height:66px;margin-left:-33px;
+#coin-stack{position:relative;height:92px;margin:4px 0;perspective:640px}
+.coin-wrap{position:absolute;top:14px;width:66px;height:66px;margin-left:-33px;
   touch-action:none;cursor:grab;will-change:transform;
   transition:transform .38s cubic-bezier(.2,1.25,.4,1),opacity .3s}
 .coin-wrap.dragging{cursor:grabbing;transition:none;z-index:60}
@@ -97,10 +97,10 @@ img{display:block;max-width:100%}
        • 視窗高 --stage-ratio：寬/高 比。1/1=正方；調小(如 3/4、2/3)視窗變高、
          露出更多上下；被切掉的下方就是這個視窗底邊，把它調高即可補回。
      ╚════════════════════════════════════════════════════════════╝ */
-  --wheel-size:   200%;   /* 轉盤大小（建議 90%~130%） */
+  --wheel-size:   94%;    /* 保留完整盤面與獎項文字，避免手機裁切 */
   --wheel-x:      50%;    /* 轉盤中心 左右（0%~100%，50=正中） */
-  --wheel-y:      90%;    /* 轉盤中心 上下（0%~100%，50=正中） */
-  --stage-ratio:  3/4;    /* 顯示視窗 寬/高（1/1 正方；3/4、2/3 變高露更多） */
+  --wheel-y:      50%;    /* 置中，讓完整盤面留在可視範圍 */
+  --stage-ratio:  1/1;    /* 正方形舞台，完整呈現轉盤 */
 
   --label-size:  46px;    /* 獎品金字大小上限（1920 座標系） */
   /* Z軸（數字大=上層）— 依 PSD 疊序 */
@@ -122,7 +122,7 @@ img{display:block;max-width:100%}
    都在此容器內、只吃它的位置與縮放。★內部任何部件不再單獨移動或縮放，只透過
    --wheel-x/y/size 整組控制★。投幣口 disc-slot 用 % 定位 → 與整組等比連動。 */
 .disc{position:absolute;left:var(--wheel-x);top:var(--wheel-y);
-  width:var(--wheel-size);aspect-ratio:1/1;transform:translate(-50%,calc(-50% - 40px))}
+  width:var(--wheel-size);aspect-ratio:1/1;transform:translate(-50%,-50%)}
 /* 所有層同框：1920² 圓心置中 → inset:0 天然同心 */
 .dl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .dl-bg{z-index:var(--z-bg)} .dl-tier{z-index:var(--z-tier)}
