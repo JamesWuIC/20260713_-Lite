@@ -44,6 +44,16 @@ img{display:block;max-width:100%}
 .balance b{font-family:var(--display);font-size:19px;color:var(--gold);line-height:1}
 .balance span{font-family:var(--serif);font-size:10px;color:var(--muted)}
 
+/* 中獎跑馬燈（頂列左側，循環彈出匿名中獎資訊） */
+.winticker{flex:1;min-width:0;display:flex;align-items:center;height:34px;overflow:hidden;
+  background:rgba(245,243,238,.8);border:1px solid rgba(161,98,7,.2);border-radius:999px;
+  padding:0 12px;margin-right:10px;box-shadow:var(--shadow)}
+.wt-msg{font-family:var(--serif);font-size:12px;font-weight:600;color:var(--gold);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.wt-msg.in{animation:wtIn .5s cubic-bezier(.2,.9,.2,1)}
+@keyframes wtIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){ .wt-msg.in{animation:none} }
+
 /* ===== WHEEL screen ===== */
 .wheel-head{text-align:center;margin-bottom:6px}
 .invested{font-family:var(--serif);font-size:14px;color:var(--ink);letter-spacing:.08em}
@@ -199,11 +209,15 @@ img{display:block;max-width:100%}
   padding:7px 13px;backdrop-filter:blur(3px)}
 #reset-btn:active{transform:scale(.95)}
 /* 個資同意勾選 */
-.pf-terms{text-align:left;font-family:var(--sans);font-size:11px;color:var(--muted);line-height:1.7;
-  background:#faf7f0;border:1px solid rgba(161,98,7,.18);border-radius:10px;padding:10px 12px;margin:2px 0 12px;max-height:120px;overflow:auto}
-.pf-consent{display:flex;align-items:flex-start;gap:9px;text-align:left;margin:0 0 9px;cursor:pointer}
-.pf-consent input{width:20px;height:20px;flex:none;margin-top:1px;accent-color:var(--gold)}
-.pf-consent span{font-family:var(--serif);font-size:14px;color:var(--ink);line-height:1.4}
+.pf-terms{text-align:left;font-family:var(--sans);font-size:11px;color:var(--muted);line-height:1.6;
+  background:#faf7f0;border:1px solid rgba(161,98,7,.18);border-radius:10px;padding:10px 12px;margin:2px 0 12px;max-height:150px;overflow:auto}
+.pf-terms p{margin:0 0 7px}
+.pf-terms p:last-child{margin:0}
+.pf-terms b{color:var(--ink)}
+.pf-consent{display:flex;align-items:flex-start;gap:9px;text-align:left;margin:0 0 10px;cursor:pointer}
+.pf-consent input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--gold)}
+.pf-consent span{font-family:var(--serif);font-size:13px;color:var(--ink);line-height:1.5}
+.pf-optnote{text-align:left;font-family:var(--sans);font-size:11px;color:var(--gold);margin:8px 0 0}
 /* 可點的提示列（導向任務頁） */
 /* 任務頁 */
 .task-back{font-family:var(--serif);font-size:15px;color:var(--gold);padding:4px 6px}
@@ -341,7 +355,7 @@ img{display:block;max-width:100%}
   <!-- ===== WHEEL ===== -->
   <section id="wheel" class="screen active">
     <div class="topbar">
-      <div class="brand">InterCoins<small>洲遊幣</small></div>
+      <div class="winticker" id="winticker"><span class="wt-msg" id="wt-msg"></span></div>
       <div class="balance"><img src="assets/coin.png" alt="洲遊幣"><b id="bal-wheel">0</b><span>洲遊幣</span></div>
     </div>
 
@@ -415,11 +429,22 @@ img{display:block;max-width:100%}
       <div class="pf-field"><label>姓名</label><input id="pf-name" type="text" placeholder="您的姓名"></div>
       <div class="pf-field"><label>手機</label><input id="pf-phone" type="tel" placeholder="09xx-xxx-xxx"></div>
       <div class="pf-field"><label>Email</label><input id="pf-email" type="email" placeholder="you@example.com"></div>
-      <div class="pf-terms">【範例條款，須法務核定】本人同意 洲際酒店 於本次中秋活動蒐集、處理及利用上述個人資料，作為活動聯繫、會員服務及後續<b>廣告行銷</b>之用途，期間至活動結束後之合理期間；本人瞭解可隨時來函要求查詢、更正或停止利用（撤回同意）。</div>
-      <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我同意提供予【高雄洲際酒店】作廣告行銷使用</span></label>
-      <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意提供予【臺北洲際酒店】作廣告行銷使用</span></label>
+      <div class="pf-terms">
+        <p><b>個人資料蒐集告知（個資法第 8 條）</b>　版本 v0.1（草稿）</p>
+        <p><b>【蒐集者】</b>本活動由下列二家公司各自為蒐集者，各自獨立蒐集、處理及利用您所提供之個人資料；您同意提供予哪一家，該公司始取得您的資料，未經勾選之公司不會取得。<br>・高雄洲際酒店（公司全名【待填】／統編【待填】）<br>・臺北洲際酒店（公司全名【待填】／統編【待填】）</p>
+        <p><b>【蒐集目的】</b>會員管理(052)、消費者/客戶管理與服務(090)、行銷(040)、調查統計與研究分析(157，含會員分析、貼標與個人化推薦)。</p>
+        <p><b>【個資類別】</b>辨識個人者(C001)：姓名、行動電話、電子郵件；及您透過 LINE 登入之 userID、顯示名稱。</p>
+        <p><b>【利用期間】</b>自您同意時起，至您撤回同意、請求刪除，或該酒店停止相關營業時止（本公司並將定期檢視保存必要性）。</p>
+        <p><b>【利用地區】</b>中華民國境內，及本公司資料實際儲存與處理所在地區。本活動使用外部雲端 Supabase（伺服器位於<b>日本東京</b>）儲存處理，即涉及國際傳輸，您同意本告知範圍內之利用。</p>
+        <p><b>【利用對象／方式】</b>您勾選同意之酒店本身，及必要之受託處理者(雲端服務商 Supabase 等，本公司盡監督義務)；以 EDM、簡訊、LINE 推播、電話進行活動聯繫與行銷，並可能自動化進行會員分析與個人化推薦。未勾選之另一家酒店不取得您的資料。</p>
+        <p><b>【您的權利】</b>得請求查詢、閱覽、複製、補充更正、停止蒐集處理利用、刪除，並得隨時撤回同意（分店可獨立撤回）。</p>
+        <p><b>【不同意之影響】</b>是否提供資料與同意行銷均由您自由選擇。<b>若不同意行銷，仍可參加本活動及抽獎</b>，可透過活動任務等其他方式取得洲遊幣；不同意僅無法以「填資料領幣」取得該枚洲遊幣、且不會收到行銷資訊。</p>
+      </div>
+      <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我同意提供予【高雄洲際酒店（公司全名待填）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
+      <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意提供予【臺北洲際酒店（公司全名待填）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
       <button id="pf-submit" type="button">送出 · 領取 1 枚洲遊幣</button>
-      <div class="pf-note">【原型示意】資料不會儲存於真實資料庫；正式上線之個資蒐集、條款文字與同意記錄須經法務／資安審核並走安全後端。</div>
+      <div class="pf-optnote">未勾選行銷同意亦可參加活動與抽獎，取得方式詳見活動規則。</div>
+      <div class="pf-note">【AI 草稿・原型示意】資料不會存入正式資料庫；上方條款為 v0.1 草稿（含【待填】欄位），第一至四節文字、同意紀錄機制、撤回流程與委外協議均須經<b>法務／資安審核</b>後始可對外。</div>
     </div>
   </div>
 
@@ -821,7 +846,7 @@ $('#pf-submit').addEventListener('click',()=>{
   // 原型：記錄該筆同意（含勾選哪款）到 localStorage 當資料庫替身；正式版走安全後端
   S.leads=S.leads||[];
   S.leads.push({ name:$('#pf-name').value, phone:$('#pf-phone').value, email:$('#pf-email').value,
-    consentKH:kh, consentTP:tp, ts:new Date().toISOString() });
+    consentKH:kh, consentTP:tp, consentVersion:'v0.1', ts:new Date().toISOString() });
   S.done.profile=1; S.balance++; save();
   $('#profile-modal').classList.remove('show');
   renderProfileCard(); renderBalance(); renderStack();
@@ -837,9 +862,37 @@ $('#reward').addEventListener('click',()=>{ clearTimeout(rwT); $('#reward').clas
 /* 右下角歸零（原型測試用）：清資料重載 */
 $('#reset-btn').addEventListener('click',()=>{ localStorage.removeItem(LS); location.reload(); });
 
+/* ---------- 中獎跑馬燈（匿名、循環彈出） ----------
+   ⚠️ 原型無後端：以下為「示意名單」＋本機真實中獎(S.won)。
+   正式版把 fetchWinners() 改為讀後端 API（例：fetch('/api/winners')），
+   且對外顯示之中獎者須「匿名化 + 取得同意」（法務／資安）。 */
+const DEMO_WINNERS=[
+  {name:'林ＯＯ',prize:'豪華客房住宿券一晚'},
+  {name:'陳ＯＯ',prize:'雙人晚宴'},
+  {name:'王ＯＯ',prize:'精品月餅禮盒'},
+  {name:'張ＯＯ',prize:'雙人下午茶'},
+  {name:'李ＯＯ',prize:'紅酒 ×1 瓶'},
+  {name:'黃ＯＯ',prize:'咖啡兌換券'},
+  {name:'吳ＯＯ',prize:'洲賀熊 ×1 隻'},
+];
+function fetchWinners(){
+  // 本機真實中獎(S.won)併入最前（示意；正式版改讀 DB/API）
+  const local=(S.won||[]).slice(0,3).filter(w=>!/銘謝惠顧|再接再厲/.test(w.prize))
+    .map(w=>({name:'幸運玩家',prize:w.prize}));
+  return [...local, ...DEMO_WINNERS];
+}
+let winIdx=0, winTimer;
+function tickWinners(){
+  const list=fetchWinners(), el=$('#wt-msg'); if(!el||!list.length) return;
+  const w=list[winIdx%list.length]; winIdx++;
+  el.textContent=`🏆 ${w.name} 抽中 ${w.prize}`;
+  el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
+}
+function startWinners(){ tickWinners(); clearInterval(winTimer); winTimer=setInterval(tickWinners, 4000); }
+
 /* ---------- init ---------- */
 applyTier();        // 初始＝一等獎（tierDeg=0），buildRing + updateInvested
-renderBalance(); renderStack(); renderProfileCard(); positionBrowse();
+renderBalance(); renderStack(); renderProfileCard(); positionBrowse(); startWinners();
 
 /* ---------- three.js 金幣（支援 WebGL 才載入；失敗→退回 CSS） ---------- */
 function buildThreeCoins(THREE, RoomEnvironment){
