@@ -1,2 +1,5 @@
 # Large Photoshop source files are kept locally and are not published to GitHub.
 00_Image/*.psd
+
+# Local Cloudflare Wrangler state.
+.wrangler/
