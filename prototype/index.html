@@ -257,10 +257,12 @@ img{display:block;max-width:100%}
 @media (prefers-reduced-motion:reduce){ #profile-card{animation:none}
   #draw-btn:not(:disabled),.tier-aura.show,#tier-hit.canup,#tier-hint.show,.disc-slot.swallow{animation:none} }
 /* 個資表單關閉鈕 */
-#profile-modal .card{position:relative}
-.pf-close{position:absolute;top:6px;right:6px;width:40px;height:40px;border-radius:50%;
-  font-size:17px;color:var(--muted);display:grid;place-items:center}
-.pf-close:active{background:rgba(43,38,32,.08)}
+#profile-modal .card{position:relative;padding-top:34px}
+/* .card button.pf-close 特意提高特異性，覆蓋 .card button 的滿版金底樣式 */
+.card button.pf-close{position:absolute;top:8px;right:8px;width:40px;height:40px;margin:0;padding:0;
+  border-radius:50%;background:transparent;color:var(--muted);font-size:18px;font-weight:400;
+  box-shadow:none;display:grid;place-items:center;z-index:2}
+.card button.pf-close:active{transform:none;background:rgba(43,38,32,.08)}
 
 /* 金幣獎勵動畫（個資送出） */
 .reward{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
