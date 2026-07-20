@@ -69,6 +69,11 @@ img{display:block;max-width:100%}
   box-shadow:0 6px 18px rgba(161,98,7,.4),inset 0 1px 0 rgba(255,255,255,.4);transition:.2s}
 .cta:disabled{background:linear-gradient(180deg,#d7d1c4,#bdb6a6);box-shadow:none;color:#f5f3ee}
 .cta:not(:disabled):active{transform:scale(.98)}
+/* 常駐次要引導鈕（去任務頁賺幣）：金字描邊，不與主 CTA 搶階層 */
+.earn-link{width:100%;font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.06em;
+  color:var(--gold);background:transparent;border:1px solid rgba(147,93,8,.35);border-radius:12px;padding:12px}
+.earn-link:active{transform:scale(.98);background:rgba(147,93,8,.06)}
+.earn-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 
 /* coin wallet — 純 CSS 3D 旋轉金幣（跨平台穩定；拖進投幣口投入、可新增） */
 .wallet{position:relative;margin:0;text-align:center}
@@ -362,6 +367,8 @@ img{display:block;max-width:100%}
       </button>
 
       <button class="cta" id="spin-btn" type="button">投幣後開始抽獎</button>
+      <!-- 常駐引導：隨時去任務頁賺更多洲遊幣、抽更大獎 -->
+      <button class="earn-link" id="earn-link" type="button">去賺洲遊幣，抽洲際好禮 →</button>
 
       <div class="wallet">
         <div class="stack-label">可投入 <b id="stack-n">0</b> 枚洲遊幣 · 點金幣或拖進投幣口投入</div>
@@ -605,14 +612,14 @@ function updateInvested(){
       : `已投入 ${S.invested} 枚 · 再投 ${cost-S.invested} 枚抽${TIER_RN[selTier]}`;
     positionDrawBtn();
   }
-  // 上方大 CTA＝智慧引導鈕（與浮鈕分工）：可抽→抽獎；有幣→投一枚（兼鍵盤投幣路徑）；沒幣→去賺幣
+  // 上方大 CTA（與浮鈕分工）：可抽→抽獎；有幣→投一枚（兼鍵盤投幣路徑）；沒幣→停用提示投幣
+  //（「去賺洲遊幣」已獨立為下方常駐 #earn-link 引導鈕）
   const cta=$('#spin-btn');
   if(cta && !spinning){
     const avail=S.balance-S.invested;
-    cta.disabled=false;
-    if(ok){ cta.dataset.mode='spin'; cta.textContent=`開始抽獎 · 抽${TIER_RN[selTier]}`; }
-    else if(avail>0){ cta.dataset.mode='deposit'; cta.textContent=`投入 1 枚洲遊幣（再 ${cost-S.invested} 枚抽${TIER_RN[selTier]}）`; }
-    else { cta.dataset.mode='earn'; cta.textContent='去賺洲遊幣，抽洲際好禮 →'; }
+    if(ok){ cta.disabled=false; cta.dataset.mode='spin'; cta.textContent=`開始抽獎 · 抽${TIER_RN[selTier]}`; }
+    else if(avail>0){ cta.disabled=false; cta.dataset.mode='deposit'; cta.textContent=`投入 1 枚洲遊幣（再 ${cost-S.invested} 枚抽${TIER_RN[selTier]}）`; }
+    else { cta.disabled=true; cta.dataset.mode='none'; cta.textContent='投幣後開始抽獎'; }
   }
   // 能抽更高等級時，等級章脈動提示可升等
   const hit=$('#tier-hit'); if(hit) hit.classList.toggle('canup', bestAffordableTier()>selTier);
@@ -740,10 +747,12 @@ function depositOne(){
 $('#draw-btn').addEventListener('click',()=>spin());
 $('#spin-btn').addEventListener('click',()=>{
   const mode=$('#spin-btn').dataset.mode;
+  if(mode==='none') return;
   if(mode==='deposit'){ depositOne(); return; }
-  if(mode==='earn'){ renderTasks(); showScreen('tasks'); return; }
   spin();
 });
+// 常駐引導鈕：去任務頁賺更多洲遊幣
+$('#earn-link').addEventListener('click',()=>{ renderTasks(); showScreen('tasks'); });
 
 /* ╔═══ 🛠 轉盤控制（等級盤＝抽獎等級選擇；獎項盤＝Layer5 對位） ═══╗
    等級盤僅 0°/30°/60° 三段＝徽章 I/II/III＝tier 1/3/5；切換即換盤面獎項。
