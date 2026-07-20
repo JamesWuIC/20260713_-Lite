@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual">
 <title>洲遊幣 Lite · InterCoins</title>
 <link rel="icon" type="image/png" href="assets/coin.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -254,9 +254,11 @@ img{display:block;max-width:100%}
 /* 個資表單欄位 */
 .pf-field{text-align:left;margin:0 0 10px}
 .pf-field label{display:block;font-family:var(--serif);font-size:12px;color:var(--muted);margin-bottom:4px}
-.pf-field input{width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);
+.pf-field input{width:100%;font-family:var(--sans);font-size:16px;color:var(--ink);
   background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:10px;padding:10px 12px}
-.pf-field input:focus{border-color:var(--gold)}
+/* 單一金環（border+同色 ring 貼合），避免 outline 與圓角框形成雙層框 */
+.pf-field input:focus{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.pf-field input:focus-visible{outline:none}
 .pf-note{font-family:var(--sans);font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
 .card button.ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid rgba(138,132,119,.4);margin-top:8px}
 @media (prefers-reduced-motion:reduce){ .hint-link,.hint-link::after,#profile-card{animation:none}
@@ -289,11 +291,12 @@ img{display:block;max-width:100%}
 }
 
 /* result modal */
-.modal{position:fixed;inset:0;background:rgba(30,26,20,.55);display:none;align-items:center;justify-content:center;
-  z-index:50;padding:24px;backdrop-filter:blur(3px)}
+/* 卡片以 margin:auto 置中；高過視窗（如手機鍵盤彈出）時整層可捲動，送出鈕不會被裁掉 */
+.modal{position:fixed;inset:0;background:rgba(30,26,20,.55);display:none;
+  z-index:50;padding:24px;backdrop-filter:blur(3px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .modal.show{display:flex;animation:fade .3s}
 @keyframes fade{from{opacity:0}}
-.card{width:100%;max-width:320px;background:var(--surface);border-radius:22px;padding:28px 24px;text-align:center;
+.card{width:100%;max-width:320px;margin:auto;background:var(--surface);border-radius:22px;padding:28px 24px;text-align:center;
   border:1px solid rgba(161,98,7,.3);box-shadow:0 20px 50px rgba(0,0,0,.4);animation:pop .35s cubic-bezier(.2,1.3,.5,1)}
 @keyframes pop{from{transform:scale(.85);opacity:0}}
 .card .win-lbl{font-family:var(--serif);font-size:13px;color:var(--muted);letter-spacing:.2em}
@@ -910,8 +913,8 @@ function tickWinners(){
 function startWinners(){ tickWinners(); clearInterval(winTimer); winTimer=setInterval(tickWinners, 4000); }
 
 /* ---------- init ---------- */
-// 預設等級＝目前洲遊幣負擔得起的等級（新用戶從三等獎開始，不會一進來就「再投5枚」）
-tierDeg = S.balance>=5 ? 0 : S.balance>=3 ? 30 : 60;
+// 預設等級＝三等獎（2026-07-20 使用者實測後定案：一律從最低門檻開始，點徽章升等）
+tierDeg = 60;
 { const lvl0=LEVEL_BY_TIER[TIER_BY_DEG[tierDeg]];
   if(lvl0!==curLevel){ curLevel=lvl0;                     // 初始直接換圖，不走發光轉場
     DISC_LAYERS.forEach(([sel,name])=>{ $(sel).src=`assets/L${lvl0}/${name}.png`; }); } }
