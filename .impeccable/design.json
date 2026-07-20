@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-20T05:45:00+08:00",
+  "title": "Design System: 洲遊幣 Lite · InterCoins",
+  "extensions": {
+    "colorMeta": {
+      "gilt-gold":     { "role": "primary", "displayName": "深燙金 Gilt Gold", "canonical": "#935D08", "tonalRamp": ["#2B1B02","#4A2F04","#6E4506","#935D08","#B37F26","#C99A3B","#E3C077","#F4E3B8"] },
+      "foil-bright":   { "role": "primary", "displayName": "金箔亮 Foil Bright", "canonical": "#C99A3B", "tonalRamp": ["#3A2A0C","#5C4415","#8A671F","#C99A3B","#D8B160","#E4C688","#EFDCB4","#F8EFDC"] },
+      "pill-gold-hi":  { "role": "secondary", "displayName": "亮金膠囊 Pill Gold", "canonical": "#F6D989", "tonalRamp": ["#4A3A12","#7A5F1E","#B08A2E","#DCA948","#E9C066","#F6D989","#FAE6AE","#FDF3D8"] },
+      "seal-red":      { "role": "tertiary", "displayName": "印泥紅 Seal Red", "canonical": "#B4471F", "tonalRamp": ["#33130700","#5C2410","#883418","#B4471F","#C86A45","#DA8F70","#EAB7A2","#F6DCD1"] },
+      "stamped-paper": { "role": "neutral", "displayName": "壓印紙 Stamped Paper", "canonical": "#EDEBE6", "tonalRamp": ["#2B2620","#55504A","#807A72","#ABA49A","#C8C2B8","#DDD9D1","#EDEBE6","#F8F7F4"] },
+      "silk-surface":  { "role": "neutral", "displayName": "絹面 Silk Surface", "canonical": "#F5F3EE", "tonalRamp": ["#2B2620","#55504A","#807A72","#ABA49A","#CCC7BE","#E3DFD7","#F5F3EE","#FCFBF9"] },
+      "ink":           { "role": "neutral", "displayName": "墨 Ink", "canonical": "#2B2620", "tonalRamp": ["#14110D","#2B2620","#453E35","#5F574C","#7A7165","#968D80","#B3AB9F","#D2CCC2"] },
+      "stone-ink":     { "role": "neutral", "displayName": "石墨 Stone Ink（4.8:1 驗算下限）", "canonical": "#6B665B", "tonalRamp": ["#1E1B16","#332F28","#4A453C","#6B665B","#847E71","#9E988A","#BAB4A6","#D6D1C6"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display（Cormorant Garamond）", "purpose": "數字與 InterCoins 拉丁標字專用；不排中文。" },
+      "headline": { "displayName": "Headline（Noto Serif TC 28px）", "purpose": "開獎彈窗獎品名——全介面最大中文字，只給獎品。" },
+      "title": { "displayName": "Title（Noto Serif TC 600-700）", "purpose": "CTA、卡片標題；儀式標籤用全形空格分字。" },
+      "body": { "displayName": "Body（Inter）", "purpose": "表單與法務條款；12px 為下限。" },
+      "label": { "displayName": "Label（Noto Serif TC 600 12-13px）", "purpose": "提示、跑馬燈、狀態小字。" }
+    },
+    "shadows": [
+      { "name": "ambient", "value": "0 6px 24px rgba(43,38,32,.14)", "purpose": "卡片/膠囊的紙上環境影（token --shadow）。" },
+      { "name": "gold-glow", "value": "0 6px 18px rgba(161,98,7,.45)", "purpose": "CTA 與抽獎浮鈕；帶金的影＝可行動。" },
+      { "name": "sheet", "value": "0 20px 50px rgba(0,0,0,.4)", "purpose": "開獎/表單彈窗，儀式時刻最重投影。" }
+    ],
+    "motion": [
+      { "name": "wheel-spin", "value": "5.4s cubic-bezier(.13,.72,.16,1)", "purpose": "抽獎收格；rAF 疊加 easeOutCubic。" },
+      { "name": "idle-rotate", "value": "8deg/s linear (rAF)", "purpose": "轉盤常態慢轉；reduced-motion 時停轉。" },
+      { "name": "modal-pop", "value": ".35s cubic-bezier(.2,1.3,.5,1)", "purpose": "彈窗入場（歷史特例的輕微 overshoot，不再擴散）。" },
+      { "name": "card-pulse", "value": "1.8s ease-in-out infinite", "purpose": "金色任務卡呼吸光；reduced-motion 關閉。" }
+    ],
+    "breakpoints": [
+      { "name": "app-max", "value": "430px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "智慧 CTA",
+      "kind": "button",
+      "refersTo": "button-cta",
+      "description": "永遠可按的主 CTA：文案隨狀態切換（去賺幣→投幣→開始抽獎→抽獎中…），禁止長期灰態。",
+      "html": "<button class=\"ds-btn-cta\">開始抽獎 · 抽一等獎</button>",
+      "css": ".ds-btn-cta{width:100%;font-family:'Noto Serif TC',serif;font-weight:700;font-size:19px;letter-spacing:.12em;color:#fff;background:linear-gradient(180deg,#c99a3b,#9c6410);border-radius:14px;padding:16px;border:none;box-shadow:0 6px 18px rgba(161,98,7,.4),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .2s;cursor:pointer}.ds-btn-cta:active{transform:scale(.98)}.ds-btn-cta:focus-visible{outline:2px solid #C99A3B;outline-offset:2px}"
+    },
+    {
+      "name": "抽獎浮鈕",
+      "kind": "button",
+      "refersTo": "button-draw-pill",
+      "description": "浮在投幣口上方的行動膠囊；亮金底深棕字（7.4:1），idle 浮動。",
+      "html": "<button class=\"ds-btn-draw\">已投入 5 枚 · 抽一等獎 →</button>",
+      "css": ".ds-btn-draw{font-family:'Noto Serif TC',serif;font-weight:700;font-size:16px;letter-spacing:.05em;color:#5a3a08;background:linear-gradient(180deg,#f6d989,#dca948);border:1px solid rgba(161,98,7,.6);border-radius:999px;padding:11px 22px;box-shadow:0 6px 18px rgba(161,98,7,.5);cursor:pointer}.ds-btn-draw:disabled{background:linear-gradient(180deg,#e7e1d4,#c9c1af);color:#5F5A4F;border-color:rgba(138,132,119,.4);box-shadow:none}.ds-btn-draw:focus-visible{outline:2px solid #C99A3B;outline-offset:2px}"
+    },
+    {
+      "name": "金色任務卡",
+      "kind": "card",
+      "refersTo": "card-gold-task",
+      "description": "「會給你洲遊幣」的入口卡；亮金漸層＋呼吸光。",
+      "html": "<button class=\"ds-card-task\"><span class=\"ds-card-task-t\">填寫個人資料</span><span class=\"ds-card-task-s\">領取你的第一枚洲遊幣 →</span></button>",
+      "css": ".ds-card-task{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;background:linear-gradient(180deg,#fbeecb,#e6c877);border:1px solid rgba(161,98,7,.5);border-radius:14px;padding:12px;box-shadow:0 6px 18px rgba(161,98,7,.3);cursor:pointer}.ds-card-task-t{font-family:'Noto Serif TC',serif;font-weight:700;font-size:17px;color:#5a3a08;letter-spacing:.06em}.ds-card-task-s{font-family:'Noto Serif TC',serif;font-size:13px;color:#7a5410}.ds-card-task:active{transform:scale(.99)}"
+    },
+    {
+      "name": "餘額膠囊",
+      "kind": "chip",
+      "refersTo": "pill-balance",
+      "description": "頂欄洲遊幣餘額；絹面底＋金細框＋Cormorant 數字。",
+      "html": "<div class=\"ds-pill-bal\"><span class=\"ds-pill-bal-coin\"></span><b>5</b><span>洲遊幣</span></div>",
+      "css": ".ds-pill-bal{display:inline-flex;align-items:center;gap:6px;background:#F5F3EE;border:1px solid rgba(147,93,8,.28);border-radius:999px;padding:5px 12px 5px 6px;box-shadow:0 6px 24px rgba(43,38,32,.14)}.ds-pill-bal-coin{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F6D989,#C99A3B 60%,#935D08)}.ds-pill-bal b{font-family:'Cormorant Garamond',Georgia,serif;font-size:19px;color:#935D08;line-height:1}.ds-pill-bal span:last-child{font-family:'Noto Serif TC',serif;font-size:10px;color:#6B665B}"
+    },
+    {
+      "name": "表單欄位",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "白底金框輸入欄；focus 轉實金＋鍵盤外圈。",
+      "html": "<label class=\"ds-field\"><span>姓名</span><input type=\"text\" placeholder=\"您的姓名\"></label>",
+      "css": ".ds-field{display:block;text-align:left}.ds-field span{display:block;font-family:'Noto Serif TC',serif;font-size:12px;color:#6B665B;margin-bottom:4px}.ds-field input{width:100%;font-family:Inter,system-ui,sans-serif;font-size:15px;color:#2B2620;background:#fff;border:1px solid rgba(147,93,8,.3);border-radius:10px;padding:10px 12px}.ds-field input:focus{border-color:#935D08}.ds-field input:focus-visible{outline:2px solid #C99A3B;outline-offset:2px}"
+    },
+    {
+      "name": "開獎彈窗卡",
+      "kind": "card",
+      "refersTo": "card-result",
+      "description": "儀式時刻的絹面卡：全形空格標籤＋28px 獎品名＋等級標籤。",
+      "html": "<div class=\"ds-card-win\"><div class=\"ds-win-lbl\">恭 喜 中 獎</div><div class=\"ds-win-prize\">雙人下午茶</div><span class=\"ds-win-tier\">一等獎</span><button class=\"ds-win-btn\">收下獎品</button></div>",
+      "css": ".ds-card-win{width:100%;max-width:320px;background:#F5F3EE;border-radius:22px;padding:28px 24px;text-align:center;border:1px solid rgba(147,93,8,.3);box-shadow:0 20px 50px rgba(0,0,0,.4)}.ds-win-lbl{font-family:'Noto Serif TC',serif;font-size:13px;color:#6B665B;letter-spacing:.2em}.ds-win-prize{font-family:'Noto Serif TC',serif;font-size:28px;font-weight:700;color:#935D08;margin:10px 0 6px}.ds-win-tier{display:inline-block;font-family:'Cormorant Garamond',serif;font-weight:700;color:#fff;background:#935D08;border-radius:999px;padding:3px 14px;font-size:13px;letter-spacing:.1em}.ds-win-btn{margin-top:20px;width:100%;font-family:'Noto Serif TC',serif;font-weight:600;font-size:16px;color:#fff;background:#935D08;border:none;border-radius:12px;padding:13px;cursor:pointer}.ds-win-btn:active{transform:scale(.97)}.ds-win-btn:focus-visible{outline:2px solid #C99A3B;outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "燙金月餅禮盒（The Gilt Gift Box）",
+    "overview": "整個介面是一只五星飯店送出的中秋禮盒：壓印紙紋做底、金箔燙印做飾、禮賓員語氣做聲音。視覺主體是六層同心燙金轉盤（金/銀/銅三套等級盤面），UI chrome 退居襯托：低彩度紙面、絹面卡片、只在儀式時刻（投幣、旋轉、開獎）放大的動畫投資。明確拒絕：制式電商活動頁（高彩度紅黃雙11風）、廉價手遊抽獎風（螢光色爆炸貼紙）、過度嚴肅的企業官網風。奢華為骨、玩心為點綴。",
+    "keyCharacteristics": [
+      "壓印紙底 × 燙金箔飾：材質感由真實分層美術承載，不靠 CSS 特效模擬",
+      "單手直立手機、單屏鎖定（轉盤釘底出血是刻意的固定比例）",
+      "三個儀式時刻動畫加倍投資，其餘保持安靜",
+      "全獎盤：每格都是獎，不存在銘謝惠顧的品牌傷害時刻"
+    ],
+    "rules": [
+      { "name": "The Foil-Is-Earned Rule", "body": "金色漸層與發光只出現在可行動或儀式時刻的元素上；靜態資訊不鍍金——金一旦到處都是，就不再是燙金。", "section": "colors" },
+      { "name": "The Contrast Floor Rule", "body": "內文與資訊性小字一律 ≥4.5:1（#6B665B／#935D08 是已驗算下限）；只有純裝飾的盤面美術字允許 ≥3:1 大字例外。", "section": "colors" },
+      { "name": "The Ceremony Spacing Rule", "body": "儀式性標籤用全形空格分字（恭 喜 中 獎），僅限四～六字的彈窗標籤；內文禁止。", "section": "typography" },
+      { "name": "The Glow-Means-Go Rule", "body": "帶金色的陰影＝可點擊的邀請；灰影元素不承諾互動。", "section": "elevation" }
+    ],
+    "dos": [
+      "Do 讓每一枚洲遊幣的獲得與投入都有即時回饋（震動＋吞幣＋閃光）",
+      "Do 在投幣、旋轉、開獎三個儀式時刻加倍動畫投資；其餘介面保持安靜",
+      "Do 用已驗算的對比色值：#6B665B（次要字）、#935D08（金字）、12px（法務字下限）",
+      "Do 為每個動畫提供 prefers-reduced-motion 替代（含浮動、光暈、脈動）",
+      "Do 保持全獎盤——虛擬獎（洲遊幣 +N）直接入帳並明說「已存入你的錢包」"
+    ],
+    "donts": [
+      "Don't 做成「制式電商活動頁」：高彩度紅黃、硬推銷橫幅、雙 11 風",
+      "Don't 做成「廉價手遊抽獎風」：螢光色、爆炸貼紙、倒數計時壓迫感",
+      "Don't 冷到像「飯店官網的企業風」——禮賓員會陪你玩，不會板著臉",
+      "Don't 使用 #8A8477 舊灰或任何 <4.5:1 的內文色；不縮法務條款字級到 12px 以下",
+      "Don't 讓主 CTA 停在灰色 disabled 態——永遠給使用者下一步",
+      "Don't 出現「銘謝惠顧／再接再厲」或對輸局說「恭喜中獎」；不給虛擬獎發兌換碼",
+      "Don't 側邊粗色條、gradient text、玻璃擬態、bounce 彈跳新增動畫"
+    ]
+  }
+}

@@ -16,8 +16,8 @@
 </script>
 <style>
 :root{
-  --gold:#A16207; --gold-bright:#C99A3B; --gold-line:#B8860B;
-  --bg:#EDEBE6; --surface:#F5F3EE; --ink:#2B2620; --muted:#8A8477;
+  --gold:#935D08; --gold-bright:#C99A3B; --gold-line:#B8860B;
+  --bg:#EDEBE6; --surface:#F5F3EE; --ink:#2B2620; --muted:#6B665B;
   --danger:#B4471F; --shadow:0 6px 24px rgba(43,38,32,.14);
   --serif:"Noto Serif TC",serif; --display:"Cormorant Garamond",serif; --sans:"Inter",system-ui,sans-serif;
 }
@@ -25,6 +25,7 @@
 html,body{height:100%}
 body{font-family:var(--sans);background:#d8d4cb;color:var(--ink);display:flex;justify-content:center}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 img{display:block;max-width:100%}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
@@ -72,7 +73,7 @@ img{display:block;max-width:100%}
 
 /* coin wallet — 純 CSS 3D 旋轉金幣（跨平台穩定；拖進投幣口投入、可新增） */
 .wallet{position:relative;margin:3px 0 0;text-align:center}
-.stack-label{font-family:var(--serif);font-size:12px;color:var(--muted);letter-spacing:.1em}
+.stack-label{font-family:var(--serif);font-size:12px;color:var(--muted);letter-spacing:.04em}
 .need-hint{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.06em;margin-top:3px;min-height:18px}
 #coin-stack{position:relative;height:92px;margin:4px 0;perspective:640px}
 .coin-wrap{position:absolute;top:14px;width:66px;height:66px;margin-left:-33px;
@@ -107,12 +108,12 @@ img{display:block;max-width:100%}
        • 左右 --wheel-x   ：50%=水平置中；<50 往左、>50 往右
      ─────────── 顯示視窗（底部出血設計）───────────
        • 舞台高 --stage-h：舞台釘在畫面底部，只露出轉盤上方這個高度，
-         其餘下緣自然被畫面底邊裁切（=截圖比例）。73vw≈露出轉盤上方78%。
-         調大→露更多；調 94vw→整顆全露不裁切。
+         其餘下緣自然被畫面底邊裁切（=介面模擬圖比例）。
+         連動規則：stage-h ≈ wheel-size × 0.73（維持露出轉盤上方約73%）。
      ╚════════════════════════════════════════════════════════════╝ */
-  --wheel-size:   94%;    /* 轉盤寬度（各尺寸維持等比） */
+  --wheel-size:  126%;    /* 轉盤寬度：依 20260713_介面模擬圖 放大 1.34×，左右出血 */
   --wheel-x:      50%;    /* 轉盤中心 左右（0%~100%，50=正中） */
-  --stage-h: min(73vw, 314px);  /* 顯示轉盤上方約78%，底部出血（#app 上限430→cap 314px） */
+  --stage-h: min(92vw, 396px);  /* 126%×0.73≈92vw；#app 上限 430 → cap 396px */
 
   --label-size:  46px;    /* 獎品金字大小上限（1920 座標系） */
   /* Z軸（數字大=上層）— 依 PSD 疊序 */
@@ -149,7 +150,7 @@ img{display:block;max-width:100%}
 /* 獎品直書金字層：獨立、不隨盤旋轉；由 renderLabels() 依盤面角重繪，字恆正立 */
 .dl-labels{z-index:var(--z-labels);transform-origin:50% 50%;will-change:transform}
 .dl-labels svg{width:100%;height:100%;overflow:visible}
-.seg-label{font-family:var(--serif);font-weight:600;fill:#B8860B}
+.seg-label{font-family:var(--serif);font-weight:600;fill:#9C6B0E}
 /* 投幣口：頂端指針缺口位置 */
 .disc-slot{position:absolute;left:50%;top:7%;transform:translateX(-50%);
   width:25%;z-index:var(--z-slot);pointer-events:none}
@@ -163,7 +164,7 @@ img{display:block;max-width:100%}
   width:20%;aspect-ratio:1;border-radius:50%;background:transparent;border:none;
   z-index:8;cursor:pointer;pointer-events:auto}
 #tier-hit:active{background:rgba(255,255,255,.12)}
-#tier-hint{position:absolute;left:50%;top:1%;transform:translateX(-50%);
+#tier-hint{position:absolute;left:50%;top:29%;transform:translateX(-50%);
   z-index:8;pointer-events:none;white-space:nowrap;font-family:var(--serif);
   font-size:12px;font-weight:600;color:var(--gold);background:rgba(255,250,240,.94);
   border:1px solid rgba(161,98,7,.4);border-radius:999px;padding:3px 11px;
@@ -171,23 +172,8 @@ img{display:block;max-width:100%}
 #tier-hint.show{opacity:1;animation:hintPulse 1.1s ease-in-out infinite}
 @keyframes hintPulse{50%{transform:translateX(-50%) translateY(-3px)}}
 
-/* ╔═══ 🛠 轉盤控制面板（等級選擇 + 獎項盤對位；正式版可移除） ═══╗ */
+/* 等級盤旋轉轉場 */
 .dl-tier{transition:transform .3s ease;transform-origin:50% 50%}
-.tuner{display:none;   /* 🙈 暫時隱藏轉盤控制（刪掉這行 display:none 即恢復顯示） */
-  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:40;
-  width:min(402px,92vw);background:rgba(43,38,32,.93);color:#fff;border-radius:14px;
-  padding:11px 13px;box-shadow:0 8px 28px rgba(0,0,0,.42);backdrop-filter:blur(4px)}
-.tuner h6{font-size:11px;letter-spacing:.18em;color:#e8c98a;margin-bottom:9px;text-align:center;font-weight:700}
-.tuner-row{display:flex;align-items:center;gap:8px;margin:7px 0}
-.tuner-row .tl{flex:1;font-size:13px;font-family:var(--serif)}
-.tuner-row .tl b{color:#e8c98a;font-family:var(--sans)}
-.tuner-row .ang{font-family:var(--display);font-size:19px;font-weight:700;min-width:58px;text-align:center}
-.tuner-row button{width:42px;height:36px;border-radius:9px;background:rgba(255,255,255,.14);
-  color:#fff;font-size:17px;font-weight:700;border:1px solid rgba(255,255,255,.22)}
-.tuner-row button:active{background:rgba(255,255,255,.32)}
-.tuner .reset{width:100%;margin-top:6px;height:30px;border-radius:8px;font-size:12px;
-  background:rgba(255,255,255,.1);color:#e8c98a;border:1px solid rgba(255,255,255,.18)}
-/* ╚════════════════════════════════════════════════╝ */
 
 /* 已投入＋抽獎 合併浮鈕（浮在投幣口上方，取代主 CTA） */
 #draw-btn{position:absolute;z-index:46;transform:translate(-50%,-100%);white-space:nowrap;
@@ -196,7 +182,7 @@ img{display:block;max-width:100%}
   border-radius:999px;padding:11px 22px;box-shadow:0 6px 18px rgba(161,98,7,.5)}
 #draw-btn:not(:disabled){animation:drawFloat 1.6s ease-in-out infinite}
 #draw-btn:not(:disabled):active{filter:brightness(.94)}
-#draw-btn:disabled{background:linear-gradient(180deg,#e7e1d4,#c9c1af);color:#8a8477;border-color:rgba(138,132,119,.4);box-shadow:none}
+#draw-btn:disabled{background:linear-gradient(180deg,#e7e1d4,#c9c1af);color:#5F5A4F;border-color:rgba(138,132,119,.4);box-shadow:none}
 @keyframes drawFloat{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 6px))}}
 /* 一等獎持續發光光暈 */
 .tier-aura{position:absolute;inset:-8%;border-radius:50%;pointer-events:none;opacity:0;z-index:8;
@@ -208,12 +194,12 @@ img{display:block;max-width:100%}
 #tier-hit.canup{animation:canupPulse 1.2s ease-in-out infinite;border-radius:50%}
 @keyframes canupPulse{50%{box-shadow:0 0 0 6px rgba(233,193,112,.35)}}
 /* 右下角歸零（原型測試用，正式版移除） */
-#reset-btn{position:fixed;right:12px;bottom:12px;z-index:90;font-family:var(--sans);font-size:12px;
+#reset-btn{position:fixed;right:12px;bottom:12px;z-index:45;font-family:var(--sans);font-size:12px;
   color:#fff;background:rgba(43,38,32,.75);border:1px solid rgba(255,255,255,.2);border-radius:999px;
   padding:7px 13px;backdrop-filter:blur(3px)}
 #reset-btn:active{transform:scale(.95)}
 /* 個資同意勾選 */
-.pf-terms{text-align:left;font-family:var(--sans);font-size:11px;color:var(--muted);line-height:1.6;
+.pf-terms{text-align:left;font-family:var(--sans);font-size:12px;color:var(--muted);line-height:1.6;
   background:#faf7f0;border:1px solid rgba(161,98,7,.18);border-radius:10px;padding:10px 12px;margin:2px 0 12px;max-height:150px;overflow:auto}
 .pf-terms p{margin:0 0 7px}
 .pf-terms p:last-child{margin:0}
@@ -221,7 +207,7 @@ img{display:block;max-width:100%}
 .pf-consent{display:flex;align-items:flex-start;gap:9px;text-align:left;margin:0 0 10px;cursor:pointer}
 .pf-consent input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--gold)}
 .pf-consent span{font-family:var(--serif);font-size:13px;color:var(--ink);line-height:1.5}
-.pf-optnote{text-align:left;font-family:var(--sans);font-size:11px;color:var(--gold);margin:8px 0 0}
+.pf-optnote{text-align:left;font-family:var(--sans);font-size:12px;color:var(--gold);margin:8px 0 0}
 /* 可點的提示列（導向任務頁） */
 /* 任務頁 */
 .task-back{font-family:var(--serif);font-size:15px;color:var(--gold);padding:4px 6px}
@@ -237,7 +223,7 @@ img{display:block;max-width:100%}
   background:var(--gold);border-radius:999px;padding:9px 16px}
 .task-btn:disabled{background:#cdc6b8;color:#f5f3ee}
 .task-btn:not(:disabled):active{transform:scale(.96)}
-.task-note{font-family:var(--sans);font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
+.task-note{font-family:var(--sans);font-size:12px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
 /* 拖曳用 2D 幽靈幣（three 模式跨越畫面不被 canvas 裁切） */
 .coin-ghost{position:fixed;width:58px;height:58px;margin:-29px 0 0 -29px;pointer-events:none;z-index:70;
   transform:rotate(-90deg);filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));transition:none}
@@ -260,7 +246,7 @@ img{display:block;max-width:100%}
 .hint-link:active{transform:scale(.99)}
 /* 瀏覽獎品小按鈕（浮在轉盤底部） */
 /* 瀏覽獎品：純文字，浮在投幣口右側 */
-#browse-btn{position:absolute;z-index:44;background:none;border:none;padding:4px 2px;
+#browse-btn{position:absolute;z-index:44;background:none;border:none;padding:12px 8px;
   font-family:var(--serif);font-weight:600;font-size:13px;color:var(--gold);white-space:nowrap;
   text-shadow:0 1px 2px rgba(255,255,255,.6)}
 #browse-btn:disabled{opacity:.4}
@@ -270,10 +256,16 @@ img{display:block;max-width:100%}
 .pf-field label{display:block;font-family:var(--serif);font-size:12px;color:var(--muted);margin-bottom:4px}
 .pf-field input{width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);
   background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:10px;padding:10px 12px}
-.pf-field input:focus{outline:none;border-color:var(--gold)}
-.pf-note{font-family:var(--sans);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.6}
+.pf-field input:focus{border-color:var(--gold)}
+.pf-note{font-family:var(--sans);font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
 .card button.ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid rgba(138,132,119,.4);margin-top:8px}
-@media (prefers-reduced-motion:reduce){ .hint-link,.hint-link::after,#profile-card{animation:none} }
+@media (prefers-reduced-motion:reduce){ .hint-link,.hint-link::after,#profile-card{animation:none}
+  #draw-btn:not(:disabled),.tier-aura.show,#tier-hit.canup,#tier-hint.show,.disc-slot.swallow{animation:none} }
+/* 個資表單關閉鈕 */
+#profile-modal .card{position:relative}
+.pf-close{position:absolute;top:6px;right:6px;width:40px;height:40px;border-radius:50%;
+  font-size:17px;color:var(--muted);display:grid;place-items:center}
+.pf-close:active{background:rgba(43,38,32,.08)}
 
 /* 金幣獎勵動畫（個資送出） */
 .reward{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
@@ -369,13 +361,13 @@ img{display:block;max-width:100%}
       <span class="pc-s">領取你的第一枚洲遊幣 →</span>
     </button>
 
-    <button class="cta" id="spin-btn" type="button" disabled>投幣後開始抽獎</button>
+    <button class="cta" id="spin-btn" type="button">投幣後開始抽獎</button>
     <div class="hint-row">
       <button class="hint hint-link" id="tasks-link" type="button">累積更多洲遊幣，抽出更大獎項 ›</button>
     </div>
 
     <div class="wallet">
-      <div class="stack-label">您有 <b id="stack-n">0</b> 枚洲遊幣 · 點金幣或拖進投幣口投入</div>
+      <div class="stack-label">可投入 <b id="stack-n">0</b> 枚洲遊幣 · 點金幣或拖進投幣口投入</div>
       <div class="need-hint" id="need-hint"></div>
       <div id="coin-stack"></div>
     </div>
@@ -395,7 +387,9 @@ img{display:block;max-width:100%}
         <!-- 一等獎持續發光 -->
         <div class="tier-aura" id="tier-aura"></div>
         <!-- 頂端等級章：點擊切換等級 一→二→三 -->
-        <button id="tier-hit" type="button" aria-label="切換等級"></button>
+        <button id="tier-hit" type="button" aria-label="切換抽獎等級"></button>
+        <!-- 等級切換引導提示（首次進入顯示，點過徽章即收） -->
+        <div id="tier-hint" aria-hidden="true">↑ 點徽章切換獎項等級</div>
       </div>
       <!-- 瀏覽獎品：點一下轉到下一個獎品 -->
       <button id="browse-btn" type="button">瀏覽獎品 ↻</button>
@@ -415,7 +409,7 @@ img{display:block;max-width:100%}
     <div class="task-note">【原型示意】社群連結待行銷提供；上線後點「前往完成」將開啟對應社群。</div>
   </section>
 
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="抽獎結果">
     <div class="card">
       <div class="win-lbl">恭 喜 中 獎</div>
       <div class="prize" id="win-prize">—</div>
@@ -426,8 +420,9 @@ img{display:block;max-width:100%}
   </div>
 
   <!-- 個人資料表單（原型 UI，不儲存） -->
-  <div class="modal" id="profile-modal">
+  <div class="modal" id="profile-modal" role="dialog" aria-modal="true" aria-label="填寫個人資料">
     <div class="card">
+      <button class="pf-close" id="pf-close" type="button" aria-label="關閉">✕</button>
       <div class="win-lbl">填 寫 個 人 資 料</div>
       <div class="prize" style="font-size:20px;margin:8px 0 14px">領取你的第一枚洲遊幣</div>
       <div class="pf-field"><label>姓名</label><input id="pf-name" type="text" placeholder="您的姓名"></div>
@@ -447,13 +442,13 @@ img{display:block;max-width:100%}
       <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我同意提供予【高雄洲際酒店（公司全名待填）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
       <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意提供予【臺北洲際酒店（公司全名待填）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
       <button id="pf-submit" type="button">送出 · 領取 1 枚洲遊幣</button>
-      <div class="pf-optnote">未勾選行銷同意亦可參加活動與抽獎，取得方式詳見活動規則。</div>
+      <div class="pf-optnote">未勾選行銷同意亦可參加活動與抽獎，可至「任務中心」完成任務取得洲遊幣。</div>
       <div class="pf-note">【AI 草稿・原型示意】資料不會存入正式資料庫；上方條款為 v0.1 草稿（含【待填】欄位），第一至四節文字、同意紀錄機制、撤回流程與委外協議均須經<b>法務／資安審核</b>後始可對外。</div>
     </div>
   </div>
 
   <!-- 只投 1 枚抽獎確認 -->
-  <div class="modal" id="confirm-modal">
+  <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-label="確認抽獎">
     <div class="card">
       <div class="win-lbl">確 認 抽 獎</div>
       <div class="prize" style="font-size:20px;margin:10px 0 4px">確定用 1 枚洲遊幣抽三等獎嗎？</div>
@@ -463,7 +458,7 @@ img{display:block;max-width:100%}
     </div>
   </div>
 
-  <div class="toast" id="toast"><img src="assets/coin.png" alt=""><span id="toast-msg"></span></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"><img src="assets/coin.png" alt=""><span id="toast-msg"></span></div>
 
   <!-- 個資送出金幣獎勵動畫 -->
   <div class="reward" id="reward">
@@ -474,39 +469,22 @@ img{display:block;max-width:100%}
   <!-- 原型測試用：歸零所有數值（正式版移除） -->
   <button id="reset-btn" type="button">歸零</button>
 
-  <!-- ╔═══ 🛠 轉盤控制面板（等級選擇 + 獎項盤對位） ═══╗ -->
-  <div class="tuner">
-    <h6>🛠 轉盤控制</h6>
-    <div class="tuner-row">
-      <div class="tl">等級盤 <b>抽獎等級</b></div>
-      <button onclick="rotTier(-1)" title="上一等級">↺</button>
-      <div class="ang" id="ang-tier">等級 I</div>
-      <button onclick="rotTier(1)" title="下一等級">↻</button>
-    </div>
-    <div class="tuner-row">
-      <div class="tl">獎項盤 <b>Layer5 對位</b></div>
-      <button onclick="rotPlate(-30)" title="逆時針 30°">↺</button>
-      <div class="ang" id="ang-plate">0°</div>
-      <button onclick="rotPlate(30)" title="順時針 30°">↻</button>
-    </div>
-    <button class="reset" onclick="rotReset()">獎項盤歸零（回 0°）</button>
-  </div>
-  <!-- ╚════════════════════════════════════════════╝ -->
 </div>
 
 <script>
 /* ---------- data ---------- */
-// example prizes per tier — 12 格對齊獎項盤 (後台可調)
+// 12 格「全獎盤」— 沒有銘謝惠顧/再接再厲，每格都是獎（獎項內容與機率示意，【待行銷確認】）
+// 「洲遊幣 +N」為虛擬獎：抽中直接入帳，不出兌換碼
 const PRIZES = {
   1:[ {n:'洲賀熊 ×1 隻',w:1},{n:'銀月月餅 ×1',w:2},{n:'洲遊幣 +1',w:3},{n:'書籤',w:3},
-      {n:'銘謝惠顧',w:4},{n:'明信片組',w:2},{n:'再接再厲',w:4},{n:'貼紙包',w:3},
-      {n:'洲遊幣 +1',w:3},{n:'銘謝惠顧',w:4},{n:'環保杯袋',w:2},{n:'再接再厲',w:4} ],
+      {n:'杯墊組',w:4},{n:'明信片組',w:2},{n:'洲遊幣 +1',w:4},{n:'貼紙包',w:3},
+      {n:'鑰匙圈',w:3},{n:'午茶折扣券',w:4},{n:'環保杯袋',w:2},{n:'洲遊幣 +1',w:4} ],
   3:[ {n:'雙人下午茶',w:1},{n:'洲賀熊 ×1 隻',w:2},{n:'精品月餅禮盒',w:1},{n:'咖啡兌換券',w:2},
-      {n:'銘謝惠顧',w:3},{n:'洲遊幣 +3',w:2},{n:'再接再厲',w:3},{n:'品牌傘',w:1},
-      {n:'甜點兌換券',w:2},{n:'銘謝惠顧',w:3},{n:'洲遊幣 +3',w:2},{n:'再接再厲',w:3} ],
+      {n:'帆布袋',w:3},{n:'洲遊幣 +3',w:2},{n:'洲遊幣 +1',w:3},{n:'品牌傘',w:1},
+      {n:'甜點兌換券',w:2},{n:'咖啡兌換券',w:3},{n:'洲遊幣 +3',w:2},{n:'甜點兌換券',w:3} ],
   5:[ {n:'豪華客房住宿券',w:1},{n:'雙人晚宴',w:1},{n:'精品月餅禮盒',w:2},{n:'洲賀熊 ×1 隻',w:2},
-      {n:'雙人下午茶',w:2},{n:'洲遊幣 +5',w:2},{n:'銘謝惠顧',w:3},{n:'品牌傘',w:1},
-      {n:'紅酒 ×1 瓶',w:1},{n:'再接再厲',w:3},{n:'洲遊幣 +5',w:2},{n:'銘謝惠顧',w:3} ],
+      {n:'雙人下午茶',w:2},{n:'洲遊幣 +5',w:2},{n:'雙人早餐券',w:3},{n:'品牌傘',w:1},
+      {n:'紅酒 ×1 瓶',w:1},{n:'洲遊幣 +3',w:3},{n:'洲遊幣 +5',w:2},{n:'甜點禮盒',w:3} ],
 };
 const TIER_RN = {5:'一等獎', 3:'二等獎', 1:'三等獎'};   // 一等獎最大(投5)、金銀銅
 
@@ -622,18 +600,21 @@ function depositCoin(w){
 }
 function updateInvested(){
   const cost=COST[selTier], ok=S.invested>=cost, btn=$('#draw-btn');
-  if(btn){
+  if(btn && !spinning){
     btn.disabled=!ok;
     btn.textContent = ok
       ? `已投入 ${S.invested} 枚 · 抽${TIER_RN[selTier]} →`
       : `已投入 ${S.invested} 枚 · 再投 ${cost-S.invested} 枚抽${TIER_RN[selTier]}`;
     positionDrawBtn();
   }
-  const cta=$('#spin-btn');   // 上方主要「開始抽獎」大按鈕
-  if(cta){
-    cta.disabled=!ok;
-    cta.textContent = ok ? `開始抽獎 · 抽${TIER_RN[selTier]}`
-      : (S.invested>0 ? `再投 ${cost-S.invested} 枚開始抽獎` : '投幣後開始抽獎');
+  // 上方大 CTA＝智慧引導鈕（與浮鈕分工）：可抽→抽獎；有幣→投一枚（兼鍵盤投幣路徑）；沒幣→去賺幣
+  const cta=$('#spin-btn');
+  if(cta && !spinning){
+    const avail=S.balance-S.invested;
+    cta.disabled=false;
+    if(ok){ cta.dataset.mode='spin'; cta.textContent=`開始抽獎 · 抽${TIER_RN[selTier]}`; }
+    else if(avail>0){ cta.dataset.mode='deposit'; cta.textContent=`投入 1 枚洲遊幣（再 ${cost-S.invested} 枚抽${TIER_RN[selTier]}）`; }
+    else { cta.dataset.mode='earn'; cta.textContent='去賺洲遊幣，抽洲際好禮 →'; }
   }
   // 能抽更高等級時，等級章脈動提示可升等
   const hit=$('#tier-hit'); if(hit) hit.classList.toggle('canup', bestAffordableTier()>selTier);
@@ -716,35 +697,55 @@ function spin(force){
   const tier=selTier, cost=COST[tier];            // 抽獎等級以等級章為準
   if(S.invested < cost){ toast(`需投入 ${cost} 枚`); return; }
   if(S.balance < cost){ toast('餘額不足'); return; }
-  if(cost===1 && !force){ $('#confirm-modal').classList.add('show'); return; }  // 只投1枚→確認
-  spinning=true; $('#browse-btn').disabled=true; $('#draw-btn').disabled=true; $('#spin-btn').disabled=true;
+  if(cost===1 && !force){ openModal($('#confirm-modal')); return; }  // 只投1枚→確認
+  spinning=true; $('#browse-btn').disabled=true; $('#draw-btn').disabled=true;
+  const cta=$('#spin-btn'); cta.disabled=true; cta.textContent='抽獎中…';
+  $('#draw-btn').textContent='抽獎中…';
   buildRing(tier);
   const items=PRIZES[tier], n=items.length, step=360/n;
   const idx=weightedPick(items);
+  const prize=items[idx].n;
+  const coin=+((prize.match(/^洲遊幣 \+(\d+)$/)||[])[1]||0);   // 虛擬獎：抽中的洲遊幣直接入帳
+  const code=coin?null:'IC-'+Math.random().toString(36).slice(2,7).toUpperCase();
+  // 結果先入帳存檔（旋轉中刷新也不會掉幣掉獎）；畫面數字等開獎時才更新
+  S.balance -= cost; if(coin) S.balance += coin;
+  S.invested=0; S.won.unshift({prize, tier, code, spent:cost}); save();
   // 收尾讓中獎格 idx 停在頂端：最終角 ≡ -idx*step (mod360)
   const base=wheelAngle, targetMod=norm(-idx*step), align=norm(targetMod - norm(base));
   const dur = REDUCE ? 700 : 5400, turns = REDUCE ? 1 : 6;
   spinState={ base, delta: turns*360 + align, start: performance.now(), dur };
-  S.balance -= cost; const spent=cost; S.invested=0; save(); renderBalance();
   setTimeout(()=>{
     spinning=false; $('#browse-btn').disabled=false;
-    const prize=items[idx].n;
-    const code='IC-'+Math.random().toString(36).slice(2,7).toUpperCase();
-    S.won.unshift({prize, tier, code, spent}); save();
-    showWin(prize, tier, code);
-    renderStack();
+    showWin(prize, tier, code, coin);
+    renderBalance(); renderStack();
   }, dur+150);
 }
-function showWin(prize,tier,code){
+function showWin(prize,tier,code,coin){
   $('#win-prize').textContent=prize;
   $('#win-tier').textContent=TIER_RN[tier];
-  $('#win-code').textContent=code;
-  $('#modal').classList.add('show');
+  $('#modal .code').innerHTML = coin
+    ? `獎勵已直接存入你的錢包<b>＋${coin} 枚洲遊幣</b>`
+    : `兌換碼（請至櫃台核銷）<b>${code}</b>`;
+  openModal($('#modal'));
 }
+function openModal(m){ m.classList.add('show');
+  const c=m.querySelector('.card'); if(c){ c.tabIndex=-1; c.focus({preventScroll:true}); } }
 function closeModal(){ $('#modal').classList.remove('show'); }
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') $$('.modal.show').forEach(m=>m.classList.remove('show')); });
 
+// 錢包投一枚（智慧 CTA 的鍵盤/點擊投幣路徑）
+function depositOne(){
+  if(S.balance-S.invested<=0){ toast('先去賺洲遊幣吧'); return; }
+  depositState(); renderStack();
+}
 $('#draw-btn').addEventListener('click',()=>spin());
-$('#spin-btn').addEventListener('click',()=>spin());
+$('#spin-btn').addEventListener('click',()=>{
+  const mode=$('#spin-btn').dataset.mode;
+  if(mode==='deposit'){ depositOne(); return; }
+  if(mode==='earn'){ renderTasks(); showScreen('tasks'); return; }
+  spin();
+});
 
 /* ╔═══ 🛠 轉盤控制（等級盤＝抽獎等級選擇；獎項盤＝Layer5 對位） ═══╗
    等級盤僅 0°/30°/60° 三段＝徽章 I/II/III＝tier 1/3/5；切換即換盤面獎項。
@@ -768,22 +769,22 @@ function swapLevel(tier){
 function applyTier(){
   $('#img-tier').style.transform=`rotate(${tierDeg}deg)`;   // 讓該等級 badge 轉到頂
   selTier=TIER_BY_DEG[tierDeg];
-  const at=$('#ang-tier'); if(at) at.textContent=TIER_RN[selTier];
   swapLevel(selTier);       // 發光轉場＋換風格
   buildRing(selTier);       // 盤面獎項換成該等級（直書金字）
   $('#tier-aura').classList.toggle('show', selTier===5);   // 一等獎持續發光
   updateInvested();         // 抽獎浮鈕依新等級更新
   positionBrowse();
 }
-function applyPlate(){}                    // 旋轉已改由 rAF 引擎持續驅動（面板已隱藏）
-function rotTier(dir){ let i=TIER_DEGS.indexOf(tierDeg)+dir; i=Math.max(0,Math.min(TIER_DEGS.length-1,i)); tierDeg=TIER_DEGS[i]; applyTier(); }
-function rotPlate(d){ wheelAngle+=d; }     // 對位微調（直接推 wheelAngle）
-function rotReset(){ wheelAngle=0; }
 /* ╚════════════════════════════════════════════════════════════╝ */
 
-/* 點頂端等級章切換等級：一等獎→二等獎→三等獎 循環 */
+/* 點頂端等級章切換等級：一等獎→二等獎→三等獎 循環；首次點擊收掉引導提示 */
 const TIER_CYCLE=[0,30,60];
-function cycleTier(){ const i=TIER_CYCLE.indexOf(tierDeg); tierDeg=TIER_CYCLE[(i+1)%TIER_CYCLE.length]; applyTier(); }
+function cycleTier(){
+  if(spinning) return;                                   // 抽獎中不可換等級
+  const i=TIER_CYCLE.indexOf(tierDeg); tierDeg=TIER_CYCLE[(i+1)%TIER_CYCLE.length]; applyTier();
+  if(!S.done.tierTip){ S.done.tierTip=1; save(); }
+  $('#tier-hint').classList.remove('show');
+}
 $('#tier-hit').addEventListener('click', cycleTier);
 
 /* 目前投入枚數可抽的最高等級（1/3/5→三/二/一等獎） */
@@ -793,8 +794,9 @@ function positionBrowse(){
   const btn=$('#browse-btn'), slot=$('.disc-slot'), stage=$('.stage');
   if(!btn||!slot||!stage) return;
   const sr=slot.getBoundingClientRect(), st=stage.getBoundingClientRect();
-  btn.style.left=(sr.right-st.left+14)+'px';
-  btn.style.top =(sr.top-st.top+sr.height*0.25)+'px';
+  // padding 加大到 44px 觸控目標，位移補償讓文字視覺位置不變
+  btn.style.left=(sr.right-st.left+6)+'px';
+  btn.style.top =(sr.top-st.top+sr.height*0.25-12)+'px';
 }
 addEventListener('resize', ()=>{ positionDrawBtn(); positionBrowse(); });
 // 字型載入完成會改變上方內容高度 → 舞台(margin-top:auto)位移，浮鈕需重定位
@@ -844,14 +846,22 @@ $('#cf-no').addEventListener('click',()=>$('#confirm-modal').classList.remove('s
 
 /* 首頁個資卡＋表單（原型 UI，不儲存個資） */
 function renderProfileCard(){ $('#profile-card').hidden = !!S.done.profile; }
-$('#profile-card').addEventListener('click',()=>$('#profile-modal').classList.add('show'));
+$('#profile-card').addEventListener('click',()=>openModal($('#profile-modal')));
 $('#profile-modal').addEventListener('click',e=>{ if(e.target.id==='profile-modal') $('#profile-modal').classList.remove('show'); });
+$('#pf-close').addEventListener('click',()=>$('#profile-modal').classList.remove('show'));
 $('#pf-submit').addEventListener('click',()=>{
+  // 基本驗證：姓名／手機／Email（原型層級的格式檢查）
+  const name=$('#pf-name').value.trim();
+  const phone=$('#pf-phone').value.replace(/[-\s]/g,'');
+  const email=$('#pf-email').value.trim();
+  if(!name){ toast('請填寫姓名'); $('#pf-name').focus(); return; }
+  if(!/^09\d{8}$/.test(phone)){ toast('手機格式：09 開頭共 10 碼'); $('#pf-phone').focus(); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('請確認 Email 格式'); $('#pf-email').focus(); return; }
   const kh=$('#pf-kh').checked, tp=$('#pf-tp').checked;
   if(!kh && !tp){ toast('請至少勾選一項同意'); return; }   // 至少勾一
   // 原型：記錄該筆同意（含勾選哪款）到 localStorage 當資料庫替身；正式版走安全後端
   S.leads=S.leads||[];
-  S.leads.push({ name:$('#pf-name').value, phone:$('#pf-phone').value, email:$('#pf-email').value,
+  S.leads.push({ name, phone, email,
     consentKH:kh, consentTP:tp, consentVersion:'v0.1', ts:new Date().toISOString() });
   S.done.profile=1; S.balance++; save();
   $('#profile-modal').classList.remove('show');
@@ -865,8 +875,11 @@ function showReward(){
 }
 $('#reward').addEventListener('click',()=>{ clearTimeout(rwT); $('#reward').classList.remove('show'); });
 
-/* 右下角歸零（原型測試用）：清資料重載 */
-$('#reset-btn').addEventListener('click',()=>{ localStorage.removeItem(LS); location.reload(); });
+/* 右下角歸零（原型測試用）：確認後清資料重載 */
+$('#reset-btn').addEventListener('click',()=>{
+  if(!confirm('確定歸零？將清空洲遊幣、中獎與填答紀錄（原型測試用）。')) return;
+  localStorage.removeItem(LS); location.reload();
+});
 
 /* ---------- 中獎跑馬燈（匿名、循環彈出） ----------
    ⚠️ 原型無後端：以下為「示意名單」＋本機真實中獎(S.won)。
@@ -897,7 +910,13 @@ function tickWinners(){
 function startWinners(){ tickWinners(); clearInterval(winTimer); winTimer=setInterval(tickWinners, 4000); }
 
 /* ---------- init ---------- */
-applyTier();        // 初始＝一等獎（tierDeg=0），buildRing + updateInvested
+// 預設等級＝目前洲遊幣負擔得起的等級（新用戶從三等獎開始，不會一進來就「再投5枚」）
+tierDeg = S.balance>=5 ? 0 : S.balance>=3 ? 30 : 60;
+{ const lvl0=LEVEL_BY_TIER[TIER_BY_DEG[tierDeg]];
+  if(lvl0!==curLevel){ curLevel=lvl0;                     // 初始直接換圖，不走發光轉場
+    DISC_LAYERS.forEach(([sel,name])=>{ $(sel).src=`assets/L${lvl0}/${name}.png`; }); } }
+applyTier();        // buildRing + updateInvested
+if(!S.done.tierTip) $('#tier-hint').classList.add('show');   // 首次進入：等級切換引導
 renderBalance(); renderStack(); renderProfileCard(); positionBrowse(); startWinners();
 
 /* ---------- three.js 金幣（支援 WebGL 才載入；失敗→退回 CSS） ---------- */
