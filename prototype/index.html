@@ -290,6 +290,16 @@ img{display:block;max-width:100%}
   .reward.show .reward-text{animation:none}
 }
 
+/* 假驗證過場 */
+.verify{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;background:rgba(30,26,20,.6);backdrop-filter:blur(4px)}
+.verify.show{display:flex;animation:fade .3s}
+.verify-spin{width:52px;height:52px;border-radius:50%;border:4px solid rgba(244,212,137,.28);
+  border-top-color:var(--gold-bright);animation:vspin .9s linear infinite}
+@keyframes vspin{to{transform:rotate(360deg)}}
+.verify-text{font-family:var(--serif);font-weight:600;font-size:16px;color:#f4d489;letter-spacing:.1em}
+@media (prefers-reduced-motion:reduce){ .verify-spin{animation:none} }
+
 /* result modal */
 /* 卡片以 margin:auto 置中；高過視窗（如手機鍵盤彈出）時整層可捲動，送出鈕不會被裁掉 */
 .modal{position:fixed;inset:0;background:rgba(30,26,20,.55);display:none;
@@ -411,7 +421,7 @@ img{display:block;max-width:100%}
     </div>
     <div class="task-head">追蹤洲際社群、完成任務，每項獲得 1 枚洲遊幣</div>
     <div id="task-list"></div>
-    <div class="task-note">【原型示意】社群連結待行銷提供；上線後點「前往完成」將開啟對應社群。</div>
+    <div class="task-note">【原型示意】點「前往完成」將開啟對應社群頁面，返回遊戲後自動驗證並發放洲遊幣；社群網址待行銷確認。</div>
   </section>
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="抽獎結果">
@@ -471,6 +481,12 @@ img{display:block;max-width:100%}
     <div class="reward-text">你得到了<b>第一枚</b>洲遊幣</div>
   </div>
 
+  <!-- 假驗證過場（返回遊戲後短暫顯示，再發幣） -->
+  <div class="verify" id="verify">
+    <div class="verify-spin" aria-hidden="true"></div>
+    <div class="verify-text">驗證追蹤中…</div>
+  </div>
+
   <!-- 原型測試用：歸零所有數值（正式版移除） -->
   <button id="reset-btn" type="button">歸零</button>
 
@@ -496,6 +512,7 @@ const TIER_RN = {5:'一等獎', 3:'二等獎', 1:'三等獎'};   // 一等獎最
 /* ---------- state ---------- */
 const LS='intercoins_proto_v1';
 let S = JSON.parse(localStorage.getItem(LS) || 'null') || {balance:0, done:{}, invested:0, won:[]};
+S.pending = S.pending || {};   // 進行中的社群任務（跳轉後待回來假驗證）
 function save(){localStorage.setItem(LS, JSON.stringify(S))}
 
 /* ---------- helpers ---------- */
@@ -810,21 +827,31 @@ addEventListener('resize', ()=>{ positionDrawBtn(); positionBrowse(); });
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ positionDrawBtn(); positionBrowse(); });
 
 /* ---------- 任務頁：追蹤社群，每完成一項 +1 洲遊幣（一次性） ---------- */
+// 社群連結【待行銷確認】：官方粉專最佳猜測網址，上線前請由行銷核對替換
+const SOCIAL={
+  ig_tpe:'https://www.instagram.com/intercontinental_taipei/',
+  fb_tpe:'https://www.facebook.com/ICTaipei/',
+  ig_khh:'https://www.instagram.com/intercontinental.kaohsiung/',
+  fb_khh:'https://www.facebook.com/ICKaohsiung/',
+};
+const SHARE_URL=location.href.split('#')[0];
 const TASKS=[
-  {id:'ig_tpe', t:'追蹤 臺北洲際酒店 Instagram'},
-  {id:'fb_tpe', t:'追蹤 臺北洲際酒店 Facebook'},
-  {id:'ig_khh', t:'追蹤 高雄洲際酒店 Instagram'},
-  {id:'fb_khh', t:'追蹤 高雄洲際酒店 Facebook'},
-  {id:'share',  t:'分享本活動給好友'},
+  {id:'ig_tpe', t:'追蹤 臺北洲際酒店 Instagram', kind:'follow', url:SOCIAL.ig_tpe},
+  {id:'fb_tpe', t:'追蹤 臺北洲際酒店 Facebook',  kind:'follow', url:SOCIAL.fb_tpe},
+  {id:'ig_khh', t:'追蹤 高雄洲際酒店 Instagram', kind:'follow', url:SOCIAL.ig_khh},
+  {id:'fb_khh', t:'追蹤 高雄洲際酒店 Facebook',  kind:'follow', url:SOCIAL.fb_khh},
+  {id:'share',  t:'分享本活動給好友',            kind:'share'},
 ];
+const TASK_BY_ID=Object.fromEntries(TASKS.map(t=>[t.id,t]));
 function showScreen(id){ $$('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); }
 function renderTasks(){
   const box=$('#task-list'); if(!box) return; box.innerHTML='';
   TASKS.forEach(tk=>{
-    const done=!!S.done[tk.id];
+    const done=!!S.done[tk.id], pend=!done && !!(S.pending&&S.pending[tk.id]);
+    const label=done?'已完成 ✓':pend?'驗證中…':(tk.kind==='share'?'分享 →':'前往完成 →');
     const row=document.createElement('div'); row.className='task';
     row.innerHTML=`<div class="task-info"><div class="task-t">${tk.t}</div><div class="task-r">完成 +1 洲遊幣</div></div>`
-      +`<button class="task-btn" ${done?'disabled':''} data-id="${tk.id}">${done?'已完成 ✓':'前往完成'}</button>`;
+      +`<button class="task-btn" ${done||pend?'disabled':''} data-id="${tk.id}">${label}</button>`;
     box.appendChild(row);
   });
 }
@@ -832,10 +859,42 @@ function claimTask(id){
   if(S.done[id]) return;
   S.done[id]=1; S.balance++; save();
   renderBalance(); renderStack(); renderTasks();
-  toast('＋1 洲遊幣！');
+}
+/* 前往完成：跳轉指定社群／叫出分享面板，並標記 pending（回到遊戲後假驗證發幣） */
+function startTask(id){
+  const tk=TASK_BY_ID[id]; if(!tk || S.done[id]) return;
+  S.pending=S.pending||{}; S.pending[id]=1; save(); renderTasks();
+  if(tk.kind==='share'){
+    const data={title:'洲遊幣 · InterCoins', text:'我在洲際中秋活動蒐集洲遊幣抽好禮，一起來玩！', url:SHARE_URL};
+    if(navigator.share){ navigator.share(data).catch(()=>{}); }
+    else if(navigator.clipboard){ navigator.clipboard.writeText(SHARE_URL).then(()=>toast('活動連結已複製')).catch(()=>{}); }
+    // 分享面板關閉／複製後，使用者仍留在本頁 → 直接進假驗證
+    verifyPending();
+  } else {
+    window.open(tk.url,'_blank','noopener');   // 新分頁開社群；手機多為同分頁，回來由 init 驗證
+  }
 }
 $('#task-back').addEventListener('click',()=>showScreen('wheel'));
-$('#task-list').addEventListener('click',e=>{ const b=e.target.closest('.task-btn'); if(b&&!b.disabled) claimTask(b.dataset.id); });
+$('#task-list').addEventListener('click',e=>{ const b=e.target.closest('.task-btn'); if(b&&!b.disabled) startTask(b.dataset.id); });
+
+/* 回到遊戲：假驗證 → 發幣 → 恭喜彈窗（原型：無法真的驗證追蹤，回來即發） */
+let verifying=false;
+function verifyPending(){
+  if(verifying) return;
+  const ids=Object.keys(S.pending||{}).filter(id=>!S.done[id] && TASK_BY_ID[id]);
+  if(!ids.length){ if(S.pending){ S.pending={}; save(); } return; }
+  verifying=true;
+  const v=$('#verify'); v.classList.add('show');
+  const REDUCE=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  setTimeout(()=>{
+    v.classList.remove('show');
+    ids.forEach(claimTask);              // 逐項發幣（各 +1）
+    S.pending={}; save(); renderBalance(); renderStack(); renderTasks();
+    verifying=false;
+    showReward(`恭喜！您領到 <b>${ids.length}</b> 枚洲遊幣`);
+  }, REDUCE?0:1200);
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') verifyPending(); });
 
 /* 瀏覽獎品：點一下把下一個獎品轉到頂端並暫停自轉 ~1.6s */
 function browseNext(){
@@ -873,12 +932,14 @@ $('#pf-submit').addEventListener('click',()=>{
   S.done.profile=1; S.balance++; save();
   $('#profile-modal').classList.remove('show');
   renderProfileCard(); renderBalance(); renderStack();
-  showReward();
+  showReward('你得到了<b>第一枚</b>洲遊幣');
 });
 let rwT;
-function showReward(){
-  const r=$('#reward'); r.classList.remove('show'); void r.offsetWidth; r.classList.add('show');
-  clearTimeout(rwT); rwT=setTimeout(()=>r.classList.remove('show'),2200);
+function showReward(msg){
+  const r=$('#reward');
+  if(msg!=null) r.querySelector('.reward-text').innerHTML=msg;
+  r.classList.remove('show'); void r.offsetWidth; r.classList.add('show');
+  clearTimeout(rwT); rwT=setTimeout(()=>r.classList.remove('show'),2600);
 }
 $('#reward').addEventListener('click',()=>{ clearTimeout(rwT); $('#reward').classList.remove('show'); });
 
@@ -925,6 +986,8 @@ tierDeg = 60;
 applyTier();        // buildRing + updateInvested
 if(!S.done.tierTip) $('#tier-hint').classList.add('show');   // 首次進入：等級切換引導
 renderBalance(); renderStack(); renderProfileCard(); positionBrowse(); startWinners();
+renderTasks();                 // 預先渲染任務清單（含 pending 狀態）
+if(Object.keys(S.pending).length) setTimeout(verifyPending, 400);   // 同分頁跳社群回來→補發幣
 
 /* ---------- three.js 金幣（支援 WebGL 才載入；失敗→退回 CSS） ---------- */
 function buildThreeCoins(THREE, RoomEnvironment){
