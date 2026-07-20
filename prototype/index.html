@@ -452,7 +452,7 @@ img{display:block;max-width:100%}
       <div class="prize" style="font-size:20px;margin:10px 0 4px">確定用 1 枚洲遊幣抽三等獎嗎？</div>
       <div class="code" style="margin-top:6px">投入更多洲遊幣，可提升到二等獎、一等獎，抽出更大獎品。</div>
       <button id="cf-yes" type="button">確定抽三等獎</button>
-      <button id="cf-no" type="button" class="ghost">再想想</button>
+      <button id="cf-no" type="button" class="ghost">去賺更多洲遊幣 →</button>
     </div>
   </div>
 
@@ -839,7 +839,8 @@ $('#browse-btn').addEventListener('click', browseNext);
 
 /* 只投 1 枚抽獎確認彈窗 */
 $('#cf-yes').addEventListener('click',()=>{ $('#confirm-modal').classList.remove('show'); spin(true); });
-$('#cf-no').addEventListener('click',()=>$('#confirm-modal').classList.remove('show'));
+$('#cf-no').addEventListener('click',()=>{ $('#confirm-modal').classList.remove('show'); renderTasks(); showScreen('tasks'); });
+$('#confirm-modal').addEventListener('click',e=>{ if(e.target.id==='confirm-modal') $('#confirm-modal').classList.remove('show'); });
 
 /* 首頁個資卡＋表單（原型 UI，不儲存個資） */
 function renderProfileCard(){ $('#profile-card').hidden = !!S.done.profile; }
