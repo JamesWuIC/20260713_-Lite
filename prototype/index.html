@@ -344,6 +344,7 @@ img{display:block;max-width:100%}
 .access-submit:active{transform:scale(.98)}
 .access-error{min-height:1.5em;margin-top:10px;font:13px var(--serif);color:#ffd8c7}
 @media (prefers-reduced-motion:reduce){.access-submit{transition:none}}
+.access-note{margin-top:14px;font-family:var(--sans);font-size:11px;color:rgba(244,212,137,.55);letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -356,6 +357,7 @@ img{display:block;max-width:100%}
     <input class="access-field" id="access-password" name="password" type="password" inputmode="numeric" autocomplete="current-password" required autofocus>
     <button class="access-submit" type="submit">進入活動</button>
     <p class="access-error" id="access-error" role="alert" aria-live="polite"></p>
+    <p class="access-note">內部預覽用；正式上線改為 LINE 登入</p>
   </form>
 </main>
 
@@ -421,7 +423,7 @@ img{display:block;max-width:100%}
     </div>
     <div class="task-head">追蹤洲際社群、完成任務，每項獲得 1 枚洲遊幣</div>
     <div id="task-list"></div>
-    <div class="task-note">【原型示意】點「前往完成」將開啟對應社群頁面，返回遊戲後自動驗證並發放洲遊幣；社群網址待行銷確認。</div>
+    <div class="task-note" id="task-note">點「前往完成」開啟社群頁面，完成追蹤後返回即可領取洲遊幣。</div>
   </section>
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="抽獎結果">
@@ -444,7 +446,7 @@ img{display:block;max-width:100%}
       <div class="pf-field"><label>手機</label><input id="pf-phone" type="tel" placeholder="09xx-xxx-xxx"></div>
       <div class="pf-field"><label>Email</label><input id="pf-email" type="email" placeholder="you@example.com"></div>
       <div class="pf-terms">
-        <p><b>個人資料蒐集告知（個資法第 8 條）</b>　版本 v0.1（草稿）</p>
+        <p><b>個人資料蒐集告知（個資法第 8 條）</b>　版本 v0.1（送審版）</p>
         <p><b>【蒐集者】</b>本活動由下列二家公司各自為蒐集者，各自獨立蒐集、處理及利用您所提供之個人資料；您同意提供予哪一家，該公司始取得您的資料，未經勾選之公司不會取得。<br>・高雄洲際酒店（公司全名：遠洋投資股份有限公司高雄分公司／統一編號：91097496）<br>・臺北洲際酒店（公司全名：遠雄巨蛋事業股份有限公司逸仙酒店分公司／統一編號：60613318）</p>
         <p><b>【蒐集目的】</b>會員管理(052)、消費者/客戶管理與服務(090)、行銷(040)、調查統計與研究分析(157，含會員分析、貼標與個人化推薦)。</p>
         <p><b>【個資類別】</b>辨識個人者(C001)：姓名、行動電話、電子郵件；及您透過 LINE 登入之 userID、顯示名稱。</p>
@@ -454,11 +456,11 @@ img{display:block;max-width:100%}
         <p><b>【您的權利】</b>得請求查詢、閱覽、複製、補充更正、停止蒐集處理利用、刪除，並得隨時撤回同意（分店可獨立撤回）。</p>
         <p><b>【不同意之影響】</b>是否提供資料與同意行銷均由您自由選擇。<b>若不同意行銷，仍可參加本活動及抽獎</b>，可透過活動任務等其他方式取得洲遊幣；不同意僅無法以「填資料領幣」取得該枚洲遊幣、且不會收到行銷資訊。</p>
       </div>
-      <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我同意提供予【高雄洲際酒店（公司全名待填）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
-      <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意提供予【臺北洲際酒店（公司全名待填）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
+      <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我同意提供予【高雄洲際酒店・遠洋投資股份有限公司高雄分公司（統一編號 91097496）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
+      <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意提供予【臺北洲際酒店・遠雄巨蛋事業股份有限公司逸仙酒店分公司（統一編號 60613318）】作廣告行銷使用（含 EDM、簡訊、LINE 推播、電話及會員分析；可隨時撤回）</span></label>
       <button id="pf-submit" type="button">送出 · 領取 1 枚洲遊幣</button>
       <div class="pf-optnote">未勾選行銷同意亦可參加活動與抽獎，可至「任務中心」完成任務取得洲遊幣。</div>
-      <div class="pf-note">【AI 草稿・原型示意】資料不會存入正式資料庫；上方條款為 v0.1 草稿（含【待填】欄位），第一至四節文字、同意紀錄機制、撤回流程與委外協議均須經<b>法務／資安審核</b>後始可對外。</div>
+      <div class="pf-note">本頁個資功能為<b>送審版</b>：正式蒐集前須完成<b>法務／資安審核</b>，並接安全後端（Supabase 東京，含同意紀錄時間戳／版本、撤回機制、RLS／DPA）。目前為預覽階段，您填寫之資料僅暫存本機、不會傳送或存入正式資料庫。</div>
     </div>
   </div>
 
@@ -484,7 +486,7 @@ img{display:block;max-width:100%}
   <!-- 假驗證過場（返回遊戲後短暫顯示，再發幣） -->
   <div class="verify" id="verify">
     <div class="verify-spin" aria-hidden="true"></div>
-    <div class="verify-text">驗證追蹤中…</div>
+    <div class="verify-text">確認中…</div>
   </div>
 
   <!-- 原型測試用：歸零所有數值（正式版移除） -->
@@ -510,6 +512,8 @@ const PRIZES = {
 const TIER_RN = {5:'一等獎', 3:'二等獎', 1:'三等獎'};   // 一等獎最大(投5)、金銀銅
 
 /* ---------- state ---------- */
+/* 上線型態旗標：true＝正式（隱藏歸零鈕、不用示意中獎名單、驗證文案中性）；false＝開發/測試 */
+const PROD=true;
 const LS='intercoins_proto_v1';
 let S = JSON.parse(localStorage.getItem(LS) || 'null') || {balance:0, done:{}, invested:0, won:[]};
 S.pending = S.pending || {};   // 進行中的社群任務（跳轉後待回來假驗證）
@@ -943,8 +947,11 @@ function showReward(msg){
 }
 $('#reward').addEventListener('click',()=>{ clearTimeout(rwT); $('#reward').classList.remove('show'); });
 
-/* 右下角歸零（原型測試用）：確認後清資料重載 */
-$('#reset-btn').addEventListener('click',()=>{
+/* 非 PROD：任務說明改回原型示意版（社群網址待行銷確認） */
+if(!PROD){ const tn=$('#task-note'); if(tn) tn.textContent='【原型示意】點「前往完成」開啟社群頁面，返回後自動驗證發幣；社群網址待行銷確認。'; }
+/* 右下角歸零（原型測試用）：PROD 時隱藏；非 PROD 綁確認後清資料重載 */
+if(PROD){ $('#reset-btn').hidden=true; }
+else $('#reset-btn').addEventListener('click',()=>{
   if(!confirm('確定歸零？將清空洲遊幣、中獎與填答紀錄（原型測試用）。')) return;
   localStorage.removeItem(LS); location.reload();
 });
@@ -962,15 +969,23 @@ const DEMO_WINNERS=[
   {name:'黃ＯＯ',prize:'咖啡兌換券'},
   {name:'吳ＯＯ',prize:'洲賀熊 ×1 隻'},
 ];
+// PROD 中性輪播（無真實中獎資料時顯示；不含任何人名，符合對外不得虛構）
+const PROMO_MSGS=['🎡 中秋抽洲際好禮，快來蒐集洲遊幣','🪙 追蹤洲際社群、完成任務，天天累積洲遊幣','🌕 投幣轉盤，抽住宿・餐飲・月餅禮盒'];
 function fetchWinners(){
-  // 本機真實中獎(S.won)併入最前（示意；正式版改讀 DB/API）
+  // 本機真實中獎(S.won)：正式版改讀後端 API（得獎者須匿名化＋取得同意）
   const local=(S.won||[]).slice(0,3).filter(w=>!/銘謝惠顧|再接再厲/.test(w.prize))
     .map(w=>({name:'幸運玩家',prize:w.prize}));
+  if(PROD) return local;                    // PROD：只用真實中獎，不併示意名單
   return [...local, ...DEMO_WINNERS];
 }
 let winIdx=0, winTimer;
 function tickWinners(){
-  const list=fetchWinners(), el=$('#wt-msg'); if(!el||!list.length) return;
+  const el=$('#wt-msg'); if(!el) return;
+  const list=fetchWinners();
+  if(!list.length){                          // 無中獎資料（如新開局）→中性宣傳輪播
+    el.textContent=PROMO_MSGS[winIdx%PROMO_MSGS.length]; winIdx++;
+    el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); return;
+  }
   const w=list[winIdx%list.length]; winIdx++;
   el.textContent=`🏆 ${w.name} 抽中 ${w.prize}`;
   el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
