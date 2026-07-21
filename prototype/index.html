@@ -181,13 +181,18 @@ img{display:block;max-width:100%}
 .dl-tier{transition:transform .3s ease;transform-origin:50% 50%}
 
 /* 已投入＋抽獎 合併浮鈕（浮在投幣口上方，取代主 CTA） */
-#draw-btn{position:absolute;z-index:46;transform:translate(-50%,-100%);white-space:nowrap;
-  font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;
-  color:#5a3a08;background:linear-gradient(180deg,#f6d989,#dca948);border:1px solid rgba(161,98,7,.6);
-  border-radius:999px;padding:8px 16px;box-shadow:0 5px 14px rgba(161,98,7,.45)}
-#draw-btn:not(:disabled){animation:drawFloat 1.6s ease-in-out infinite}
-#draw-btn:not(:disabled):active{filter:brightness(.94)}
-#draw-btn:disabled{background:linear-gradient(180deg,#e7e1d4,#c9c1af);color:#5F5A4F;border-color:rgba(138,132,119,.4);box-shadow:none}
+/* 等級選擇器浮鈕：金色膠囊，左右箭頭選等級，中間顯示「您正在抽X等獎」 */
+#tier-select{position:absolute;z-index:46;transform:translate(-50%,-100%);white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(180deg,#f6d989,#dca948);border:1px solid rgba(161,98,7,.6);
+  border-radius:999px;padding:3px 6px;box-shadow:0 5px 14px rgba(161,98,7,.45);
+  animation:drawFloat 1.6s ease-in-out infinite}
+#ts-label{font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;color:#5a3a08;padding:0 2px}
+#tier-select button{width:34px;height:34px;flex:none;border:none;background:transparent;border-radius:50%;
+  font-family:var(--display);font-size:24px;font-weight:700;line-height:1;color:#5a3a08;display:grid;place-items:center}
+#tier-select button:not(:disabled):active{background:rgba(90,58,8,.14)}
+#tier-select button:disabled{color:rgba(90,58,8,.28)}
+#tier-select button:focus-visible{outline:2px solid #9c6410;outline-offset:1px}
 @keyframes drawFloat{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 6px))}}
 /* 一等獎持續發光光暈 */
 .tier-aura{position:absolute;inset:-8%;border-radius:50%;pointer-events:none;opacity:0;z-index:8;
@@ -209,9 +214,27 @@ img{display:block;max-width:100%}
 .pf-terms p{margin:0 0 7px}
 .pf-terms p:last-child{margin:0}
 .pf-terms b{color:var(--ink)}
+/* 告知事項小視窗：疊在個資表單之上，內文可捲動 */
+#notice-modal{z-index:60}
+.notice-card{position:relative;padding-top:34px}
+.notice-body{max-height:64vh;background:transparent;border:none;padding:0;margin:0}
 .pf-consent{display:flex;align-items:flex-start;gap:9px;text-align:left;margin:0 0 10px;cursor:pointer}
 .pf-consent input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--gold)}
 .pf-consent span{font-family:var(--serif);font-size:13px;color:var(--ink);line-height:1.5}
+/* 同意聲明折疊：短標題常顯示，全文收在 details 內 */
+.pf-consent details{margin-top:4px}
+.pf-consent summary{font-family:var(--sans);font-size:12px;color:var(--gold);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:3px}
+.pf-consent summary::-webkit-details-marker{display:none}
+.pf-consent summary::after{content:" ▾";font-size:10px}
+.pf-consent details[open] summary::after{content:" ▴"}
+.pf-consent details>*:not(summary){display:block;margin-top:6px;font-size:12px;color:var(--muted);line-height:1.6}
+.pf-consent details{white-space:normal}
+/* 告知事項連結（點開小視窗） */
+.pf-notice-link{width:100%;text-align:left;background:#faf7f0;border:1px solid rgba(161,98,7,.22);border-radius:10px;
+  padding:11px 12px;margin:2px 0 12px;font-family:var(--serif);font-size:13px;font-weight:600;color:var(--gold)}
+.pf-notice-link::after{content:" ›";font-weight:700}
+.pf-notice-link:active{background:#f3ecdd}
+.pf-notice-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 .pf-optnote{text-align:left;font-family:var(--sans);font-size:12px;color:var(--gold);margin:8px 0 0}
 /* 可點的提示列（導向任務頁） */
 /* 任務頁 */
@@ -261,7 +284,7 @@ img{display:block;max-width:100%}
 .pf-note{font-family:var(--sans);font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
 .card button.ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid rgba(138,132,119,.4);margin-top:8px}
 @media (prefers-reduced-motion:reduce){ #profile-card{animation:none}
-  #draw-btn:not(:disabled),.tier-aura.show,#tier-hit.canup,#tier-hint.show,.disc-slot.swallow{animation:none} }
+  #tier-select,.tier-aura.show,#tier-hit.canup,#tier-hint.show,.disc-slot.swallow{animation:none} }
 /* 個資表單關閉鈕 */
 #profile-modal .card{position:relative;padding-top:34px}
 /* .card button.pf-close 特意提高特異性，覆蓋 .card button 的滿版金底樣式 */
@@ -429,7 +452,12 @@ img{display:block;max-width:100%}
       <button id="browse-btn" type="button">獎項一覽 ▤</button>
     </div>
     <!-- 已投入＋抽獎合併浮鈕（浮在投幣口上方，取代主 CTA） -->
-    <button id="draw-btn" type="button" disabled>投幣後開始抽獎</button>
+    <!-- 等級選擇器（浮在投幣口上方）：左右箭頭切換抽獎等級；抽獎由上方大 CTA 觸發 -->
+    <div id="tier-select" role="group" aria-label="選擇抽獎等級">
+      <button id="ts-prev" type="button" aria-label="上一等級">‹</button>
+      <span id="ts-label">您正在抽三等獎</span>
+      <button id="ts-next" type="button" aria-label="下一等級">›</button>
+    </div>
   </section>
 
   <!-- ===== TASKS ===== -->
@@ -462,7 +490,20 @@ img{display:block;max-width:100%}
       <div class="pf-field"><label>姓名</label><input id="pf-name" type="text" placeholder="您的姓名"></div>
       <div class="pf-field"><label>手機</label><input id="pf-phone" type="tel" placeholder="09xx-xxx-xxx"></div>
       <div class="pf-field"><label>Email</label><input id="pf-email" type="email" placeholder="you@example.com"></div>
-      <div class="pf-terms">
+      <button class="pf-notice-link" id="pf-notice" type="button">個人資料蒐集、處理及利用告知事項（點閱）</button>
+      <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我同意<b>高雄洲際酒店</b>蒐集、處理及利用本人個資，並接受其行銷資訊。<details><summary>詳全文</summary>我已閱讀並瞭解上述告知事項，同意高雄洲際酒店（遠洋投資股份有限公司高雄分公司）於前述目的範圍內蒐集、處理及利用本人姓名、手機、Email 及 LINE 相關資料，並同意透過 EDM、簡訊、LINE 官方帳號推播、電話等方式提供會員資訊、活動通知及行銷資訊；本同意屬自由選擇、得隨時撤回，不影響撤回前已完成之利用。</details></span></label>
+      <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意<b>臺北洲際酒店</b>蒐集、處理及利用本人個資，並接受其行銷資訊。<details><summary>詳全文</summary>我已閱讀並瞭解上述告知事項，同意臺北洲際酒店（遠雄巨蛋事業股份有限公司逸仙酒店分公司）於前述目的範圍內蒐集、處理及利用本人姓名、手機、Email 及 LINE 相關資料，並同意透過 EDM、簡訊、LINE 官方帳號推播、電話等方式提供會員資訊、活動通知及行銷資訊；本同意屬自由選擇、得隨時撤回，不影響撤回前已完成之利用。</details></span></label>
+      <button id="pf-submit" type="button">送出 · 領取 1 枚洲遊幣</button>
+      <div class="pf-optnote">未勾選任一行銷同意，仍可參加本活動及抽獎；僅無法透過「填寫資料領取洲遊幣」方式取得該活動獎勵，詳見活動規則。</div>
+      <div class="pf-note">本頁個資功能為<b>送審版</b>：正式蒐集前須完成<b>法務／資安審核</b>，並接安全後端（Supabase 東京，含同意紀錄時間戳／版本、撤回機制、RLS／DPA）。目前為預覽階段，您填寫之資料僅暫存本機、不會傳送或存入正式資料庫。</div>
+    </div>
+  </div>
+
+  <!-- 個資告知事項小視窗（由表單連結點開） -->
+  <div class="modal" id="notice-modal" role="dialog" aria-modal="true" aria-label="個人資料蒐集告知事項">
+    <div class="card notice-card">
+      <button class="pf-close" id="notice-close" type="button" aria-label="關閉">✕</button>
+      <div class="pf-terms notice-body">
         <p><b>個人資料蒐集、處理及利用告知事項（個資法第 8 條）</b>　版本 v0.2（送審版）</p>
         <p><b>【蒐集者】</b>本活動由下列二家公司各自獨立蒐集、處理及利用您所提供之個人資料，各公司互不共享您未授權提供之資料。您同意提供予哪一家酒店，該公司始得蒐集及利用您的個人資料；未經您勾選同意之酒店，不會取得您的個人資料。<br>・高雄洲際酒店（遠洋投資股份有限公司高雄分公司，統一編號：91097496）<br>・臺北洲際酒店（遠雄巨蛋事業股份有限公司逸仙酒店分公司，統一編號：60613318）</p>
         <p><b>【蒐集目的】</b>會員管理(052)、消費者/客戶管理與服務(090)、行銷(040)、調查統計與研究分析(157)、契約類似契約或其他法律關係管理(依實際營運需要)。</p>
@@ -476,11 +517,6 @@ img{display:block;max-width:100%}
         <p><b>【個人資料安全】</b>本公司將採取適當之技術及管理措施，保護您的個人資料，避免未經授權之存取、洩漏、竄改、毀損或其他侵害。</p>
         <p><b>【權利行使方式】</b>如欲查詢、閱覽、複製、更正、停止利用、刪除或撤回同意，請聯繫相應酒店：<br>・高雄洲際酒店｜信箱【待補】／線上表單【待補】／客服【待補】<br>・臺北洲際酒店｜信箱【待補】／線上表單【待補】／客服【待補】<br>停止接收行銷：EDM 點退訂連結、簡訊依指示退訂、LINE 官方帳號取消訂閱或封鎖。兩家酒店為獨立蒐集者，您得分別對任一酒店行使權利，不影響另一酒店已取得之合法授權。</p>
       </div>
-      <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我已閱讀並瞭解上述告知事項，同意<b>高雄洲際酒店</b>（遠洋投資股份有限公司高雄分公司）於前述目的範圍內蒐集、處理及利用本人姓名、手機、Email 及 LINE 相關資料，並同意透過 EDM、簡訊、LINE 官方帳號推播、電話等方式提供會員資訊、活動通知及行銷資訊；本同意屬自由選擇、得隨時撤回，不影響撤回前已完成之利用。</span></label>
-      <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我已閱讀並瞭解上述告知事項，同意<b>臺北洲際酒店</b>（遠雄巨蛋事業股份有限公司逸仙酒店分公司）於前述目的範圍內蒐集、處理及利用本人姓名、手機、Email 及 LINE 相關資料，並同意透過 EDM、簡訊、LINE 官方帳號推播、電話等方式提供會員資訊、活動通知及行銷資訊；本同意屬自由選擇、得隨時撤回，不影響撤回前已完成之利用。</span></label>
-      <button id="pf-submit" type="button">送出 · 領取 1 枚洲遊幣</button>
-      <div class="pf-optnote">未勾選任一行銷同意，仍可參加本活動及抽獎；僅無法透過「填寫資料領取洲遊幣」方式取得該活動獎勵，詳見活動規則。</div>
-      <div class="pf-note">本頁個資功能為<b>送審版</b>：正式蒐集前須完成<b>法務／資安審核</b>，並接安全後端（Supabase 東京，含同意紀錄時間戳／版本、撤回機制、RLS／DPA）。目前為預覽階段，您填寫之資料僅暫存本機、不會傳送或存入正式資料庫。</div>
     </div>
   </div>
 
@@ -658,15 +694,25 @@ function depositCoin(w){
   depositState();
   w.addEventListener('transitionend',()=>renderStack(),{once:true});
 }
+/* 等級選擇器（浮鈕）：顯示目前抽獎等級，左右箭頭 clamp 切換（端點 disabled） */
+const TS_ORDER=[60,30,0];   // tierDeg：三等獎→二等獎→一等獎
+function updateTierSelect(){
+  const lbl=$('#ts-label'); if(!lbl) return;
+  lbl.textContent=`您正在抽${TIER_RN[selTier]}`;
+  const i=TS_ORDER.indexOf(tierDeg);
+  $('#ts-prev').disabled = spinning || i<=0;                 // 已在三等獎→不能再降
+  $('#ts-next').disabled = spinning || i>=TS_ORDER.length-1; // 已在一等獎→不能再升
+  positionDrawBtn();
+}
+function stepTier(dir){        // dir -1＝往三等獎、+1＝往一等獎
+  if(spinning) return;
+  const i=TS_ORDER.indexOf(tierDeg), j=Math.max(0,Math.min(TS_ORDER.length-1,i+dir));
+  if(j===i) return;
+  tierDeg=TS_ORDER[j]; applyTier();
+}
 function updateInvested(){
-  const cost=COST[selTier], ok=S.invested>=cost, btn=$('#draw-btn');
-  if(btn && !spinning){
-    btn.disabled=!ok;
-    btn.textContent = ok
-      ? `已投入 ${S.invested} 枚 · 抽${TIER_RN[selTier]} →`
-      : `已投入 ${S.invested} 枚 · 再投 ${cost-S.invested} 枚抽${TIER_RN[selTier]}`;
-    positionDrawBtn();
-  }
+  const cost=COST[selTier], ok=S.invested>=cost;
+  updateTierSelect();
   // 上方大 CTA（與浮鈕分工）：可抽→抽獎；有幣→投一枚（兼鍵盤投幣路徑）；沒幣→停用提示投幣
   //（「去賺洲遊幣」已獨立為下方常駐 #earn-link 引導鈕）
   const cta=$('#spin-btn');
@@ -686,7 +732,7 @@ function updateInvested(){
   }
 }
 function positionDrawBtn(){
-  const btn=$('#draw-btn'), slot=$('.disc-slot'), app=$('#app');
+  const btn=$('#tier-select'), slot=$('.disc-slot'), app=$('#app');
   if(!btn||!slot||!app) return;
   const sr=slot.getBoundingClientRect(), ar=app.getBoundingClientRect();
   btn.style.left=(sr.left+sr.width/2-ar.left)+'px';
@@ -758,9 +804,9 @@ function spin(force){
   if(S.invested < cost){ toast(`需投入 ${cost} 枚`); return; }
   if(S.balance < cost){ toast('餘額不足'); return; }
   if(cost===1 && !force){ openModal($('#confirm-modal')); return; }  // 只投1枚→確認
-  spinning=true; $('#browse-btn').disabled=true; $('#draw-btn').disabled=true;
+  spinning=true; $('#browse-btn').disabled=true;
+  $('#ts-prev').disabled=true; $('#ts-next').disabled=true;   // 抽獎中鎖定等級選擇
   const cta=$('#spin-btn'); cta.disabled=true; cta.textContent='抽獎中…';
-  $('#draw-btn').textContent='抽獎中…';
   buildRing(tier);
   const items=PRIZES[tier], n=items.length, step=360/n;
   const idx=weightedPick(items);
@@ -799,7 +845,8 @@ function depositOne(){
   if(S.balance-S.invested<=0){ toast('先去賺洲遊幣吧'); return; }
   depositState(); renderStack();
 }
-$('#draw-btn').addEventListener('click',()=>spin());
+$('#ts-prev').addEventListener('click',()=>stepTier(-1));
+$('#ts-next').addEventListener('click',()=>stepTier(1));
 $('#spin-btn').addEventListener('click',()=>{
   const mode=$('#spin-btn').dataset.mode;
   if(mode==='none') return;
@@ -962,6 +1009,10 @@ function renderProfileCard(){ $('#profile-card').hidden = !!S.done.profile; }
 $('#profile-card').addEventListener('click',()=>openModal($('#profile-modal')));
 $('#profile-modal').addEventListener('click',e=>{ if(e.target.id==='profile-modal') $('#profile-modal').classList.remove('show'); });
 $('#pf-close').addEventListener('click',()=>$('#profile-modal').classList.remove('show'));
+/* 個資告知事項小視窗（點連結開、✕/背景關） */
+$('#pf-notice').addEventListener('click',()=>openModal($('#notice-modal')));
+$('#notice-close').addEventListener('click',()=>$('#notice-modal').classList.remove('show'));
+$('#notice-modal').addEventListener('click',e=>{ if(e.target.id==='notice-modal') $('#notice-modal').classList.remove('show'); });
 $('#pf-submit').addEventListener('click',()=>{
   // 基本驗證：姓名／手機／Email（原型層級的格式檢查）
   const name=$('#pf-name').value.trim();
@@ -992,10 +1043,10 @@ $('#reward').addEventListener('click',()=>{ clearTimeout(rwT); $('#reward').clas
 
 /* 非 PROD：任務說明改回原型示意版（社群網址待行銷確認） */
 if(!PROD){ const tn=$('#task-note'); if(tn) tn.textContent='【原型示意】點「前往完成」開啟社群頁面，返回後自動驗證發幣；社群網址待行銷確認。'; }
-/* 右下角歸零（原型測試用）：PROD 時隱藏；非 PROD 綁確認後清資料重載 */
-if(PROD){ $('#reset-btn').hidden=true; }
-else $('#reset-btn').addEventListener('click',()=>{
-  if(!confirm('確定歸零？將清空洲遊幣、中獎與填答紀錄（原型測試用）。')) return;
+/* 右下角歸零（測試用，正式對外前再關）：一律顯示並綁確認後清資料重載 */
+$('#reset-btn').hidden=false;
+$('#reset-btn').addEventListener('click',()=>{
+  if(!confirm('確定歸零？將清空洲遊幣、中獎與填答紀錄（測試用）。')) return;
   localStorage.removeItem(LS); location.reload();
 });
 
@@ -1041,8 +1092,7 @@ tierDeg = 60;
 { const lvl0=LEVEL_BY_TIER[TIER_BY_DEG[tierDeg]];
   if(lvl0!==curLevel){ curLevel=lvl0;                     // 初始直接換圖，不走發光轉場
     DISC_LAYERS.forEach(([sel,name])=>{ $(sel).src=`assets/L${lvl0}/${name}.png`; }); } }
-applyTier();        // buildRing + updateInvested
-if(!S.done.tierTip) $('#tier-hint').classList.add('show');   // 首次進入：等級切換引導
+applyTier();        // buildRing + updateInvested + updateTierSelect
 renderBalance(); renderStack(); renderProfileCard(); positionBrowse(); startWinners();
 renderTasks();                 // 預先渲染任務清單（含 pending 狀態）
 if(Object.keys(S.pending).length) setTimeout(verifyPending, 400);   // 同分頁跳社群回來→補發幣
