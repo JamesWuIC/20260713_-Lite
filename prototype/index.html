@@ -197,7 +197,7 @@ img{display:block;max-width:100%}
 /* 一等獎持續發光光暈 */
 .tier-aura{position:absolute;inset:-8%;border-radius:50%;pointer-events:none;opacity:0;z-index:8;
   mix-blend-mode:screen;
-  background:radial-gradient(circle at 50% 50%,rgba(255,228,150,.6),rgba(255,205,110,.28) 46%,transparent 70%)}
+  background:radial-gradient(circle at 50% 50%,rgba(255,228,150,.6),rgba(255,205,110,.28) 46%,transparent 0%)}
 .tier-aura.show{opacity:1;animation:auraPulse 2.4s ease-in-out infinite}
 @keyframes auraPulse{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
 /* 等級章可升等時脈動 */
@@ -230,11 +230,12 @@ img{display:block;max-width:100%}
 .pf-consent details>*:not(summary){display:block;margin-top:6px;font-size:12px;color:var(--muted);line-height:1.6}
 .pf-consent details{white-space:normal}
 /* 告知事項連結（點開小視窗） */
-.pf-notice-link{width:100%;text-align:left;background:#faf7f0;border:1px solid rgba(161,98,7,.22);border-radius:10px;
-  padding:11px 12px;margin:2px 0 12px;font-family:var(--serif);font-size:13px;font-weight:600;color:var(--gold)}
-.pf-notice-link::after{content:" ›";font-weight:700}
-.pf-notice-link:active{background:#f3ecdd}
-.pf-notice-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+/* 告知事項：純文字超連結樣式（非按鈕外觀）— 提高特異性覆蓋 .card button 金底 */
+.card button.pf-notice-link{display:block;width:auto;text-align:left;background:none;border:none;box-shadow:none;
+  padding:0;margin:2px 0 12px;font-family:var(--serif);font-weight:400;font-size:13px;color:var(--gold);
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.card button.pf-notice-link:active{transform:none;opacity:.6;background:none}
+.card button.pf-notice-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 .pf-optnote{text-align:left;font-family:var(--sans);font-size:12px;color:var(--gold);margin:8px 0 0}
 /* 可點的提示列（導向任務頁） */
 /* 任務頁 */
@@ -392,12 +393,11 @@ img{display:block;max-width:100%}
   <form class="access-panel" id="access-form">
     <div class="access-mark" aria-hidden="true">✦</div>
     <div class="access-brand">InterCoins</div>
-    <h1 id="access-title" class="access-copy">洲遊幣活動測試入口<br>請輸入訪客密碼</h1>
+    <h1 id="access-title" class="access-copy">洲遊幣活動<br>請輸入訪客密碼</h1>
     <label for="access-password" class="sr-only">訪客密碼</label>
     <input class="access-field" id="access-password" name="password" type="password" inputmode="numeric" autocomplete="current-password" required autofocus>
     <button class="access-submit" type="submit">進入活動</button>
     <p class="access-error" id="access-error" role="alert" aria-live="polite"></p>
-    <p class="access-note">內部預覽用；正式上線改為 LINE 登入</p>
   </form>
 </main>
 
@@ -495,7 +495,7 @@ img{display:block;max-width:100%}
       <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意<b>臺北洲際酒店</b>蒐集、處理及利用本人個資，並接受其行銷資訊。<details><summary>詳全文</summary>我已閱讀並瞭解上述告知事項，同意臺北洲際酒店（遠雄巨蛋事業股份有限公司逸仙酒店分公司）於前述目的範圍內蒐集、處理及利用本人姓名、手機、Email 及 LINE 相關資料，並同意透過 EDM、簡訊、LINE 官方帳號推播、電話等方式提供會員資訊、活動通知及行銷資訊；本同意屬自由選擇、得隨時撤回，不影響撤回前已完成之利用。</details></span></label>
       <button id="pf-submit" type="button">送出 · 領取 1 枚洲遊幣</button>
       <div class="pf-optnote">未勾選任一行銷同意，仍可參加本活動及抽獎；僅無法透過「填寫資料領取洲遊幣」方式取得該活動獎勵，詳見活動規則。</div>
-      <div class="pf-note">本頁個資功能為<b>送審版</b>：正式蒐集前須完成<b>法務／資安審核</b>，並接安全後端（Supabase 東京，含同意紀錄時間戳／版本、撤回機制、RLS／DPA）。目前為預覽階段，您填寫之資料僅暫存本機、不會傳送或存入正式資料庫。</div>
+      <div class="pf-note">本公司依個人資料保護法及上述告知事項蒐集、處理及利用您的個人資料，並採取適當之安全維護措施；您得隨時撤回同意或行使個資權利。</div>
     </div>
   </div>
 
@@ -504,7 +504,7 @@ img{display:block;max-width:100%}
     <div class="card notice-card">
       <button class="pf-close" id="notice-close" type="button" aria-label="關閉">✕</button>
       <div class="pf-terms notice-body">
-        <p><b>個人資料蒐集、處理及利用告知事項（個資法第 8 條）</b>　版本 v0.2（送審版）</p>
+        <p><b>個人資料蒐集、處理及利用告知事項（個資法第 8 條）</b></p>
         <p><b>【蒐集者】</b>本活動由下列二家公司各自獨立蒐集、處理及利用您所提供之個人資料，各公司互不共享您未授權提供之資料。您同意提供予哪一家酒店，該公司始得蒐集及利用您的個人資料；未經您勾選同意之酒店，不會取得您的個人資料。<br>・高雄洲際酒店（遠洋投資股份有限公司高雄分公司，統一編號：91097496）<br>・臺北洲際酒店（遠雄巨蛋事業股份有限公司逸仙酒店分公司，統一編號：60613318）</p>
         <p><b>【蒐集目的】</b>會員管理(052)、消費者/客戶管理與服務(090)、行銷(040)、調查統計與研究分析(157)、契約類似契約或其他法律關係管理(依實際營運需要)。</p>
         <p><b>【個資類別】</b>姓名、行動電話、電子郵件、LINE 使用者識別碼(User ID)、LINE 顯示名稱，及您透過 LINE Login 或活動頁面主動提供並授權本公司取得之資料。</p>
@@ -515,7 +515,7 @@ img{display:block;max-width:100%}
         <p><b>【您的權利】</b>依個資法第 3 條，您得向蒐集之酒店請求查詢或閱覽、製給複製本、補充或更正、停止蒐集處理或利用、刪除，並得隨時撤回同意。本公司得於必要時確認申請人身分。您撤回同意，不影響撤回前依法已完成之蒐集、處理及利用。</p>
         <p><b>【不提供或不同意之影響】</b>提供個資及同意行銷均屬您的自由選擇。<b>您不同意行銷，仍可依活動規則參加活動及抽獎</b>；未勾選同意者，僅無法透過「填寫資料領取洲遊幣」取得該活動獎勵，亦不會收到後續行銷資訊。</p>
         <p><b>【個人資料安全】</b>本公司將採取適當之技術及管理措施，保護您的個人資料，避免未經授權之存取、洩漏、竄改、毀損或其他侵害。</p>
-        <p><b>【權利行使方式】</b>如欲查詢、閱覽、複製、更正、停止利用、刪除或撤回同意，請聯繫相應酒店：<br>・高雄洲際酒店｜信箱【待補】／線上表單【待補】／客服【待補】<br>・臺北洲際酒店｜信箱【待補】／線上表單【待補】／客服【待補】<br>停止接收行銷：EDM 點退訂連結、簡訊依指示退訂、LINE 官方帳號取消訂閱或封鎖。兩家酒店為獨立蒐集者，您得分別對任一酒店行使權利，不影響另一酒店已取得之合法授權。</p>
+        <p><b>【權利行使方式】</b>如欲查詢、閱覽、複製、更正、停止利用、刪除或撤回同意，請透過各酒店官方客服管道（詳見活動頁公告）與相應酒店聯繫，本公司將依法協助辦理。停止接收行銷：EDM 點退訂連結、簡訊依指示退訂、LINE 官方帳號取消訂閱或封鎖。兩家酒店為獨立蒐集者，您得分別對任一酒店行使權利，不影響另一酒店已取得之合法授權。</p>
       </div>
     </div>
   </div>
