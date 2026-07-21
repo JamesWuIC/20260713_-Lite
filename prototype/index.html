@@ -187,7 +187,13 @@ img{display:block;max-width:100%}
   background:linear-gradient(180deg,#f6d989,#dca948);border:1px solid rgba(161,98,7,.6);
   border-radius:999px;padding:3px 6px;box-shadow:0 5px 14px rgba(161,98,7,.45);
   animation:drawFloat 1.6s ease-in-out infinite}
-#ts-label{font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;color:#5a3a08;padding:0 2px}
+/* 中間標題＝可點按鈕：開獎項一覽（高特異性覆蓋下方圓形箭頭規則） */
+#tier-select button#ts-label{width:auto;height:auto;flex:none;border:none;background:none;border-radius:0;box-shadow:none;
+  display:inline-flex;align-items:center;gap:4px;padding:2px 4px;
+  font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;color:#5a3a08;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:rgba(90,58,8,.4)}
+#ts-label::after{content:"▤";font-size:12px;text-decoration:none}
+#tier-select button#ts-label:not(:disabled):active{opacity:.7;background:none}
 #tier-select button{width:34px;height:34px;flex:none;border:none;background:transparent;border-radius:50%;
   font-family:var(--display);font-size:24px;font-weight:700;line-height:1;color:#5a3a08;display:grid;place-items:center}
 #tier-select button:not(:disabled):active{background:rgba(90,58,8,.14)}
@@ -269,11 +275,6 @@ img{display:block;max-width:100%}
 @keyframes cardPulse{50%{box-shadow:0 9px 26px rgba(201,154,59,.55)}}
 /* 瀏覽獎品小按鈕（浮在轉盤底部） */
 /* 瀏覽獎品：純文字，浮在投幣口右側 */
-#browse-btn{position:absolute;z-index:44;background:none;border:none;padding:12px 8px;
-  font-family:var(--serif);font-weight:600;font-size:13px;color:var(--gold);white-space:nowrap;
-  text-shadow:0 1px 2px rgba(255,255,255,.6)}
-#browse-btn:disabled{opacity:.4}
-#browse-btn:not(:disabled):active{opacity:.6}
 /* 個資表單欄位 */
 .pf-field{text-align:left;margin:0 0 10px}
 .pf-field label{display:block;font-family:var(--serif);font-size:12px;color:var(--muted);margin-bottom:4px}
@@ -448,14 +449,11 @@ img{display:block;max-width:100%}
         <!-- 等級切換引導提示（首次進入顯示，點過徽章即收） -->
         <div id="tier-hint" aria-hidden="true">↑ 點徽章切換獎項等級</div>
       </div>
-      <!-- 獎項一覽：開啟獎項清單彈窗（左右箭頭切換三/二/一等獎） -->
-      <button id="browse-btn" type="button">獎項一覽 ▤</button>
     </div>
-    <!-- 已投入＋抽獎合併浮鈕（浮在投幣口上方，取代主 CTA） -->
-    <!-- 等級選擇器（浮在投幣口上方）：左右箭頭切換抽獎等級；抽獎由上方大 CTA 觸發 -->
+    <!-- 等級選擇器（浮在投幣口上方）：‹ › 切換抽獎等級；點中間標題開獎項一覽；抽獎由上方大 CTA 觸發 -->
     <div id="tier-select" role="group" aria-label="選擇抽獎等級">
       <button id="ts-prev" type="button" aria-label="上一等級">‹</button>
-      <span id="ts-label">您正在抽三等獎</span>
+      <button id="ts-label" type="button" aria-label="查看獎項一覽">您正在抽三等獎</button>
       <button id="ts-next" type="button" aria-label="下一等級">›</button>
     </div>
   </section>
@@ -603,7 +601,7 @@ function grantAccess(){
   sessionStorage.setItem(ACCESS_SESSION_KEY,'1');
   $('#access-gate').hidden=true;
   $('#app').hidden=false;
-  requestAnimationFrame(()=>{ positionDrawBtn(); positionBrowse(); });
+  requestAnimationFrame(()=>{ positionDrawBtn(); });
 }
 if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1') grantAccess();
 $('#access-form').addEventListener('submit',e=>{
@@ -699,6 +697,7 @@ const TS_ORDER=[60,30,0];   // tierDeg：三等獎→二等獎→一等獎
 function updateTierSelect(){
   const lbl=$('#ts-label'); if(!lbl) return;
   lbl.textContent=`您正在抽${TIER_RN[selTier]}`;
+  lbl.disabled = spinning;                                   // 抽獎中不能開獎項一覽
   const i=TS_ORDER.indexOf(tierDeg);
   $('#ts-prev').disabled = spinning || i<=0;                 // 已在三等獎→不能再降
   $('#ts-next').disabled = spinning || i>=TS_ORDER.length-1; // 已在一等獎→不能再升
@@ -804,7 +803,7 @@ function spin(force){
   if(S.invested < cost){ toast(`需投入 ${cost} 枚`); return; }
   if(S.balance < cost){ toast('餘額不足'); return; }
   if(cost===1 && !force){ openModal($('#confirm-modal')); return; }  // 只投1枚→確認
-  spinning=true; $('#browse-btn').disabled=true;
+  spinning=true; $('#ts-label').disabled=true;
   $('#ts-prev').disabled=true; $('#ts-next').disabled=true;   // 抽獎中鎖定等級選擇
   const cta=$('#spin-btn'); cta.disabled=true; cta.textContent='抽獎中…';
   buildRing(tier);
@@ -821,7 +820,7 @@ function spin(force){
   const dur = REDUCE ? 700 : 5400, turns = REDUCE ? 1 : 6;
   spinState={ base, delta: turns*360 + align, start: performance.now(), dur };
   setTimeout(()=>{
-    spinning=false; $('#browse-btn').disabled=false;
+    spinning=false; $('#ts-label').disabled=false;
     showWin(prize, tier, code, coin);
     renderBalance(); renderStack();
   }, dur+150);
@@ -881,8 +880,7 @@ function applyTier(){
   swapLevel(selTier);       // 發光轉場＋換風格
   buildRing(selTier);       // 盤面獎項換成該等級（直書金字）
   $('#tier-aura').classList.toggle('show', selTier===5);   // 一等獎持續發光
-  updateInvested();         // 抽獎浮鈕依新等級更新
-  positionBrowse();
+  updateInvested();         // 等級選擇器依新等級更新
 }
 /* ╚════════════════════════════════════════════════════════════╝ */
 
@@ -898,25 +896,16 @@ $('#tier-hit').addEventListener('click', cycleTier);
 
 /* 目前投入枚數可抽的最高等級（1/3/5→三/二/一等獎） */
 function bestAffordableTier(){ const n=S.invested; return n>=5?5 : n>=3?3 : n>=1?1 : 0; }
-/* 瀏覽獎品文字浮在投幣口右側 */
-function positionBrowse(){
-  const btn=$('#browse-btn'), slot=$('.disc-slot'), stage=$('.stage');
-  if(!btn||!slot||!stage) return;
-  const sr=slot.getBoundingClientRect(), st=stage.getBoundingClientRect();
-  // padding 加大到 44px 觸控目標，位移補償讓文字視覺位置不變
-  btn.style.left=(sr.right-st.left+6)+'px';
-  btn.style.top =(sr.top-st.top+sr.height*0.25-12)+'px';
-}
-addEventListener('resize', ()=>{ positionDrawBtn(); positionBrowse(); });
+addEventListener('resize', ()=>{ positionDrawBtn(); });
 // 字型載入完成會改變上方內容高度 → 舞台(margin-top:auto)位移，浮鈕需重定位
-if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ positionDrawBtn(); positionBrowse(); });
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ positionDrawBtn(); });
 
 /* ---------- 任務頁：追蹤社群，每完成一項 +1 洲遊幣（一次性） ---------- */
 // 社群連結【待行銷確認】：官方粉專最佳猜測網址，上線前請由行銷核對替換
 const SOCIAL={
   ig_tpe:'https://www.instagram.com/intercontinental_taipei/',
   fb_tpe:'https://www.facebook.com/ICTaipei/',
-  ig_khh:'https://www.instagram.com/intercontinental.kaohsiung/',
+  ig_khh:'https://www.instagram.com/intercontinental_kaohsiung/',   // 已由行銷確認
   fb_khh:'https://www.facebook.com/ICKaohsiung/',
 };
 const SHARE_URL=location.href.split('#')[0];
@@ -993,7 +982,7 @@ function renderPrizeList(){
 }
 function openPrizeList(t){ plTier=PL_TIERS.includes(t)?t:1; renderPrizeList(); openModal($('#prizelist-modal')); }
 function cyclePrize(dir){ const i=PL_TIERS.indexOf(plTier); plTier=PL_TIERS[(i+dir+PL_TIERS.length)%PL_TIERS.length]; renderPrizeList(); }
-$('#browse-btn').addEventListener('click',()=>openPrizeList(selTier));
+$('#ts-label').addEventListener('click',()=>openPrizeList(selTier));
 $('#pl-prev').addEventListener('click',()=>cyclePrize(-1));
 $('#pl-next').addEventListener('click',()=>cyclePrize(1));
 $('#pl-close').addEventListener('click',()=>$('#prizelist-modal').classList.remove('show'));
@@ -1093,7 +1082,7 @@ tierDeg = 60;
   if(lvl0!==curLevel){ curLevel=lvl0;                     // 初始直接換圖，不走發光轉場
     DISC_LAYERS.forEach(([sel,name])=>{ $(sel).src=`assets/L${lvl0}/${name}.png`; }); } }
 applyTier();        // buildRing + updateInvested + updateTierSelect
-renderBalance(); renderStack(); renderProfileCard(); positionBrowse(); startWinners();
+renderBalance(); renderStack(); renderProfileCard(); positionDrawBtn(); startWinners();
 renderTasks();                 // 預先渲染任務清單（含 pending 狀態）
 if(Object.keys(S.pending).length) setTimeout(verifyPending, 400);   // 同分頁跳社群回來→補發幣
 
