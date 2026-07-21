@@ -182,9 +182,9 @@ img{display:block;max-width:100%}
 
 /* 已投入＋抽獎 合併浮鈕（浮在投幣口上方，取代主 CTA） */
 #draw-btn{position:absolute;z-index:46;transform:translate(-50%,-100%);white-space:nowrap;
-  font-family:var(--serif);font-weight:700;font-size:16px;letter-spacing:.05em;
+  font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;
   color:#5a3a08;background:linear-gradient(180deg,#f6d989,#dca948);border:1px solid rgba(161,98,7,.6);
-  border-radius:999px;padding:11px 22px;box-shadow:0 6px 18px rgba(161,98,7,.5)}
+  border-radius:999px;padding:8px 16px;box-shadow:0 5px 14px rgba(161,98,7,.45)}
 #draw-btn:not(:disabled){animation:drawFloat 1.6s ease-in-out infinite}
 #draw-btn:not(:disabled):active{filter:brightness(.94)}
 #draw-btn:disabled{background:linear-gradient(180deg,#e7e1d4,#c9c1af);color:#5F5A4F;border-color:rgba(138,132,119,.4);box-shadow:none}
@@ -269,6 +269,22 @@ img{display:block;max-width:100%}
   border-radius:50%;background:transparent;color:var(--muted);font-size:18px;font-weight:400;
   box-shadow:none;display:grid;place-items:center;z-index:2}
 .card button.pf-close:active{transform:none;background:rgba(43,38,32,.08)}
+
+/* 獎項一覽彈窗 */
+.prizelist-card{position:relative;padding-top:30px;--pl-accent:#9C6B0E}
+.pl-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px}
+.card button.pl-arrow{width:44px;height:44px;flex:none;margin:0;padding:0;border-radius:50%;
+  background:transparent;color:var(--pl-accent);font-family:var(--display);font-size:30px;font-weight:700;
+  line-height:1;box-shadow:none;display:grid;place-items:center}
+.card button.pl-arrow:active{transform:none;background:rgba(43,38,32,.06)}
+.pl-title{flex:1;text-align:center;font-family:var(--serif);font-weight:700;font-size:20px;
+  letter-spacing:.08em;color:var(--pl-accent)}
+.pl-items{list-style:none;margin:0;padding:0;max-height:46vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  border-top:1px solid rgba(147,93,8,.16)}
+.pl-items li{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:15px;color:var(--ink);
+  text-align:left;padding:11px 6px;border-bottom:1px solid rgba(147,93,8,.14)}
+.pl-items li::before{content:"";width:7px;height:7px;flex:none;border-radius:50%;background:var(--pl-accent);opacity:.7}
+.pl-note{font-family:var(--sans);font-size:11px;color:var(--muted);margin-top:12px}
 
 /* 金幣獎勵動畫（個資送出） */
 .reward{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
@@ -409,8 +425,8 @@ img{display:block;max-width:100%}
         <!-- 等級切換引導提示（首次進入顯示，點過徽章即收） -->
         <div id="tier-hint" aria-hidden="true">↑ 點徽章切換獎項等級</div>
       </div>
-      <!-- 瀏覽獎品：點一下轉到下一個獎品 -->
-      <button id="browse-btn" type="button">瀏覽獎品 ↻</button>
+      <!-- 獎項一覽：開啟獎項清單彈窗（左右箭頭切換三/二/一等獎） -->
+      <button id="browse-btn" type="button">獎項一覽 ▤</button>
     </div>
     <!-- 已投入＋抽獎合併浮鈕（浮在投幣口上方，取代主 CTA） -->
     <button id="draw-btn" type="button" disabled>投幣後開始抽獎</button>
@@ -473,6 +489,20 @@ img{display:block;max-width:100%}
       <div class="code" style="margin-top:6px">投入更多洲遊幣，可提升到二等獎、一等獎，抽出更大獎品。</div>
       <button id="cf-yes" type="button">確定抽三等獎</button>
       <button id="cf-no" type="button" class="ghost">去賺更多洲遊幣 →</button>
+    </div>
+  </div>
+
+  <!-- 獎項一覽：左右箭頭切換三/二/一等獎 -->
+  <div class="modal" id="prizelist-modal" role="dialog" aria-modal="true" aria-label="獎項一覽">
+    <div class="card prizelist-card" id="pl-card">
+      <button class="pf-close" id="pl-close" type="button" aria-label="關閉">✕</button>
+      <div class="pl-head">
+        <button class="pl-arrow" id="pl-prev" type="button" aria-label="上一個等級">‹</button>
+        <div class="pl-title" id="pl-title">獎項一覽</div>
+        <button class="pl-arrow" id="pl-next" type="button" aria-label="下一個等級">›</button>
+      </div>
+      <ul class="pl-items" id="pl-items"></ul>
+      <div class="pl-note">實際獎項與數量以現場公告為準。</div>
     </div>
   </div>
 
@@ -902,13 +932,22 @@ function verifyPending(){
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') verifyPending(); });
 
 /* 瀏覽獎品：點一下把下一個獎品轉到頂端並暫停自轉 ~1.6s */
-function browseNext(){
-  if(spinning) return;
-  const step=30, target=(Math.round(wheelAngle/step)+1)*step;
-  spinState={ base:wheelAngle, delta:target-wheelAngle, start:performance.now(), dur:420 };
-  idleHold=performance.now()+1600;
+/* 獎項一覽：左右箭頭切換 三→二→一 等獎（僅切檢視，不動轉盤抽獎等級） */
+const PL_TIERS=[1,3,5];   // 三等獎→二等獎→一等獎
+let plTier=1;
+function renderPrizeList(){
+  const names=[...new Set(PRIZES[plTier].map(p=>p.n))];   // 去重、保留出現順序
+  $('#pl-title').textContent=`${TIER_RN[plTier]} 獎項一覽`;
+  $('#pl-card').style.setProperty('--pl-accent', LABEL_COLOR[plTier]);
+  $('#pl-items').innerHTML=names.map(n=>`<li>${n}</li>`).join('');
 }
-$('#browse-btn').addEventListener('click', browseNext);
+function openPrizeList(t){ plTier=PL_TIERS.includes(t)?t:1; renderPrizeList(); openModal($('#prizelist-modal')); }
+function cyclePrize(dir){ const i=PL_TIERS.indexOf(plTier); plTier=PL_TIERS[(i+dir+PL_TIERS.length)%PL_TIERS.length]; renderPrizeList(); }
+$('#browse-btn').addEventListener('click',()=>openPrizeList(selTier));
+$('#pl-prev').addEventListener('click',()=>cyclePrize(-1));
+$('#pl-next').addEventListener('click',()=>cyclePrize(1));
+$('#pl-close').addEventListener('click',()=>$('#prizelist-modal').classList.remove('show'));
+$('#prizelist-modal').addEventListener('click',e=>{ if(e.target.id==='prizelist-modal') $('#prizelist-modal').classList.remove('show'); });
 
 /* 只投 1 枚抽獎確認彈窗 */
 $('#cf-yes').addEventListener('click',()=>{ $('#confirm-modal').classList.remove('show'); spin(true); });
