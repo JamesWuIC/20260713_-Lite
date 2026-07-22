@@ -36,6 +36,16 @@
   /* 香檳金（#BFB925 暖化、收綠味、往品牌金靠＝香檳/古銅金；上方按鈕動作色，與暖金並存）*/
   --cit:#C4A930; --cit-hi:#EBD98A; --cit-mid:#D3BC45; --cit-deep:#927219;
   --cit-shadow:rgba(140,102,20,.32); --cit-ink:#3A2C06; --cit-ink-soft:#6B520D;
+
+  /* ═══ 🎨 可調色盤：微調「按鈕」與「飾條」顏色只改這裡 ═══ */
+  /* 主按鈕（開始抽獎 / 去賺洲遊幣 / 填資料）漸層：上 → 中 → 下 */
+  --btn-top:#EBD98A; --btn-mid:#D3BC45; --btn-end:#B4972A;
+  /* 轉盤底部香檳金封邊（飾條）漸層：上 → 中 → 下 */
+  --hem-top:#EBD98A; --hem-mid:#D3BC45; --hem-end:#927219;
+  /* 封邊飾條上的跑馬燈文字色（金底需深墨字才夠對比） */
+  --hem-text:#3A2C06;
+  /* ═══════════════════════════════════════════════════ */
+
   /* 中秋暖夜背景（月暈＋深琥珀夜）與夜色底上的文字色 */
   --night-top:#5A3C1F; --night-mid:#3A2413; --night-deep:#180D05;
   --moon:rgba(247,225,160,.22);        /* 轉盤後方柔和月暈 */
@@ -93,11 +103,11 @@ img.li-av{background:none}
   border:1px solid rgba(107,102,91,.35);border-radius:var(--r-pill);padding:0 5px;line-height:1.5}
 .li-tag[hidden]{display:none}
 /* 匿名中獎跑馬燈（低調文字版：頂欄下方一行、無底色、淡香檳字） */
-.winticker{text-align:center;min-height:15px;margin:-2px 0 6px;overflow:hidden}
+/* 跑馬燈文字（座落在香檳金封邊上）：金底深墨字，對比 ~7:1 */
 .wt-msg{display:inline-block;max-width:100%;font-family:var(--serif);font-size:var(--t-fine);
-  color:var(--on-night-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.82}
+  color:var(--hem-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;opacity:1}
 .wt-msg.in{animation:wtIn .5s ease}
-@keyframes wtIn{from{opacity:0}to{opacity:.82}}
+@keyframes wtIn{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){ .wt-msg.in{animation:none} }
 
 /* ===== WHEEL screen ===== */
@@ -110,7 +120,7 @@ img.li-av{background:none}
 .controls{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;gap:var(--s3);padding-top:var(--s2)}
 /* 主 CTA：兩段式標籤（主＝宋體大、次＝黑體小），刻意換行、恆定高度避免版位跳動 */
 .cta{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;color:var(--cit-ink);
-  background:linear-gradient(180deg,var(--cit-hi),var(--cit-mid) 52%,#B4972A);border:1px solid var(--cit-deep);border-radius:var(--r-btn);padding:10px 16px;
+  background:linear-gradient(180deg,var(--btn-top),var(--btn-mid) 52%,var(--btn-end));border:1px solid var(--cit-deep);border-radius:var(--r-btn);padding:10px 16px;
   box-shadow:0 6px 18px var(--cit-shadow),inset 0 1px 0 rgba(255,255,255,.5);transition:.2s}
 .cta-main{font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-lead);letter-spacing:.03em;line-height:1.15;white-space:nowrap}
 .cta-sub{font-family:var(--sans);font-weight:var(--w-body);font-size:var(--t-cap);letter-spacing:0;line-height:1.2;white-space:nowrap}
@@ -190,9 +200,10 @@ img.li-av{background:none}
    → 舞台底邊＝螢幕底邊；高度固定 --stage-h → 轉盤下緣在所有機型一致地自然出血。 */
 .stage{position:relative;width:calc(100% + 36px);margin:6px -18px var(--s3);
   height:var(--stage-h);overflow:hidden;flex:none}
-/* 香檳金屬封邊：蓋住轉盤底部出血硬切邊（禮盒燙金封邊感） */
-.stage-hem{position:absolute;left:0;right:0;bottom:0;height:20px;z-index:10;pointer-events:none;
-  background:linear-gradient(180deg,var(--cit-hi) 0%,var(--cit-mid) 45%,var(--cit-deep) 100%);
+/* 香檳金屬封邊（銘牌條）：蓋住轉盤底部出血硬切邊，並承載匿名中獎跑馬燈 */
+.stage-hem{position:absolute;left:0;right:0;bottom:0;height:24px;z-index:10;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;padding:0 12px;
+  background:linear-gradient(180deg,var(--hem-top) 0%,var(--hem-mid) 45%,var(--hem-end) 100%);
   border-top:1px solid var(--gold-line);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.55), inset 0 -3px 6px rgba(140,102,20,.45)}
 /* 🔒 disc＝整顆轉盤的「單一群組」：所有部件(方框/等級盤/軌道/獎項盤/穹頂/金字/投幣口/發光)
@@ -436,9 +447,6 @@ img.li-av{background:none}
       <div class="balance"><img src="assets/coin.png" alt="洲遊幣"><b id="bal-wheel">0</b><span>洲遊幣</span></div>
     </div>
 
-    <!-- 匿名中獎跑馬燈（低調文字，不搶主角） -->
-    <div class="winticker" id="winticker" aria-live="polite"><span class="wt-msg" id="wt-msg"></span></div>
-
     <!-- 轉盤＝主角：頂欄下方即完整現身（點等級卡會即時換金/銀/銅） -->
     <div class="stage">
       <div class="disc">
@@ -455,7 +463,8 @@ img.li-av{background:none}
         <!-- 一等獎持續發光 -->
         <div class="tier-aura" id="tier-aura"></div>
       </div>
-      <div class="stage-hem" aria-hidden="true"></div>
+      <!-- 封邊飾條同時承載匿名中獎跑馬燈 -->
+      <div class="stage-hem"><span class="wt-msg" id="wt-msg" aria-live="polite"></span></div>
     </div>
 
     <!-- 控制區：點三張等級卡選投入枚數（轉盤即時換金/銀/銅與獎項）→ 開始抽獎 -->
