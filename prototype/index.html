@@ -38,9 +38,9 @@
   --t-display:1.875rem;/* 30px 中獎名、大型展示數字 */
   /* 字重角色（去粗：全站不用 700 bold，最重＝600 SemiBold；階層靠字級＋色＋600/500/400）*/
   --w-body:400; --w-medium:500; --w-label:500; --w-display:600;
-  /* 香檳金（#BFB925 加深降綠成金屬香檳/古銅金；上方按鈕動作色，與暖金並存）*/
-  --cit:#BFB925; --cit-hi:#E7E08C; --cit-mid:#CFC53F; --cit-deep:#8F871C;
-  --cit-shadow:rgba(122,110,15,.32); --cit-ink:#3A360A; --cit-ink-soft:#6E680F;
+  /* 香檳金（#BFB925 暖化、收綠味、往品牌金靠＝香檳/古銅金；上方按鈕動作色，與暖金並存）*/
+  --cit:#C4A930; --cit-hi:#EBD98A; --cit-mid:#D3BC45; --cit-deep:#927219;
+  --cit-shadow:rgba(140,102,20,.32); --cit-ink:#3A2C06; --cit-ink-soft:#6B520D;
   /* 行高 */
   --lh-tight:1.15; --lh-snug:1.35; --lh-body:1.6;
 }
@@ -98,7 +98,7 @@ img{display:block;max-width:100%}
 .cta:not(:disabled):active{transform:scale(.98)}
 /* 常駐次要引導鈕（去任務頁賺幣）：金字描邊，不與主 CTA 搶階層 */
 .earn-link{width:100%;font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body);letter-spacing:.02em;
-  color:var(--cit-ink-soft);background:rgba(191,185,37,.10);border:1px solid var(--cit-deep);
+  color:var(--cit-ink-soft);background:rgba(196,169,48,.12);border:1px solid var(--cit-deep);
   border-radius:var(--r-btn);padding:13px;box-shadow:none}
 .earn-link:active{transform:scale(.98);filter:brightness(.97)}
 .earn-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
@@ -314,7 +314,7 @@ img{display:block;max-width:100%}
 
 /* 首頁個資卡（填資料領第一枚幣） */
 #profile-card{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;
-  background:linear-gradient(180deg,#F4EFC6,#DBD26A);border:1px solid rgba(143,135,28,.5);
+  background:linear-gradient(180deg,#F6EFC6,#E2C86A);border:1px solid rgba(146,114,25,.5);
   border-radius:var(--r-btn);padding:12px;margin:0 0 12px;box-shadow:0 6px 18px var(--cit-shadow);
   animation:cardPulse 1.8s ease-in-out infinite}
 #profile-card .pc-t{font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-action);color:var(--cit-ink);letter-spacing:.02em}
