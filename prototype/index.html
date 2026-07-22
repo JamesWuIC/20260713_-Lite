@@ -7,13 +7,6 @@
 <link rel="icon" type="image/png" href="assets/coin.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- three.js 模組對應（動態 import 用；WebGL 不支援時走 CSS 退回，不載入） -->
-<script type="importmap">
-{ "imports": {
-  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-}}
-</script>
 <style>
 :root{
   --gold:#935D08; --gold-bright:#C99A3B; --gold-line:#B8860B;
@@ -106,16 +99,6 @@ img{display:block;max-width:100%}
 .earn-link:active{transform:scale(.98);filter:brightness(.97)}
 .earn-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 
-/* coin wallet — 純 CSS 3D 旋轉金幣（跨平台穩定；拖進投幣口投入、可新增） */
-.wallet{position:relative;margin:0;text-align:center}
-.stack-label{font-family:var(--serif);font-size:var(--t-cap);color:var(--muted)}
-/* 投幣引導：明顯脈動提示（有可投幣且未達門檻時顯示） */
-#deposit-hint{margin:8px auto 0;display:inline-block;font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body);
-  color:#5A3A08;background:linear-gradient(180deg,#F6D989,#DCA948);border:1px solid rgba(161,98,7,.5);
-  border-radius:999px;padding:7px 16px;box-shadow:0 4px 12px rgba(161,98,7,.35);animation:depositPulse 1.3s ease-in-out infinite}
-#deposit-hint[hidden]{display:none}
-@keyframes depositPulse{0%,100%{transform:translateY(0);box-shadow:0 4px 12px rgba(161,98,7,.35)}50%{transform:translateY(-3px);box-shadow:0 8px 18px rgba(161,98,7,.5)}}
-@media (prefers-reduced-motion:reduce){ #deposit-hint{animation:none} }
 /* 分享彈窗 */
 .share-card{position:relative;padding-top:34px}
 .share-linkrow{display:flex;gap:8px;margin:0 0 12px}
@@ -130,29 +113,33 @@ img{display:block;max-width:100%}
   background:#06C755;box-shadow:0 4px 12px rgba(6,199,85,.3)}
 .share-line:active{filter:brightness(.95)}
 .share-copy:active{filter:brightness(.97)}
-.need-hint{font-family:var(--serif);font-size:var(--t-label);font-weight:var(--w-label);color:var(--gold);letter-spacing:.02em;margin-top:3px;min-height:18px}
-#coin-stack{position:relative;height:92px;margin:4px 0;perspective:640px}
-.coin-wrap{position:absolute;top:14px;width:66px;height:66px;margin-left:-33px;
-  touch-action:none;cursor:grab;will-change:transform;
-  transition:transform .38s cubic-bezier(.2,1.25,.4,1),opacity .3s}
-.coin-wrap.dragging{cursor:grabbing;transition:none;z-index:60}
-.coin3d{width:100%;height:100%;position:relative;transform-style:preserve-3d;
-  animation:coinSpin 3.4s linear infinite;filter:drop-shadow(0 5px 7px rgba(0,0,0,.32))}
-.coin-face{position:absolute;inset:0;border-radius:50%;backface-visibility:hidden;
-  background:center/contain no-repeat url('assets/coin.png');transform:rotate(-90deg)}/* 幣面逆時針90° */
-.coin-face.back{transform:rotateY(180deg) rotate(-90deg)}
-@keyframes coinSpin{to{transform:rotateY(360deg)}}
-.stack-more{position:absolute;right:6px;bottom:2px;font-family:var(--serif);
-  font-size:var(--t-cap);font-weight:var(--w-label);color:var(--gold)}
-.add-coin{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);
-  font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body);color:var(--gold);
-  background:var(--surface);border:1px solid rgba(161,98,7,.35);border-radius:var(--r-pill);
-  padding:8px 18px;box-shadow:var(--shadow);letter-spacing:0;transition:transform .15s}
-.add-coin:active{transform:scale(.96)}
-.disc-slot.hot{filter:drop-shadow(0 0 12px rgba(233,193,112,.95)) brightness(1.12)}
-.disc-slot.swallow{animation:swallow .4s ease}
-@keyframes swallow{0%,100%{transform:translateX(-50%) scale(1)}45%{transform:translateX(-50%) scale(1.18)}}
-@media (prefers-reduced-motion:reduce){ .coin3d{animation:none} }
+/* 抽獎選擇面板：點「開始抽獎」展開；滑桿選投入枚數，轉盤即時換金/銀/銅與獎項 */
+#draw-panel{display:flex;flex-direction:column;gap:var(--s3);width:100%;
+  background:linear-gradient(180deg,rgba(246,239,198,.75),rgba(226,200,106,.34));
+  border:1px solid rgba(146,114,25,.4);border-radius:var(--r-btn);padding:16px;
+  box-shadow:0 6px 18px var(--cit-shadow);animation:dpIn .28s cubic-bezier(.2,.9,.2,1)}
+#draw-panel[hidden]{display:none}
+@keyframes dpIn{from{opacity:0;transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){ #draw-panel{animation:none} }
+.dp-tier{text-align:center;font-family:var(--serif);font-size:var(--t-body);color:var(--cit-ink)}
+.dp-tier b{font-weight:var(--w-display);font-size:var(--t-lead);color:var(--cit-ink)}
+/* 三檔滑桿（1/3/5 枚＝三/二/一等獎）：銅→銀→金軌道、金屬 thumb、44 觸控 */
+#draw-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;margin:4px 0;border-radius:999px;
+  background:linear-gradient(90deg,#A15A33,#6E767C 50%,#9C6B0E);outline:none;cursor:pointer}
+#draw-slider::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#F6E7C0,#C99A3B 68%,#8F871C);
+  border:2px solid #fff;box-shadow:0 2px 8px rgba(122,110,15,.55);cursor:pointer}
+#draw-slider::-moz-range-thumb{width:30px;height:30px;border:2px solid #fff;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#F6E7C0,#C99A3B 68%,#8F871C);box-shadow:0 2px 8px rgba(122,110,15,.55);cursor:pointer}
+#draw-slider:focus-visible{outline:2px solid var(--gold-bright);outline-offset:4px}
+.dp-ticks{display:flex;justify-content:space-between;font-family:var(--sans);font-size:var(--t-cap);color:var(--cit-ink-soft)}
+.dp-ticks span:first-child{text-align:left}.dp-ticks span:last-child{text-align:right}
+.dp-need{text-align:center;font-family:var(--sans);font-size:var(--t-cap);color:var(--cit-ink-soft);min-height:16px}
+.pl-link{align-self:center;background:none;font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft);
+  text-decoration:underline;text-underline-offset:3px;padding:6px;min-height:var(--tap);display:inline-flex;align-items:center}
+.pl-link:active{opacity:.6}
+.dp-cancel{align-self:center;background:none;font-family:var(--sans);font-size:var(--t-cap);color:var(--muted);padding:4px 12px;min-height:36px}
+.dp-cancel:active{opacity:.6}
 
 /* ╔══════════════════════════════════════════════════════════╗
    ║  🎡 轉盤調整面板 — 多層同畫布（disc-*.png 皆 1920² 圓心置中）║
@@ -216,52 +203,16 @@ img{display:block;max-width:100%}
   z-index:var(--z-glow);mix-blend-mode:screen;transition:opacity .25s ease;
   background:radial-gradient(circle at 50% 50%,rgba(255,244,214,.95),rgba(255,214,140,.55) 42%,rgba(255,214,140,0) 70%)}
 .wheel-glow.flash{opacity:1}
-/* 頂端等級章：點擊切換等級 + 引導提示 */
-#tier-hit{position:absolute;left:50%;top:7%;transform:translateX(-50%);
-  width:20%;aspect-ratio:1;border-radius:50%;background:transparent;border:none;
-  z-index:8;cursor:pointer;pointer-events:auto}
-#tier-hit:active{background:rgba(255,255,255,.12)}
-#tier-hint{position:absolute;left:50%;top:29%;transform:translateX(-50%);
-  z-index:8;pointer-events:none;white-space:nowrap;font-family:var(--serif);
-  font-size:var(--t-cap);font-weight:var(--w-label);color:var(--gold);background:rgba(255,250,240,.94);
-  border:1px solid rgba(161,98,7,.4);border-radius:999px;padding:3px 11px;
-  box-shadow:var(--shadow);opacity:0;transition:opacity .3s}
-#tier-hint.show{opacity:1;animation:hintPulse 1.1s ease-in-out infinite}
-@keyframes hintPulse{50%{transform:translateX(-50%) translateY(-3px)}}
 
 /* 等級盤旋轉轉場 */
 .dl-tier{transition:transform .3s ease;transform-origin:50% 50%}
 
-/* 已投入＋抽獎 合併浮鈕（浮在投幣口上方，取代主 CTA） */
-/* 等級選擇器浮鈕：金色膠囊，左右箭頭選等級，中間顯示「您正在抽X等獎」 */
-#tier-select{position:absolute;z-index:46;transform:translate(-50%,-100%);white-space:nowrap;
-  display:inline-flex;align-items:stretch;gap:2px;
-  background:var(--ts-grad,linear-gradient(180deg,#f6d989,#dca948));border:1px solid var(--ts-border,rgba(161,98,7,.6));
-  transition:background .35s ease,border-color .35s ease;
-  border-radius:999px;padding:2px 4px;box-shadow:0 5px 14px rgba(161,98,7,.45);
-  animation:drawFloat 1.6s ease-in-out infinite}
-/* 中間標題＝可點按鈕：開獎項一覽（高特異性覆蓋下方圓形箭頭規則）；撐滿高度＝加大點擊區 */
-#tier-select button#ts-label{width:auto;height:auto;flex:none;border:none;background:none;border-radius:8px;box-shadow:none;
-  display:inline-flex;align-items:center;gap:4px;padding:0 6px;
-  font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body);letter-spacing:0;color:var(--ts-ink,#5a3a08);
-  text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:color-mix(in srgb,var(--ts-ink,#5a3a08) 45%,transparent)}
-#ts-label::after{content:"▤";font-size:var(--t-cap);text-decoration:none}
-#tier-select button#ts-label:not(:disabled):active{opacity:.7;background:rgba(90,58,8,.08)}
-#tier-select button{width:var(--tap);height:var(--tap);flex:none;border:none;background:transparent;border-radius:50%;
-  font-family:var(--display);font-size:var(--t-title);font-weight:var(--w-display);line-height:1;color:var(--ts-ink,#5a3a08);display:grid;place-items:center}
-#tier-select button:not(:disabled):active{background:rgba(90,58,8,.14)}
-#tier-select button:disabled{color:color-mix(in srgb,var(--ts-ink,#5a3a08) 28%,transparent)}
-#tier-select button:focus-visible{outline:2px solid #9c6410;outline-offset:1px}
-@keyframes drawFloat{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 6px))}}
 /* 一等獎持續發光光暈 */
 .tier-aura{position:absolute;inset:-8%;border-radius:50%;pointer-events:none;opacity:0;z-index:8;
   mix-blend-mode:screen;
   background:radial-gradient(circle at 50% 50%,rgba(255,228,150,.6),rgba(255,205,110,.28) 46%,transparent 0%)}
 .tier-aura.show{opacity:1;animation:auraPulse 2.4s ease-in-out infinite}
 @keyframes auraPulse{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
-/* 等級章可升等時脈動 */
-#tier-hit.canup{animation:canupPulse 1.2s ease-in-out infinite;border-radius:50%}
-@keyframes canupPulse{50%{box-shadow:0 0 0 6px rgba(233,193,112,.35)}}
 /* 右下角歸零（原型測試用，正式版移除） */
 #reset-btn{position:fixed;right:12px;bottom:12px;z-index:45;font-family:var(--sans);font-size:var(--t-cap);
   color:#fff;background:rgba(43,38,32,.75);border:1px solid rgba(255,255,255,.2);border-radius:999px;
@@ -311,10 +262,6 @@ img{display:block;max-width:100%}
 .task-btn:disabled{background:#cdc6b8;color:#f5f3ee}
 .task-btn:not(:disabled):active{transform:scale(.96)}
 .task-note{font-family:var(--sans);font-size:var(--t-cap);color:var(--muted);text-align:center;margin-top:14px;line-height:var(--lh-body)}
-/* 拖曳用 2D 幽靈幣（three 模式跨越畫面不被 canvas 裁切） */
-.coin-ghost{position:fixed;width:58px;height:58px;margin:-29px 0 0 -29px;pointer-events:none;z-index:70;
-  transform:rotate(-90deg);filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));transition:none}
-
 /* 首頁個資卡（填資料領第一枚幣） */
 #profile-card{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;
   background:linear-gradient(180deg,#F6EFC6,#E2C86A);border:1px solid rgba(146,114,25,.5);
@@ -341,8 +288,7 @@ img{display:block;max-width:100%}
   font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-action);
   background:transparent;color:var(--muted);border:1px solid rgba(138,132,119,.4)}
 .card button.ghost:active{transform:scale(.97)}
-@media (prefers-reduced-motion:reduce){ #profile-card{animation:none}
-  #tier-select,.tier-aura.show,#tier-hit.canup,#tier-hint.show,.disc-slot.swallow{animation:none} }
+@media (prefers-reduced-motion:reduce){ #profile-card,.tier-aura.show{animation:none} }
 /* 個資表單關閉鈕 */
 #profile-modal .card{position:relative;padding-top:34px}
 /* 圓形關閉鈕：44px 觸控目標（基底金底已收斂到 .btn-fill，無需覆蓋樣式） */
@@ -479,16 +425,22 @@ img{display:block;max-width:100%}
         <span class="pc-s">領取你的第一枚洲遊幣 →</span>
       </button>
 
-      <button class="cta" id="spin-btn" type="button"><span class="cta-main">投幣後開始抽獎</span></button>
+      <button class="cta" id="spin-btn" type="button"><span class="cta-main">開始抽獎</span><span class="cta-sub">選擇投入洲遊幣枚數</span></button>
+
+      <!-- 抽獎選擇面板：點「開始抽獎」展開；滑桿選投入枚數，轉盤即時換金/銀/銅與獎項 -->
+      <section id="draw-panel" role="group" aria-label="選擇投入洲遊幣枚數" hidden>
+        <div class="dp-tier">抽 <b id="dp-tier">三等獎</b> · 投入 <b id="dp-coins">1</b> 枚洲遊幣</div>
+        <input type="range" id="draw-slider" min="1" max="5" step="2" value="1"
+               aria-label="選擇投入洲遊幣枚數（1、3、5 枚）">
+        <div class="dp-ticks"><span>三等獎·1枚</span><span>二等獎·3枚</span><span>一等獎·5枚</span></div>
+        <div class="dp-need" id="dp-need"></div>
+        <button class="pl-link" id="dp-prizes" type="button">查看此等級獎項 ▤</button>
+        <button class="cta" id="dp-confirm" type="button"><span class="cta-main">確認抽獎</span></button>
+        <button class="dp-cancel" id="dp-cancel" type="button">取消</button>
+      </section>
+
       <!-- 常駐引導：隨時去任務頁賺更多洲遊幣、抽更大獎 -->
       <button class="earn-link" id="earn-link" type="button">🪙 去賺更多洲遊幣，抽洲際好禮 →</button>
-
-      <div class="wallet">
-        <div class="stack-label">可投入 <b id="stack-n">0</b> 枚洲遊幣 · 點金幣或拖進投幣口投入</div>
-        <div class="need-hint" id="need-hint"></div>
-        <div id="coin-stack"></div>
-        <div id="deposit-hint" hidden>👆 點洲遊幣投入轉盤抽獎</div>
-      </div>
     </div>
 
     <div class="stage">
@@ -505,17 +457,7 @@ img{display:block;max-width:100%}
         <div class="wheel-glow" id="glow"></div>
         <!-- 一等獎持續發光 -->
         <div class="tier-aura" id="tier-aura"></div>
-        <!-- 頂端等級章：點擊切換等級 一→二→三 -->
-        <button id="tier-hit" type="button" aria-label="切換抽獎等級"></button>
-        <!-- 等級切換引導提示（首次進入顯示，點過徽章即收） -->
-        <div id="tier-hint" aria-hidden="true">↑ 點徽章切換獎項等級</div>
       </div>
-    </div>
-    <!-- 等級選擇器（浮在投幣口上方）：‹ › 切換抽獎等級；點中間標題開獎項一覽；抽獎由上方大 CTA 觸發 -->
-    <div id="tier-select" role="group" aria-label="選擇抽獎等級">
-      <button id="ts-prev" type="button" aria-label="上一等級">‹</button>
-      <button id="ts-label" type="button" aria-label="查看獎項一覽">您正在抽三等獎</button>
-      <button id="ts-next" type="button" aria-label="下一等級">›</button>
     </div>
   </section>
 
@@ -674,7 +616,6 @@ function grantAccess(){
   sessionStorage.setItem(ACCESS_SESSION_KEY,'1');
   $('#access-gate').hidden=true;
   $('#app').hidden=false;
-  requestAnimationFrame(()=>{ positionDrawBtn(); });
 }
 if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1') grantAccess();
 $('#access-form').addEventListener('submit',e=>{
@@ -685,137 +626,43 @@ $('#access-form').addEventListener('submit',e=>{
   field.value=''; field.focus();
 });
 
-/* ---------- wheel: 洲遊幣錢包（three.js 金幣，WebGL 不支援→退回 CSS 3D） ---------- */
-const MAXSHOW=10;
-function webglOK(){ try{ const c=document.createElement('canvas');
-  return !!(window.WebGLRenderingContext && (c.getContext('webgl')||c.getContext('experimental-webgl'))); }catch(e){ return false; } }
-let coinMode = webglOK() ? 'three' : 'css';   // three 就緒前先用 CSS 佔位
-let threeAPI = null;
-function renderStack(){
-  const avail=S.balance - S.invested;
-  $('#stack-n').textContent=avail;
-  if(coinMode==='three' && threeAPI) threeAPI.update(avail);   // three 就緒→3D
-  else renderStackCSS(avail);                                  // css 或尚未就緒
-  updateInvested();
+/* ---------- 抽獎選擇：滑桿選投入枚數（1/3/5＝三/二/一等獎），轉盤即時變色 ---------- */
+const DEG_BY_COINS={1:60, 3:30, 5:0};   // 枚數→tierDeg（三/二/一）
+// 點「開始抽獎」展開滑桿面板；取消或抽完收回，還原 CTA
+function openDrawPanel(){
+  if(spinning) return;
+  $('#spin-btn').hidden=true;
+  $('#draw-panel').hidden=false;
+  pickCoins(+$('#draw-slider').value);      // 依目前滑桿值同步等級/轉盤/可負擔狀態
 }
-function renderStackCSS(avail){
-  const stack=$('#coin-stack'); if(!stack) return;
-  stack.innerHTML='';
-  const show=Math.min(avail, MAXSHOW);
-  for(let i=0;i<show;i++){
-    const x=(i-(show-1)/2)*38;                    // 水平扇開
-    const w=document.createElement('div');
-    w.className='coin-wrap';
-    w.style.left=`calc(50% + ${x}px)`;
-    w.style.zIndex=10+i;
-    w.innerHTML=`<div class="coin3d" style="animation-delay:${(-i*0.35).toFixed(2)}s">`
-      +`<div class="coin-face front"></div><div class="coin-face back"></div></div>`;
-    makeCoinDraggable(w);
-    stack.appendChild(w);
-  }
-  if(avail>MAXSHOW){
-    const m=document.createElement('div'); m.className='stack-more'; m.textContent='+'+(avail-MAXSHOW);
-    stack.appendChild(m);
-  }
+function closeDrawPanel(){
+  $('#draw-panel').hidden=true;
+  $('#spin-btn').hidden=false;
 }
-// 投入回饋：機器震動 + 閃一下光（css/three 共用）
+// 滑桿值→設定抽獎等級：換轉盤金/銀/銅＋獎項（applyTier），並刷新面板
+function pickCoins(coins){
+  tierDeg=DEG_BY_COINS[coins] ?? 60;   // ⚠ 用 ?? 不用 ||：5 枚→deg 0(一等獎)，0 是有效值
+  applyTier();          // 設 selTier、發光換圖、buildRing 換獎項、一等獎 aura、refreshDraw
+}
+// 依目前選擇刷新面板：等級名、枚數、確認鈕可負擔與差額提示
+function refreshDraw(){
+  const coins=+($('#draw-slider')?.value||1);
+  const dt=$('#dp-tier'); if(dt) dt.textContent=TIER_RN[selTier];
+  const dc=$('#dp-coins'); if(dc) dc.textContent=coins;
+  const btn=$('#dp-confirm'), need=$('#dp-need');
+  const afford=S.balance>=coins;
+  if(btn) btn.disabled = !afford || spinning;
+  if(need) need.textContent = afford
+    ? `目前有 ${S.balance} 枚洲遊幣，抽完剩 ${S.balance-coins} 枚`
+    : `洲遊幣不足，還差 ${coins-S.balance} 枚 · 可點下方去賺洲遊幣`;
+}
+// 餘額/畫面刷新（多處沿用：抽獎後、任務、個資送出、init）
+function renderStack(){ renderBalance(); refreshDraw(); }
+// 抽獎回饋：震動＋轉盤閃光
 function machineFeedback(){
   if(navigator.vibrate){ try{ navigator.vibrate(30); }catch(e){} }
   const g=$('#glow'); if(g){ g.classList.add('flash'); setTimeout(()=>g.classList.remove('flash'),260); }
-  const s=$('.disc-slot'); if(s){ s.classList.remove('swallow'); void s.offsetWidth; s.classList.add('swallow'); setTimeout(()=>s.classList.remove('swallow'),420); }
 }
-// 投入一枚的狀態更新（css/three 共用）
-function depositState(){
-  S.invested++; save(); $('#stack-n').textContent=(S.balance-S.invested);
-  updateInvested(); machineFeedback();
-}
-// 投幣口(含 pad)命中判定
-function nearSlot(x,y){
-  const s=$('.disc-slot'); if(!s) return false;
-  const r=s.getBoundingClientRect(), pad=80;
-  return x>=r.left-pad && x<=r.right+pad && y>=r.top-pad && y<=r.bottom+pad;
-}
-// 拖曳一枚金幣進投幣口＝投入（或輕點投入）；沒到位就彈回
-function makeCoinDraggable(w){
-  let dragging=false, moved=0, sx=0, sy=0;
-  w.addEventListener('pointerdown',e=>{ dragging=true; moved=0; sx=e.clientX; sy=e.clientY;
-    w.classList.add('dragging'); w.setPointerCapture(e.pointerId); });
-  w.addEventListener('pointermove',e=>{ if(!dragging) return;
-    const dx=e.clientX-sx, dy=e.clientY-sy; moved+=Math.abs(dx)+Math.abs(dy);
-    w.style.transform=`translate(${dx}px,${dy}px)`;
-    const s=$('.disc-slot'); if(s) s.classList.toggle('hot', nearSlot(e.clientX,e.clientY)); });
-  function finish(e){ if(!dragging) return; dragging=false; w.classList.remove('dragging');
-    const s=$('.disc-slot'); if(s) s.classList.remove('hot');
-    if(moved<6 || nearSlot(e.clientX,e.clientY)) depositCoin(w);   // 輕點或拖到投幣口＝投入
-    else w.style.transform='';                                    // 否則彈回
-  }
-  w.addEventListener('pointerup',finish);
-  w.addEventListener('pointercancel',finish);
-}
-function depositCoin(w){
-  if(S.balance - S.invested <= 0){ w.style.transform=''; return; }
-  const s=$('.disc-slot'); if(!s){ w.style.transform=''; return; }
-  const cur=w.getBoundingClientRect(), sr=s.getBoundingClientRect();
-  const m=new DOMMatrixReadOnly(getComputedStyle(w).transform);
-  const fx=m.m41 + (sr.left+sr.width/2) - (cur.left+cur.width/2);
-  const fy=m.m42 + (sr.top +sr.height/2) - (cur.top +cur.height/2);
-  w.style.transition='transform .42s cubic-bezier(.5,.15,.75,.2),opacity .42s';
-  w.style.transform=`translate(${fx.toFixed(0)}px,${fy.toFixed(0)}px) scale(.24)`;
-  w.style.opacity='0';
-  depositState();
-  w.addEventListener('transitionend',()=>renderStack(),{once:true});
-}
-/* 等級選擇器（浮鈕）：顯示目前抽獎等級，左右箭頭 clamp 切換（端點 disabled） */
-const TS_ORDER=[60,30,0];   // tierDeg：三等獎→二等獎→一等獎
-function updateTierSelect(){
-  const lbl=$('#ts-label'); if(!lbl) return;
-  lbl.textContent=`您正在抽${TIER_RN[selTier]}`;
-  const m=TIER_METAL[selTier], pill=$('#tier-select');       // 膠囊染上該等級金屬色（金/銀/銅）
-  if(pill && m){ pill.style.setProperty('--ts-grad',m.grad); pill.style.setProperty('--ts-ink',m.ink); pill.style.setProperty('--ts-border',m.border); }
-  lbl.disabled = spinning;                                   // 抽獎中不能開獎項一覽
-  const i=TS_ORDER.indexOf(tierDeg);
-  $('#ts-prev').disabled = spinning || i<=0;                 // 已在三等獎→不能再降
-  $('#ts-next').disabled = spinning || i>=TS_ORDER.length-1; // 已在一等獎→不能再升
-  positionDrawBtn();
-}
-function stepTier(dir){        // dir -1＝往三等獎、+1＝往一等獎
-  if(spinning) return;
-  const i=TS_ORDER.indexOf(tierDeg), j=Math.max(0,Math.min(TS_ORDER.length-1,i+dir));
-  if(j===i) return;
-  tierDeg=TS_ORDER[j]; applyTier();
-}
-function updateInvested(){
-  const cost=COST[selTier], ok=S.invested>=cost;
-  updateTierSelect();
-  // 上方大 CTA（與浮鈕分工）：可抽→抽獎；有幣→投一枚（兼鍵盤投幣路徑）；沒幣→停用提示投幣
-  //（「去賺洲遊幣」已獨立為下方常駐 #earn-link 引導鈕）
-  const cta=$('#spin-btn');
-  if(cta && !spinning){
-    const avail=S.balance-S.invested;
-    if(ok){ cta.disabled=false; cta.dataset.mode='spin'; cta.innerHTML=`<span class="cta-main">開始抽獎</span><span class="cta-sub">抽${TIER_RN[selTier]}</span>`; }
-    else if(avail>0){ cta.disabled=false; cta.dataset.mode='deposit'; cta.innerHTML=`<span class="cta-main">投入 1 枚洲遊幣</span><span class="cta-sub">再 ${cost-S.invested} 枚洲遊幣抽${TIER_RN[selTier]}</span>`; }
-    else { cta.disabled=true; cta.dataset.mode='none'; cta.innerHTML='<span class="cta-main">投幣後開始抽獎</span>'; }
-  }
-  // 投幣引導：有可投的洲遊幣且尚未達本等級門檻、且非抽獎中 → 顯示脈動提示
-  const dh=$('#deposit-hint');
-  if(dh) dh.hidden = !((S.balance-S.invested)>0 && S.invested<cost && !spinning);
-  // 能抽更高等級時，等級章脈動提示可升等
-  const hit=$('#tier-hit'); if(hit) hit.classList.toggle('canup', bestAffordableTier()>selTier);
-  // 提醒：再幾枚可抽到哪個等級（依擁有的洲遊幣總數）
-  const nh=$('#need-hint');
-  if(nh){
-    const next=[1,3,5].find(c=>S.balance<c);
-    nh.textContent = next ? `再 ${next-S.balance} 枚洲遊幣可抽${TIER_RN[next]}` : '已可挑戰最高獎 · 一等獎！';
-  }
-}
-function positionDrawBtn(){
-  const btn=$('#tier-select'), slot=$('.disc-slot'), app=$('#app');
-  if(!btn||!slot||!app) return;
-  const sr=slot.getBoundingClientRect(), ar=app.getBoundingClientRect();
-  btn.style.left=(sr.left+sr.width/2-ar.left)+'px';
-  btn.style.top =(sr.top-ar.top-8)+'px';
-}
-
 /* ---------- 獎品金字（與獎項盤同層級、連動旋轉；字腳朝圓心＝獎牌式） ---------- */
 /* 座標系＝disc-plate.png 畫布(1920²)，圓心(960,960)；tr=格中線半徑(實測 r365)。
    每格 rot=該格基準角 → 字腳朝圓心；#labels 與 #prize 施同一旋轉 → 連動同轉。
@@ -882,14 +729,12 @@ function wheelFrame(t){
   setWheel(wheelAngle,'none');                    // #prize＋#labels 連動（獎牌式字）
 }
 requestAnimationFrame(wheelFrame);
-function spin(force){
+function spin(){
   if(spinning) return;
-  const tier=selTier, cost=COST[tier];            // 抽獎等級以等級章為準
-  if(S.invested < cost){ toast(`需投入 ${cost} 枚`); return; }
-  if(S.balance < cost){ toast('餘額不足'); return; }
-  if(!force){ openConfirm(cost, tier); return; }   // 每次抽獎前都先確認
-  spinning=true; $('#ts-label').disabled=true;
-  $('#ts-prev').disabled=true; $('#ts-next').disabled=true;   // 抽獎中鎖定等級選擇
+  const tier=selTier, cost=COST[tier];            // 抽獎等級＝滑桿選定（selTier 由 pickCoins 設定）
+  if(S.balance < cost){ toast('洲遊幣不足'); return; }
+  spinning=true;
+  closeDrawPanel();                                // 收起選擇面板
   const cta=$('#spin-btn'); cta.disabled=true; cta.innerHTML='<span class="cta-main">抽獎中…</span>';
   buildRing(tier);
   const items=PRIZES[tier], n=items.length, step=360/n;
@@ -899,13 +744,14 @@ function spin(force){
   const code=coin?null:'IC-'+Math.random().toString(36).slice(2,7).toUpperCase();
   // 結果先入帳存檔（旋轉中刷新也不會掉幣掉獎）；畫面數字等開獎時才更新
   S.balance -= cost; if(coin) S.balance += coin;
-  S.invested=0; S.won.unshift({prize, tier, code, spent:cost}); save();
+  S.won.unshift({prize, tier, code, spent:cost}); save();
   // 收尾讓中獎格 idx 停在頂端：最終角 ≡ -idx*step (mod360)
   const base=wheelAngle, targetMod=norm(-idx*step), align=norm(targetMod - norm(base));
   const dur = REDUCE ? 700 : 5400, turns = REDUCE ? 1 : 6;
   spinState={ base, delta: turns*360 + align, start: performance.now(), dur };
   setTimeout(()=>{
-    spinning=false; $('#ts-label').disabled=false;
+    spinning=false;
+    const cta=$('#spin-btn'); cta.disabled=false; cta.innerHTML='<span class="cta-main">開始抽獎</span><span class="cta-sub">選擇投入洲遊幣枚數</span>';
     showWin(prize, tier, code, coin);
     renderBalance(); renderStack();
   }, dur+150);
@@ -925,19 +771,12 @@ function closeModal(){ $('#modal').classList.remove('show'); }
 $('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') $$('.modal.show').forEach(m=>m.classList.remove('show')); });
 
-// 錢包投一枚（智慧 CTA 的鍵盤/點擊投幣路徑）
-function depositOne(){
-  if(S.balance-S.invested<=0){ toast('先去賺洲遊幣吧'); return; }
-  depositState(); renderStack();
-}
-$('#ts-prev').addEventListener('click',()=>stepTier(-1));
-$('#ts-next').addEventListener('click',()=>stepTier(1));
-$('#spin-btn').addEventListener('click',()=>{
-  const mode=$('#spin-btn').dataset.mode;
-  if(mode==='none') return;
-  if(mode==='deposit'){ depositOne(); return; }
-  spin();
-});
+// 開始抽獎＝展開滑桿選擇面板；滑桿即時換等級/轉盤；確認才抽
+$('#spin-btn').addEventListener('click', openDrawPanel);
+$('#draw-slider').addEventListener('input', e=>pickCoins(+e.target.value));
+$('#dp-confirm').addEventListener('click', spin);
+$('#dp-cancel').addEventListener('click', closeDrawPanel);
+$('#dp-prizes').addEventListener('click', ()=>openPrizeList(selTier));
 // 常駐引導鈕：去任務頁賺更多洲遊幣
 $('#earn-link').addEventListener('click',()=>{ renderTasks(); showScreen('tasks'); });
 
@@ -966,25 +805,9 @@ function applyTier(){
   swapLevel(selTier);       // 發光轉場＋換風格
   buildRing(selTier);       // 盤面獎項換成該等級（直書金字）
   $('#tier-aura').classList.toggle('show', selTier===5);   // 一等獎持續發光
-  updateInvested();         // 等級選擇器依新等級更新
+  refreshDraw();            // 抽獎面板依新等級更新
 }
 /* ╚════════════════════════════════════════════════════════════╝ */
-
-/* 點頂端等級章切換等級：一等獎→二等獎→三等獎 循環；首次點擊收掉引導提示 */
-const TIER_CYCLE=[0,30,60];
-function cycleTier(){
-  if(spinning) return;                                   // 抽獎中不可換等級
-  const i=TIER_CYCLE.indexOf(tierDeg); tierDeg=TIER_CYCLE[(i+1)%TIER_CYCLE.length]; applyTier();
-  if(!S.done.tierTip){ S.done.tierTip=1; save(); }
-  $('#tier-hint').classList.remove('show');
-}
-$('#tier-hit').addEventListener('click', cycleTier);
-
-/* 目前投入枚數可抽的最高等級（1/3/5→三/二/一等獎） */
-function bestAffordableTier(){ const n=S.invested; return n>=5?5 : n>=3?3 : n>=1?1 : 0; }
-addEventListener('resize', ()=>{ positionDrawBtn(); });
-// 字型載入完成會改變上方內容高度 → 舞台(margin-top:auto)位移，浮鈕需重定位
-if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ positionDrawBtn(); });
 
 /* ---------- 任務頁：追蹤社群，每完成一項 +1 洲遊幣（一次性） ---------- */
 // 社群連結【待行銷確認】：官方粉專最佳猜測網址，上線前請由行銷核對替換
@@ -1078,7 +901,6 @@ function renderPrizeList(){
 }
 function openPrizeList(t){ plTier=PL_TIERS.includes(t)?t:1; renderPrizeList(); openModal($('#prizelist-modal')); }
 function cyclePrize(dir){ const i=PL_TIERS.indexOf(plTier); plTier=PL_TIERS[(i+dir+PL_TIERS.length)%PL_TIERS.length]; renderPrizeList(); }
-$('#ts-label').addEventListener('click',()=>openPrizeList(selTier));
 $('#pl-prev').addEventListener('click',()=>cyclePrize(-1));
 $('#pl-next').addEventListener('click',()=>cyclePrize(1));
 $('#pl-close').addEventListener('click',()=>$('#prizelist-modal').classList.remove('show'));
@@ -1185,84 +1007,11 @@ tierDeg = 60;
 { const lvl0=LEVEL_BY_TIER[TIER_BY_DEG[tierDeg]];
   if(lvl0!==curLevel){ curLevel=lvl0;                     // 初始直接換圖，不走發光轉場
     DISC_LAYERS.forEach(([sel,name])=>{ $(sel).src=`assets/L${lvl0}/${name}.png`; }); } }
-applyTier();        // buildRing + updateInvested + updateTierSelect
-renderBalance(); renderStack(); renderProfileCard(); positionDrawBtn(); startWinners();
+applyTier();        // 設 selTier=三等獎、換 L3 圖、buildRing、refreshDraw
+renderBalance(); renderStack(); renderProfileCard(); startWinners();
 renderTasks();                 // 預先渲染任務清單（含 pending 狀態）
 if(Object.keys(S.pending).length) setTimeout(verifyPending, 400);   // 同分頁跳社群回來→補發幣
 
-/* ---------- three.js 金幣（支援 WebGL 才載入；失敗→退回 CSS） ---------- */
-function buildThreeCoins(THREE, RoomEnvironment){
-  const host=$('#coin-stack'); if(!host) return null;
-  host.innerHTML='';                                   // 清掉 CSS 佔位幣
-  const renderer=new THREE.WebGLRenderer({alpha:true, antialias:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.outputColorSpace=THREE.SRGBColorSpace;
-  const cv=renderer.domElement; cv.style.width='100%'; cv.style.height='100%'; cv.style.touchAction='none';
-  host.appendChild(cv);
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(35,1,0.1,100); camera.position.set(0,0,7);
-  const pmrem=new THREE.PMREMGenerator(renderer);
-  scene.environment=pmrem.fromScene(new RoomEnvironment(),0.03).texture;
-  scene.add(new THREE.AmbientLight(0xffffff,0.3));
-  const key=new THREE.DirectionalLight(0xfff1d4,2.2); key.position.set(3,4,6); scene.add(key);
-  const tex=new THREE.TextureLoader().load('assets/coin.png'); tex.colorSpace=THREE.SRGBColorSpace; tex.anisotropy=8;
-  tex.center.set(0.5,0.5); tex.rotation=-Math.PI/2;   // 幣面逆時針轉 90°
-  const edge=new THREE.MeshStandardMaterial({color:0xbf922f,metalness:1,roughness:0.34});
-  const face=new THREE.MeshStandardMaterial({map:tex,metalness:0.5,roughness:0.36,transparent:true});
-  const geo=new THREE.CylinderGeometry(0.82,0.82,0.13,64);
-  const coins=[];
-  const REDUCE2 = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function makeCoin(){ const m=new THREE.Mesh(geo,[edge,face,face]); m.rotation.x=Math.PI/2;
-    const g=new THREE.Group(); g.add(m); g.userData.spin=REDUCE2?0:(0.012+Math.random()*0.01); scene.add(g); return g; }
-  function layout(){ const n=coins.length; coins.forEach((g,i)=>{ const x=(i-(n-1)/2)*1.05;
-    g.userData.home=x; if(!g.userData.dragging){ g.position.set(x,0,0); } }); }
-  function update(n){ n=Math.min(n,MAXSHOW);
-    while(coins.length<n) coins.push(makeCoin());
-    while(coins.length>n){ const g=coins.pop(); scene.remove(g); } layout(); }
-  function resize(){ const w=host.clientWidth,h=host.clientHeight; if(!w||!h)return;
-    renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix(); }
-  new ResizeObserver(resize).observe(host); resize();
-  // 拖曳＝DOM 幽靈幣（position:fixed，跨越整個畫面不被 canvas 裁切）
-  const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
-  let picked=null, ghost=null, moved=0, sx=0, sy=0;
-  const setNdc=e=>{ const r=cv.getBoundingClientRect(); ndc.x=((e.clientX-r.left)/r.width)*2-1; ndc.y=-((e.clientY-r.top)/r.height)*2+1; };
-  cv.addEventListener('pointerdown',e=>{ setNdc(e); ray.setFromCamera(ndc,camera);
-    const hit=ray.intersectObjects(coins,true)[0]; if(!hit) return;
-    let g=hit.object; while(g.parent && coins.indexOf(g)<0) g=g.parent;
-    picked=g; g.visible=false; moved=0; sx=e.clientX; sy=e.clientY;
-    ghost=document.createElement('img'); ghost.src='assets/coin.png'; ghost.className='coin-ghost'; ghost.alt='';
-    ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px'; document.body.appendChild(ghost);
-    cv.setPointerCapture(e.pointerId); });
-  cv.addEventListener('pointermove',e=>{ if(!picked||!ghost) return;
-    moved+=Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy); sx=e.clientX; sy=e.clientY;
-    ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
-    const s=$('.disc-slot'); if(s) s.classList.toggle('hot', nearSlot(e.clientX,e.clientY)); });
-  function drop(e){ if(!picked) return; const g=picked; picked=null;
-    const s=$('.disc-slot'); if(s) s.classList.remove('hot');
-    if((moved<6 || nearSlot(e.clientX,e.clientY)) && S.balance-S.invested>0){
-      const sr=s?s.getBoundingClientRect():null;                  // 幽靈幣飛進投幣口
-      if(ghost && sr){ ghost.style.transition='left .42s cubic-bezier(.5,.15,.75,.2),top .42s,transform .42s,opacity .42s';
-        ghost.style.left=(sr.left+sr.width/2)+'px'; ghost.style.top=(sr.top+sr.height/2)+'px';
-        ghost.style.transform='rotate(-90deg) scale(.2)'; ghost.style.opacity='0'; }
-      const gh=ghost; ghost=null; setTimeout(()=>gh&&gh.remove(),460);
-      const i=coins.indexOf(g); if(i>=0) coins.splice(i,1); scene.remove(g); layout();
-      depositState();
-    } else { g.visible=true; if(ghost){ ghost.remove(); ghost=null; } } }
-  cv.addEventListener('pointerup',drop); cv.addEventListener('pointercancel',drop);
-  (function tick(){ requestAnimationFrame(tick);
-    coins.forEach(g=>{ if(g.visible) g.rotation.y+=g.userData.spin; });
-    renderer.render(scene,camera); })();
-  return { update };
-}
-if(coinMode==='three'){
-  Promise.all([
-    import('three'),
-    import('three/addons/environments/RoomEnvironment.js')
-  ]).then(([THREE, envMod])=>{
-    threeAPI = buildThreeCoins(THREE, envMod.RoomEnvironment);
-    if(threeAPI) renderStack(); else { coinMode='css'; renderStack(); }
-  }).catch(()=>{ coinMode='css'; renderStack(); });   // 載入失敗→退回 CSS
-}
 </script>
 
 </body>
