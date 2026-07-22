@@ -34,12 +34,17 @@
   /* 香檳金（#BFB925 暖化、收綠味、往品牌金靠＝香檳/古銅金；上方按鈕動作色，與暖金並存）*/
   --cit:#C4A930; --cit-hi:#EBD98A; --cit-mid:#D3BC45; --cit-deep:#927219;
   --cit-shadow:rgba(140,102,20,.32); --cit-ink:#3A2C06; --cit-ink-soft:#6B520D;
+  /* 中秋暖夜背景（月暈＋深琥珀夜）與夜色底上的文字色 */
+  --night-top:#5A3C1F; --night-mid:#3A2413; --night-deep:#180D05;
+  --moon:rgba(247,225,160,.22);        /* 轉盤後方柔和月暈 */
+  --on-night:#EAD9A0;                  /* 夜色底上主要文字（淺香檳，對比 ≥8:1）*/
+  --on-night-soft:#C9B583;             /* 夜色底上次要文字（≥5:1）*/
   /* 行高 */
   --lh-tight:1.15; --lh-snug:1.35; --lh-body:1.6;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{font-family:var(--sans);background:#d8d4cb;color:var(--ink);display:flex;justify-content:center}
+body{font-family:var(--sans);background:var(--night-deep);color:var(--ink);display:flex;justify-content:center}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 button:focus-visible,input:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 /* 去粗：<b> 一律不吃瀏覽器預設 bold(700)，改繼承所在元素字重（全站無真粗體）*/
@@ -49,9 +54,13 @@ img{display:block;max-width:100%}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 /* phone frame */
-#app{position:relative;width:100%;max-width:430px;min-height:100dvh;background:var(--bg);
-  background-image:url('assets/bg.png');background-size:cover;background-position:center;
-  overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.25)}
+/* 中秋暖夜：頂部中央柔和月暈（轉盤後方）＋深琥珀夜漸層，讓香檳金與轉盤發光浮起 */
+#app{position:relative;width:100%;max-width:430px;min-height:100dvh;
+  background:
+    radial-gradient(140% 52% at 50% 3%, var(--moon), rgba(247,225,160,0) 46%),
+    radial-gradient(125% 82% at 50% -8%, var(--night-top) 0%, var(--night-mid) 32%, #241408 64%, var(--night-deep) 100%);
+  background-attachment:local;
+  overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.35)}
 .screen{display:none;flex-direction:column;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 14px) 18px 24px}
 .screen.active{display:flex}
 /* 轉盤頁鎖定單屏：不捲動，舞台吃剩餘空間釘在底部（任務頁維持可捲動） */
@@ -59,8 +68,8 @@ img{display:block;max-width:100%}
 
 /* header */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.brand{font-family:var(--display);font-size:var(--t-body);letter-spacing:.1em;color:var(--gold);text-transform:uppercase}
-.brand small{display:block;font-family:var(--serif);font-size:var(--t-fine);letter-spacing:.02em;color:var(--muted)}
+.brand{font-family:var(--display);font-size:var(--t-body);letter-spacing:.1em;color:var(--on-night);text-transform:uppercase}
+.brand small{display:block;font-family:var(--serif);font-size:var(--t-fine);letter-spacing:.02em;color:var(--on-night-soft)}
 .balance{display:flex;align-items:center;gap:6px;flex:none;background:var(--surface);border:1px solid rgba(161,98,7,.28);
   border-radius:999px;padding:5px 12px 5px 6px;box-shadow:var(--shadow)}
 .balance img{width:24px;height:24px}
@@ -110,12 +119,12 @@ img{display:block;max-width:100%}
 .share-copy:active{filter:brightness(.97)}
 /* 首次引導細長橫幅（不與主 CTA 搶主角） */
 #profile-banner{display:flex;align-items:center;justify-content:center;gap:2px;min-height:40px;
-  font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft);
-  background:rgba(196,169,48,.10);border:1px dashed rgba(146,114,25,.55);border-radius:var(--r-pill);
+  font-family:var(--serif);font-size:var(--t-label);color:var(--on-night);
+  background:rgba(234,217,160,.08);border:1px dashed rgba(234,217,160,.45);border-radius:var(--r-pill);
   animation:bannerPulse 2s ease-in-out infinite}
 #profile-banner[hidden]{display:none}
 #profile-banner:active{transform:scale(.99)}
-@keyframes bannerPulse{50%{background:rgba(196,169,48,.2)}}
+@keyframes bannerPulse{50%{background:rgba(234,217,160,.16)}}
 /* 三張等級卡（1/3/5 枚＝三/二/一等獎）：點卡即時換轉盤金/銀/銅；選中＝香檳金實心 */
 .tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
 .tier-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;
@@ -128,11 +137,11 @@ img{display:block;max-width:100%}
   box-shadow:0 4px 12px var(--cit-shadow),inset 0 1px 0 rgba(255,255,255,.5)}
 .tier-card:active{transform:scale(.97)}
 .tier-card:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
-.dp-need{text-align:center;font-family:var(--sans);font-size:var(--t-cap);color:var(--cit-ink-soft);min-height:16px}
+.dp-need{text-align:center;font-family:var(--sans);font-size:var(--t-cap);color:var(--on-night-soft);min-height:16px}
 /* 次要文字連結列（獎項一覽 · 去賺洲遊幣） */
 .ctrl-links{display:flex;align-items:center;justify-content:center;gap:var(--s2)}
-.ctrl-dot{color:var(--cit-ink-soft);opacity:.6}
-.pl-link{background:none;font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft);
+.ctrl-dot{color:var(--on-night-soft);opacity:.7}
+.pl-link{background:none;font-family:var(--serif);font-size:var(--t-label);color:var(--on-night);
   text-decoration:underline;text-underline-offset:3px;padding:6px 8px;min-height:var(--tap);display:inline-flex;align-items:center}
 .pl-link:active{opacity:.6}
 .pl-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
@@ -244,9 +253,9 @@ img{display:block;max-width:100%}
 .pf-optnote{text-align:left;font-family:var(--sans);font-size:var(--t-cap);color:var(--gold);margin:var(--s2) 0 0}
 /* 可點的提示列（導向任務頁） */
 /* 任務頁 */
-.task-back{display:inline-flex;align-items:center;min-height:var(--tap);font-family:var(--serif);font-size:var(--t-body);color:var(--gold);padding:4px 6px}
+.task-back{display:inline-flex;align-items:center;min-height:var(--tap);font-family:var(--serif);font-size:var(--t-body);color:var(--on-night);padding:4px 6px}
 .task-back:active{opacity:.6}
-.task-head{font-family:var(--serif);font-size:var(--t-body);color:var(--ink);letter-spacing:0;
+.task-head{font-family:var(--serif);font-size:var(--t-body);color:var(--on-night);letter-spacing:0;
   text-align:center;margin:6px 0 16px;line-height:var(--lh-body)}
 .task{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid rgba(161,98,7,.18);
   border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
@@ -257,7 +266,7 @@ img{display:block;max-width:100%}
   background:var(--gold);border-radius:var(--r-pill);padding:9px 16px}
 .task-btn:disabled{background:#cdc6b8;color:#f5f3ee}
 .task-btn:not(:disabled):active{transform:scale(.96)}
-.task-note{font-family:var(--sans);font-size:var(--t-cap);color:var(--muted);text-align:center;margin-top:14px;line-height:var(--lh-body)}
+.task-note{font-family:var(--sans);font-size:var(--t-cap);color:var(--on-night-soft);text-align:center;margin-top:14px;line-height:var(--lh-body)}
 /* 個資表單欄位 */
 .pf-field{text-align:left;margin:0 0 var(--s3)}
 .pf-field label{display:block;font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-label);color:var(--muted);margin-bottom:var(--s1)}
