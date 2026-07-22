@@ -36,8 +36,11 @@
   --t-lead:1.25rem;    /* 20px 前導、等級/投入數字、副標 */
   --t-title:1.5rem;    /* 24px 彈窗標題、獎項一覽標題 */
   --t-display:1.875rem;/* 30px 中獎名、大型展示數字 */
-  /* 字重角色（雅致：正文回真 400，700 只留真展示，避免中文過重顯粗）*/
-  --w-body:400; --w-medium:500; --w-label:600; --w-display:700;
+  /* 字重角色（去粗：全站不用 700 bold，最重＝600 SemiBold；階層靠字級＋色＋600/500/400）*/
+  --w-body:400; --w-medium:500; --w-label:500; --w-display:600;
+  /* 香檳金（#BFB925 加深降綠成金屬香檳/古銅金；上方按鈕動作色，與暖金並存）*/
+  --cit:#BFB925; --cit-hi:#E7E08C; --cit-mid:#CFC53F; --cit-deep:#8F871C;
+  --cit-shadow:rgba(122,110,15,.32); --cit-ink:#3A360A; --cit-ink-soft:#6E680F;
   /* 行高 */
   --lh-tight:1.15; --lh-snug:1.35; --lh-body:1.6;
 }
@@ -46,6 +49,9 @@ html,body{height:100%}
 body{font-family:var(--sans);background:#d8d4cb;color:var(--ink);display:flex;justify-content:center}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 button:focus-visible,input:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+/* 去粗：<b> 一律不吃瀏覽器預設 bold(700)，改繼承所在元素字重（全站無真粗體）*/
+b{font-weight:inherit}
+.pf-terms b{font-weight:var(--w-medium)}
 img{display:block;max-width:100%}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
@@ -85,15 +91,15 @@ img{display:block;max-width:100%}
 /* 上方互動區：吃滿頂欄與轉盤之間的剩餘空間，內容垂直置中 */
 /* justify:safe center → 內容裝得下時垂直置中；裝不下時靠上對齊，不會溢出蓋到頂欄跑馬燈 */
 .play-panel{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:safe center;gap:12px}
-.cta{width:100%;font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-lead);letter-spacing:.03em;color:#fff;
-  background:linear-gradient(180deg,#c99a3b,#9c6410);border-radius:var(--r-btn);padding:16px;
-  box-shadow:0 6px 18px rgba(161,98,7,.4),inset 0 1px 0 rgba(255,255,255,.4);transition:.2s}
+.cta{width:100%;font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-lead);letter-spacing:.03em;color:var(--cit-ink);
+  background:linear-gradient(180deg,var(--cit-hi),var(--cit-mid) 45%,var(--cit-deep));border:1px solid var(--cit-deep);border-radius:var(--r-btn);padding:16px;
+  box-shadow:0 6px 18px var(--cit-shadow),inset 0 1px 0 rgba(255,255,255,.5);transition:.2s}
 .cta:disabled{background:linear-gradient(180deg,#d7d1c4,#bdb6a6);box-shadow:none;color:#f5f3ee}
 .cta:not(:disabled):active{transform:scale(.98)}
 /* 常駐次要引導鈕（去任務頁賺幣）：金字描邊，不與主 CTA 搶階層 */
 .earn-link{width:100%;font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body);letter-spacing:.02em;
-  color:#5A3A08;background:linear-gradient(180deg,#F6E7C0,#E6C877);border:1px solid rgba(161,98,7,.5);
-  border-radius:var(--r-btn);padding:13px;box-shadow:0 4px 12px rgba(161,98,7,.25)}
+  color:var(--cit-ink-soft);background:rgba(191,185,37,.10);border:1px solid var(--cit-deep);
+  border-radius:var(--r-btn);padding:13px;box-shadow:none}
 .earn-link:active{transform:scale(.98);filter:brightness(.97)}
 .earn-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 
@@ -308,11 +314,11 @@ img{display:block;max-width:100%}
 
 /* 首頁個資卡（填資料領第一枚幣） */
 #profile-card{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;
-  background:linear-gradient(180deg,#fbeecb,#e6c877);border:1px solid rgba(161,98,7,.5);
-  border-radius:var(--r-btn);padding:12px;margin:0 0 12px;box-shadow:0 6px 18px rgba(161,98,7,.3);
+  background:linear-gradient(180deg,#F4EFC6,#DBD26A);border:1px solid rgba(143,135,28,.5);
+  border-radius:var(--r-btn);padding:12px;margin:0 0 12px;box-shadow:0 6px 18px var(--cit-shadow);
   animation:cardPulse 1.8s ease-in-out infinite}
-#profile-card .pc-t{font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-action);color:#5a3a08;letter-spacing:.02em}
-#profile-card .pc-s{font-family:var(--serif);font-size:var(--t-label);color:#7a5410}
+#profile-card .pc-t{font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-action);color:var(--cit-ink);letter-spacing:.02em}
+#profile-card .pc-s{font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft)}
 #profile-card[hidden]{display:none}
 #profile-card:active{transform:scale(.99)}
 @keyframes cardPulse{50%{box-shadow:0 9px 26px rgba(201,154,59,.55)}}
@@ -426,7 +432,7 @@ img{display:block;max-width:100%}
 .access-mark{width:42px;height:42px;margin:0 auto 16px;border:1px solid rgba(233,201,138,.75);border-radius:50%;
   display:grid;place-items:center;font-family:var(--display);font-size:var(--t-title);color:#f4d489}
 .access-brand{font-family:var(--display);font-size:var(--t-title);letter-spacing:.08em;color:#f4d489}
-.access-copy{margin:10px auto 22px;font-family:var(--serif);font-size:var(--t-body);line-height:1.7;color:#f7f2e8}
+.access-copy{margin:10px auto 22px;font-family:var(--serif);font-weight:var(--w-body);font-size:var(--t-body);line-height:1.7;color:#f7f2e8}
 .access-field{width:100%;min-height:48px;padding:12px 14px;color:#2b2620;background:#fffaf0;
   border:1px solid transparent;border-radius:var(--r-inline);
   font-family:var(--sans);font-weight:var(--w-medium);font-size:var(--t-action);letter-spacing:.12em;text-align:center}
