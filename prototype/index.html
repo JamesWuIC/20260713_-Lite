@@ -91,9 +91,12 @@ img{display:block;max-width:100%}
 /* 上方互動區：吃滿頂欄與轉盤之間的剩餘空間，內容垂直置中 */
 /* justify:safe center → 內容裝得下時垂直置中；裝不下時靠上對齊，不會溢出蓋到頂欄跑馬燈 */
 .play-panel{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:safe center;gap:12px}
-.cta{width:100%;font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-lead);letter-spacing:.03em;color:var(--cit-ink);
-  background:linear-gradient(180deg,var(--cit-hi),var(--cit-mid) 45%,var(--cit-deep));border:1px solid var(--cit-deep);border-radius:var(--r-btn);padding:16px;
+/* 主 CTA：兩段式標籤（主＝宋體大、次＝黑體小），刻意換行、恆定高度避免版位跳動 */
+.cta{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;color:var(--cit-ink);
+  background:linear-gradient(180deg,var(--cit-hi),var(--cit-mid) 52%,#B4972A);border:1px solid var(--cit-deep);border-radius:var(--r-btn);padding:10px 16px;
   box-shadow:0 6px 18px var(--cit-shadow),inset 0 1px 0 rgba(255,255,255,.5);transition:.2s}
+.cta-main{font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-lead);letter-spacing:.03em;line-height:1.15;white-space:nowrap}
+.cta-sub{font-family:var(--sans);font-weight:var(--w-body);font-size:var(--t-cap);letter-spacing:0;line-height:1.2;white-space:nowrap}
 .cta:disabled{background:linear-gradient(180deg,#d7d1c4,#bdb6a6);box-shadow:none;color:#f5f3ee}
 .cta:not(:disabled):active{transform:scale(.98)}
 /* 常駐次要引導鈕（去任務頁賺幣）：金字描邊，不與主 CTA 搶階層 */
@@ -476,7 +479,7 @@ img{display:block;max-width:100%}
         <span class="pc-s">領取你的第一枚洲遊幣 →</span>
       </button>
 
-      <button class="cta" id="spin-btn" type="button">投幣後開始抽獎</button>
+      <button class="cta" id="spin-btn" type="button"><span class="cta-main">投幣後開始抽獎</span></button>
       <!-- 常駐引導：隨時去任務頁賺更多洲遊幣、抽更大獎 -->
       <button class="earn-link" id="earn-link" type="button">🪙 去賺更多洲遊幣，抽洲際好禮 →</button>
 
@@ -789,9 +792,9 @@ function updateInvested(){
   const cta=$('#spin-btn');
   if(cta && !spinning){
     const avail=S.balance-S.invested;
-    if(ok){ cta.disabled=false; cta.dataset.mode='spin'; cta.textContent=`開始抽獎 · 抽${TIER_RN[selTier]}`; }
-    else if(avail>0){ cta.disabled=false; cta.dataset.mode='deposit'; cta.textContent=`投入 1 枚洲遊幣（再 ${cost-S.invested} 枚抽${TIER_RN[selTier]}）`; }
-    else { cta.disabled=true; cta.dataset.mode='none'; cta.textContent='投幣後開始抽獎'; }
+    if(ok){ cta.disabled=false; cta.dataset.mode='spin'; cta.innerHTML=`<span class="cta-main">開始抽獎</span><span class="cta-sub">抽${TIER_RN[selTier]}</span>`; }
+    else if(avail>0){ cta.disabled=false; cta.dataset.mode='deposit'; cta.innerHTML=`<span class="cta-main">投入 1 枚洲遊幣</span><span class="cta-sub">再 ${cost-S.invested} 枚洲遊幣抽${TIER_RN[selTier]}</span>`; }
+    else { cta.disabled=true; cta.dataset.mode='none'; cta.innerHTML='<span class="cta-main">投幣後開始抽獎</span>'; }
   }
   // 投幣引導：有可投的洲遊幣且尚未達本等級門檻、且非抽獎中 → 顯示脈動提示
   const dh=$('#deposit-hint');
@@ -887,7 +890,7 @@ function spin(force){
   if(!force){ openConfirm(cost, tier); return; }   // 每次抽獎前都先確認
   spinning=true; $('#ts-label').disabled=true;
   $('#ts-prev').disabled=true; $('#ts-next').disabled=true;   // 抽獎中鎖定等級選擇
-  const cta=$('#spin-btn'); cta.disabled=true; cta.textContent='抽獎中…';
+  const cta=$('#spin-btn'); cta.disabled=true; cta.innerHTML='<span class="cta-main">抽獎中…</span>';
   buildRing(tier);
   const items=PRIZES[tier], n=items.length, step=360/n;
   const idx=weightedPick(items);
