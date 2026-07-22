@@ -91,13 +91,17 @@ img{display:block;max-width:100%}
 .share-card{position:relative;padding-top:34px}
 .share-linkrow{display:flex;gap:8px;margin:0 0 12px}
 .share-linkrow input{flex:1;min-width:0;font-family:var(--sans);font-size:13px;color:var(--ink);
-  background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:10px;padding:10px 12px}
-.share-linkrow button{flex:none;min-height:44px;padding:0 16px;border-radius:10px;font-family:var(--serif);font-weight:600;
-  font-size:14px;color:#5A3A08;background:linear-gradient(180deg,#F6E7C0,#E6C877);border:1px solid rgba(161,98,7,.5)}
-.share-line{width:100%;min-height:48px;border:none;border-radius:12px;font-family:var(--serif);font-weight:700;font-size:16px;
-  color:#fff;background:#06C755;box-shadow:0 4px 12px rgba(6,199,85,.3);margin-bottom:4px}
-.share-line:active{filter:brightness(.95)}
-.share-linkrow button:focus-visible,.share-line:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+  background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:10px;padding:10px 12px;margin:0}
+/* 提高特異性覆蓋 .card button 的滿版金底 */
+.card button.share-copy{flex:none;width:auto;min-height:44px;margin:0;padding:0 18px;border-radius:10px;
+  font-family:var(--serif);font-weight:600;font-size:14px;color:#5A3A08;
+  background:linear-gradient(180deg,#F6E7C0,#E6C877);border:1px solid rgba(161,98,7,.5);box-shadow:none}
+.card button.share-line{width:100%;min-height:48px;margin:0 0 4px;padding:0;border:none;border-radius:12px;
+  font-family:var(--serif);font-weight:700;font-size:16px;color:#fff;
+  background:#06C755;box-shadow:0 4px 12px rgba(6,199,85,.3)}
+.card button.share-line:active{transform:none;filter:brightness(.95)}
+.card button.share-copy:active{transform:none;filter:brightness(.97)}
+.card button.share-copy:focus-visible,.card button.share-line:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 .need-hint{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.06em;margin-top:3px;min-height:18px}
 #coin-stack{position:relative;height:92px;margin:4px 0;perspective:640px}
 .coin-wrap{position:absolute;top:14px;width:66px;height:66px;margin-left:-33px;
@@ -555,7 +559,7 @@ img{display:block;max-width:100%}
       <button class="pf-close" id="share-close" type="button" aria-label="關閉">✕</button>
       <div class="win-lbl">分 享 活 動</div>
       <div class="prize" style="font-size:19px;margin:8px 0 12px">邀好友一起蒐集洲遊幣</div>
-      <div class="share-linkrow"><input id="share-url" type="text" readonly><button id="share-copy" type="button">複製</button></div>
+      <div class="share-linkrow"><input id="share-url" type="text" readonly><button id="share-copy" class="share-copy" type="button">複製</button></div>
       <button id="share-line" type="button" class="share-line">用 LINE 分享</button>
       <div class="pf-optnote" style="text-align:center;color:var(--muted)">分享或複製連結後返回，即可領取洲遊幣。</div>
     </div>
