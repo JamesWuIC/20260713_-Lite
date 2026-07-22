@@ -7,6 +7,8 @@
 <link rel="icon" type="image/png" href="assets/coin.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- LINE LIFF SDK：正式在 LINE App 內以 LIFF 開啟時提供真實登入身分（getProfile） -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root{
   --gold:#935D08; --gold-bright:#C99A3B; --gold-line:#B8860B;
@@ -76,15 +78,20 @@ img{display:block;max-width:100%}
 .balance b{font-family:var(--display);font-size:var(--t-lead);color:var(--gold);line-height:1}
 .balance span{font-family:var(--serif);font-size:var(--t-fine);color:var(--muted)}
 
-/* 中獎跑馬燈（頂列左側，循環彈出匿名中獎資訊） */
-.winticker{flex:1;min-width:0;display:flex;align-items:center;height:34px;overflow:hidden;
-  background:rgba(245,243,238,.8);border:1px solid rgba(161,98,7,.2);border-radius:999px;
-  padding:0 12px;margin-right:10px;box-shadow:var(--shadow)}
-.wt-msg{font-family:var(--serif);font-size:var(--t-cap);font-weight:var(--w-label);color:var(--gold);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.wt-msg.in{animation:wtIn .5s cubic-bezier(.2,.9,.2,1)}
-@keyframes wtIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media (prefers-reduced-motion:reduce){ .wt-msg.in{animation:none} }
+/* LINE 登入身分晶片（頂列左側，沿用 .balance 視覺模板；提升活動可信度） */
+.lineid{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:6px;
+  background:var(--surface);border:1px solid rgba(161,98,7,.28);border-radius:999px;
+  padding:4px 12px 4px 4px;margin-right:10px;box-shadow:var(--shadow)}
+.li-av{flex:none;width:26px;height:26px;border-radius:50%;object-fit:cover;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+  color:#fff;font-family:var(--serif);font-size:var(--t-cap);line-height:1}
+img.li-av{background:none}
+.li-name{font-family:var(--serif);font-size:var(--t-cap);color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+.li-tag{flex:none;font-family:var(--sans);font-size:var(--t-fine);color:var(--muted);
+  border:1px solid rgba(107,102,91,.35);border-radius:var(--r-pill);padding:0 5px;line-height:1.5}
+.li-tag[hidden]{display:none}
 
 /* ===== WHEEL screen ===== */
 .wheel-head{text-align:center;margin-bottom:6px}
@@ -409,7 +416,11 @@ img{display:block;max-width:100%}
   <!-- ===== WHEEL ===== -->
   <section id="wheel" class="screen active">
     <div class="topbar">
-      <div class="winticker" id="winticker"><span class="wt-msg" id="wt-msg"></span></div>
+      <div class="lineid" id="lineid" aria-label="LINE 登入身分">
+        <span class="li-av" id="li-av" aria-hidden="true">訪</span>
+        <span class="li-name" id="li-name">預覽訪客</span>
+        <span class="li-tag" id="li-tag">示意</span>
+      </div>
       <div class="balance"><img src="assets/coin.png" alt="洲遊幣"><b id="bal-wheel">0</b><span>洲遊幣</span></div>
     </div>
 
@@ -612,6 +623,41 @@ function grantAccess(){
   sessionStorage.setItem(ACCESS_SESSION_KEY,'1');
   $('#access-gate').hidden=true;
   $('#app').hidden=false;
+  initLiff();
+}
+
+/* ---------- LINE LIFF 身分（左上晶片；提升可信度） ----------
+   真實身分只在「LINE App 內以 LIFF 開啟」時取得（liff.getProfile）；
+   其餘環境（電腦預覽、密碼閘門）一律 fallback 成清楚標示的「示意訪客」，不偽造真人。
+   身分僅前端顯示，不寫入 S/localStorage（PII 最小化）。 */
+const LIFF_ID='';   // TODO 待資訊/行銷提供 LINE Developers LIFF ID；未設定時走示意 fallback
+let liffReady=false;
+function setIdentity(name, pic){
+  const nameEl=$('#li-name'), tag=$('#li-tag'), av=$('#li-av');
+  if(nameEl) nameEl.textContent = name || '洲際貴賓';
+  if(tag) tag.hidden = true;                       // 真實身分：移除「示意」標記
+  if(av && pic){                                   // 有頭像→換成 <img>，防盜鏈＋失敗退首字
+    const img=new Image();
+    img.className='li-av'; img.id='li-av'; img.alt=''; img.setAttribute('referrerpolicy','no-referrer');
+    img.onerror=()=>{ const s=document.createElement('span'); s.className='li-av'; s.id='li-av';
+      s.setAttribute('aria-hidden','true'); s.textContent=(name||'貴')[0]; img.replaceWith(s); };
+    img.src=pic; av.replaceWith(img);
+  } else if(av){
+    av.textContent=(name||'貴')[0];                // 無頭像→顯示名稱首字
+  }
+}
+async function initLiff(){
+  if(liffReady) return; liffReady=true;
+  try{
+    if(!window.liff || !LIFF_ID) return;           // 無 SDK 或未設 LIFF_ID → 保持示意 fallback
+    await liff.init({ liffId: LIFF_ID });
+    if(liff.isLoggedIn()){
+      const p=await liff.getProfile();
+      setIdentity(p.displayName, p.pictureUrl);
+    } else if(liff.isInClient()){
+      liff.login();                                // 在 LINE 內導向登入
+    }
+  }catch(e){ /* 任何失敗都保持示意 fallback，不中斷抽獎主流程 */ }
 }
 if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1') grantAccess();
 $('#access-form').addEventListener('submit',e=>{
@@ -1035,7 +1081,7 @@ tierDeg = 60;
   if(lvl0!==curLevel){ curLevel=lvl0;                     // 初始直接換圖，不走發光轉場
     DISC_LAYERS.forEach(([sel,name])=>{ $(sel).src=`assets/L${lvl0}/${name}.png`; }); } }
 applyTier();        // 設 selTier=三等獎、換 L3 圖、buildRing、refreshDraw
-renderBalance(); renderStack(); renderProfileCard(); startWinners();
+renderBalance(); renderStack(); renderProfileCard();   // winticker 已由左上 LINE 身分晶片取代（startWinners 停用）
 renderTasks();                 // 預先渲染任務清單（含 pending 狀態）
 if(Object.keys(S.pending).length) setTimeout(verifyPending, 400);   // 同分頁跳社群回來→補發幣
 
