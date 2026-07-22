@@ -83,7 +83,8 @@ img{display:block;max-width:100%}
 .invested b{color:var(--gold);font-family:var(--display);font-size:var(--t-lead);margin:0 3px}
 /* 上方互動區：吃滿頂欄與轉盤之間的剩餘空間，內容垂直置中 */
 /* justify:safe center → 內容裝得下時垂直置中；裝不下時靠上對齊，不會溢出蓋到頂欄跑馬燈 */
-.play-panel{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:safe center;gap:12px}
+/* 控制區：轉盤下方，吃剩餘空間，內容垂直置中 */
+.controls{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;gap:var(--s3);padding-top:var(--s2)}
 /* 主 CTA：兩段式標籤（主＝宋體大、次＝黑體小），刻意換行、恆定高度避免版位跳動 */
 .cta{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;color:var(--cit-ink);
   background:linear-gradient(180deg,var(--cit-hi),var(--cit-mid) 52%,#B4972A);border:1px solid var(--cit-deep);border-radius:var(--r-btn);padding:10px 16px;
@@ -92,12 +93,6 @@ img{display:block;max-width:100%}
 .cta-sub{font-family:var(--sans);font-weight:var(--w-body);font-size:var(--t-cap);letter-spacing:0;line-height:1.2;white-space:nowrap}
 .cta:disabled{background:linear-gradient(180deg,#d7d1c4,#bdb6a6);box-shadow:none;color:#f5f3ee}
 .cta:not(:disabled):active{transform:scale(.98)}
-/* 常駐次要引導鈕（去任務頁賺幣）：金字描邊，不與主 CTA 搶階層 */
-.earn-link{width:100%;font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body);letter-spacing:.02em;
-  color:var(--cit-ink-soft);background:rgba(196,169,48,.12);border:1px solid var(--cit-deep);
-  border-radius:var(--r-btn);padding:13px;box-shadow:none}
-.earn-link:active{transform:scale(.98);filter:brightness(.97)}
-.earn-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 
 /* 分享彈窗 */
 .share-card{position:relative;padding-top:34px}
@@ -113,33 +108,34 @@ img{display:block;max-width:100%}
   background:#06C755;box-shadow:0 4px 12px rgba(6,199,85,.3)}
 .share-line:active{filter:brightness(.95)}
 .share-copy:active{filter:brightness(.97)}
-/* 抽獎選擇面板：點「開始抽獎」展開；滑桿選投入枚數，轉盤即時換金/銀/銅與獎項 */
-#draw-panel{display:flex;flex-direction:column;gap:var(--s3);width:100%;
-  background:linear-gradient(180deg,rgba(246,239,198,.75),rgba(226,200,106,.34));
-  border:1px solid rgba(146,114,25,.4);border-radius:var(--r-btn);padding:16px;
-  box-shadow:0 6px 18px var(--cit-shadow);animation:dpIn .28s cubic-bezier(.2,.9,.2,1)}
-#draw-panel[hidden]{display:none}
-@keyframes dpIn{from{opacity:0;transform:translateY(-8px)}}
-@media (prefers-reduced-motion:reduce){ #draw-panel{animation:none} }
-.dp-tier{text-align:center;font-family:var(--serif);font-size:var(--t-body);color:var(--cit-ink)}
-.dp-tier b{font-weight:var(--w-display);font-size:var(--t-lead);color:var(--cit-ink)}
-/* 三檔滑桿（1/3/5 枚＝三/二/一等獎）：銅→銀→金軌道、金屬 thumb、44 觸控 */
-#draw-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;margin:4px 0;border-radius:999px;
-  background:linear-gradient(90deg,#A15A33,#6E767C 50%,#9C6B0E);outline:none;cursor:pointer}
-#draw-slider::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#F6E7C0,#C99A3B 68%,#8F871C);
-  border:2px solid #fff;box-shadow:0 2px 8px rgba(122,110,15,.55);cursor:pointer}
-#draw-slider::-moz-range-thumb{width:30px;height:30px;border:2px solid #fff;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#F6E7C0,#C99A3B 68%,#8F871C);box-shadow:0 2px 8px rgba(122,110,15,.55);cursor:pointer}
-#draw-slider:focus-visible{outline:2px solid var(--gold-bright);outline-offset:4px}
-.dp-ticks{display:flex;justify-content:space-between;font-family:var(--sans);font-size:var(--t-cap);color:var(--cit-ink-soft)}
-.dp-ticks span:first-child{text-align:left}.dp-ticks span:last-child{text-align:right}
+/* 首次引導細長橫幅（不與主 CTA 搶主角） */
+#profile-banner{display:flex;align-items:center;justify-content:center;gap:2px;min-height:40px;
+  font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft);
+  background:rgba(196,169,48,.10);border:1px dashed rgba(146,114,25,.55);border-radius:var(--r-pill);
+  animation:bannerPulse 2s ease-in-out infinite}
+#profile-banner[hidden]{display:none}
+#profile-banner:active{transform:scale(.99)}
+@keyframes bannerPulse{50%{background:rgba(196,169,48,.2)}}
+/* 三張等級卡（1/3/5 枚＝三/二/一等獎）：點卡即時換轉盤金/銀/銅；選中＝香檳金實心 */
+.tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
+.tier-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;
+  border-radius:var(--r-inline);border:1px solid var(--cit-deep);background:rgba(196,169,48,.10);
+  color:var(--cit-ink-soft);transition:transform .15s,background .2s}
+.tc-name{font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body)}
+.tc-cost{font-family:var(--sans);font-size:var(--t-cap)}
+.tier-card[aria-checked="true"]{color:var(--cit-ink);border-color:var(--cit-deep);
+  background:linear-gradient(180deg,var(--cit-hi),var(--cit-mid) 55%,#B4972A);
+  box-shadow:0 4px 12px var(--cit-shadow),inset 0 1px 0 rgba(255,255,255,.5)}
+.tier-card:active{transform:scale(.97)}
+.tier-card:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 .dp-need{text-align:center;font-family:var(--sans);font-size:var(--t-cap);color:var(--cit-ink-soft);min-height:16px}
-.pl-link{align-self:center;background:none;font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft);
-  text-decoration:underline;text-underline-offset:3px;padding:6px;min-height:var(--tap);display:inline-flex;align-items:center}
+/* 次要文字連結列（獎項一覽 · 去賺洲遊幣） */
+.ctrl-links{display:flex;align-items:center;justify-content:center;gap:var(--s2)}
+.ctrl-dot{color:var(--cit-ink-soft);opacity:.6}
+.pl-link{background:none;font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft);
+  text-decoration:underline;text-underline-offset:3px;padding:6px 8px;min-height:var(--tap);display:inline-flex;align-items:center}
 .pl-link:active{opacity:.6}
-.dp-cancel{align-self:center;background:none;font-family:var(--sans);font-size:var(--t-cap);color:var(--muted);padding:4px 12px;min-height:36px}
-.dp-cancel:active{opacity:.6}
+.pl-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 
 /* ╔══════════════════════════════════════════════════════════╗
    ║  🎡 轉盤調整面板 — 多層同畫布（disc-*.png 皆 1920² 圓心置中）║
@@ -157,7 +153,7 @@ img{display:block;max-width:100%}
      ╚════════════════════════════════════════════════════════════╝ */
   --wheel-size:  126%;    /* 轉盤寬度：依 20260713_介面模擬圖 放大 1.34×，左右出血 */
   --wheel-x:      50%;    /* 轉盤中心 左右（0%~100%，50=正中） */
-  --stage-h: min(92vw, 396px);  /* 126%×0.73≈92vw；#app 上限 430 → cap 396px */
+  --stage-h: min(88vw, 46vh, 384px);  /* 轉盤主角高度：受 vw 與 vh 雙夾，短螢幕也留得下控制區 */
 
   --label-size:  46px;    /* 獎品金字大小上限（1920 座標系） */
   /* Z軸（數字大=上層）— 依 PSD 疊序 */
@@ -175,8 +171,8 @@ img{display:block;max-width:100%}
 /* ── 以下規則吃上面的變數，通常不用改 ───────────────────── */
 /* 舞台：margin-top:auto 把它推到畫面最底、margin-bottom:-24px 抵銷 .screen 底 padding
    → 舞台底邊＝螢幕底邊；高度固定 --stage-h → 轉盤下緣在所有機型一致地自然出血。 */
-.stage{position:relative;width:calc(100% + 36px);margin:0 -18px -24px;
-  height:var(--stage-h);overflow:hidden}
+.stage{position:relative;width:calc(100% + 36px);margin:6px -18px var(--s3);
+  height:var(--stage-h);overflow:hidden;flex:none}
 /* 🔒 disc＝整顆轉盤的「單一群組」：所有部件(方框/等級盤/軌道/獎項盤/穹頂/金字/投幣口/發光)
    都在此容器內、只吃它的位置與縮放。★內部任何部件不再單獨移動或縮放，只透過
    --wheel-x/size 整組控制★。頂端貼齊舞台頂（badge/投幣口恆可見），底部超出被裁。 */
@@ -262,18 +258,6 @@ img{display:block;max-width:100%}
 .task-btn:disabled{background:#cdc6b8;color:#f5f3ee}
 .task-btn:not(:disabled):active{transform:scale(.96)}
 .task-note{font-family:var(--sans);font-size:var(--t-cap);color:var(--muted);text-align:center;margin-top:14px;line-height:var(--lh-body)}
-/* 首頁個資卡（填資料領第一枚幣） */
-#profile-card{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;
-  background:linear-gradient(180deg,#F6EFC6,#E2C86A);border:1px solid rgba(146,114,25,.5);
-  border-radius:var(--r-btn);padding:12px;margin:0 0 12px;box-shadow:0 6px 18px var(--cit-shadow);
-  animation:cardPulse 1.8s ease-in-out infinite}
-#profile-card .pc-t{font-family:var(--serif);font-weight:var(--w-display);font-size:var(--t-action);color:var(--cit-ink);letter-spacing:.02em}
-#profile-card .pc-s{font-family:var(--serif);font-size:var(--t-label);color:var(--cit-ink-soft)}
-#profile-card[hidden]{display:none}
-#profile-card:active{transform:scale(.99)}
-@keyframes cardPulse{50%{box-shadow:0 9px 26px rgba(201,154,59,.55)}}
-/* 瀏覽獎品小按鈕（浮在轉盤底部） */
-/* 瀏覽獎品：純文字，浮在投幣口右側 */
 /* 個資表單欄位 */
 .pf-field{text-align:left;margin:0 0 var(--s3)}
 .pf-field label{display:block;font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-label);color:var(--muted);margin-bottom:var(--s1)}
@@ -288,7 +272,7 @@ img{display:block;max-width:100%}
   font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-action);
   background:transparent;color:var(--muted);border:1px solid rgba(138,132,119,.4)}
 .card button.ghost:active{transform:scale(.97)}
-@media (prefers-reduced-motion:reduce){ #profile-card,.tier-aura.show{animation:none} }
+@media (prefers-reduced-motion:reduce){ #profile-banner,.tier-aura.show{animation:none} }
 /* 個資表單關閉鈕 */
 #profile-modal .card{position:relative;padding-top:34px}
 /* 圓形關閉鈕：44px 觸控目標（基底金底已收斂到 .btn-fill，無需覆蓋樣式） */
@@ -417,32 +401,7 @@ img{display:block;max-width:100%}
       <div class="balance"><img src="assets/coin.png" alt="洲遊幣"><b id="bal-wheel">0</b><span>洲遊幣</span></div>
     </div>
 
-    <!-- 上方互動區：在頂欄與轉盤之間垂直置中 -->
-    <div class="play-panel">
-      <!-- 首頁個資任務卡：填資料領第一枚幣 -->
-      <button id="profile-card" type="button" hidden>
-        <span class="pc-t">填寫個人資料</span>
-        <span class="pc-s">領取你的第一枚洲遊幣 →</span>
-      </button>
-
-      <button class="cta" id="spin-btn" type="button"><span class="cta-main">開始抽獎</span><span class="cta-sub">選擇投入洲遊幣枚數</span></button>
-
-      <!-- 抽獎選擇面板：點「開始抽獎」展開；滑桿選投入枚數，轉盤即時換金/銀/銅與獎項 -->
-      <section id="draw-panel" role="group" aria-label="選擇投入洲遊幣枚數" hidden>
-        <div class="dp-tier">抽 <b id="dp-tier">三等獎</b> · 投入 <b id="dp-coins">1</b> 枚洲遊幣</div>
-        <input type="range" id="draw-slider" min="1" max="5" step="2" value="1"
-               aria-label="選擇投入洲遊幣枚數（1、3、5 枚）">
-        <div class="dp-ticks"><span>三等獎·1枚</span><span>二等獎·3枚</span><span>一等獎·5枚</span></div>
-        <div class="dp-need" id="dp-need"></div>
-        <button class="pl-link" id="dp-prizes" type="button">查看此等級獎項 ▤</button>
-        <button class="cta" id="dp-confirm" type="button"><span class="cta-main">確認抽獎</span></button>
-        <button class="dp-cancel" id="dp-cancel" type="button">取消</button>
-      </section>
-
-      <!-- 常駐引導：隨時去任務頁賺更多洲遊幣、抽更大獎 -->
-      <button class="earn-link" id="earn-link" type="button">🪙 去賺更多洲遊幣，抽洲際好禮 →</button>
-    </div>
-
+    <!-- 轉盤＝主角：頂欄下方即完整現身（點等級卡會即時換金/銀/銅） -->
     <div class="stage">
       <div class="disc">
         <img class="dl dl-bg"    id="img-bg"    src="assets/L1/disc-bg.png" alt="">
@@ -457,6 +416,31 @@ img{display:block;max-width:100%}
         <div class="wheel-glow" id="glow"></div>
         <!-- 一等獎持續發光 -->
         <div class="tier-aura" id="tier-aura"></div>
+      </div>
+    </div>
+
+    <!-- 控制區：點三張等級卡選投入枚數（轉盤即時換金/銀/銅與獎項）→ 開始抽獎 -->
+    <div class="controls">
+      <!-- 首次引導：細長橫幅（填資料領第一枚幣），不與主 CTA 搶主角 -->
+      <button id="profile-banner" type="button" hidden>填資料領第一枚洲遊幣<span aria-hidden="true"> →</span></button>
+
+      <div class="tier-cards" role="radiogroup" aria-label="選擇抽獎等級與投入枚數">
+        <button class="tier-card" type="button" data-coins="1" role="radio" aria-checked="true">
+          <span class="tc-name">三等獎</span><span class="tc-cost">投 1 枚</span></button>
+        <button class="tier-card" type="button" data-coins="3" role="radio" aria-checked="false">
+          <span class="tc-name">二等獎</span><span class="tc-cost">投 3 枚</span></button>
+        <button class="tier-card" type="button" data-coins="5" role="radio" aria-checked="false">
+          <span class="tc-name">一等獎</span><span class="tc-cost">投 5 枚</span></button>
+      </div>
+
+      <div class="dp-need" id="dp-need"></div>
+
+      <button class="cta" id="spin-btn" type="button"><span class="cta-main">開始抽獎</span><span class="cta-sub">投入 1 枚 · 抽三等獎</span></button>
+
+      <div class="ctrl-links">
+        <button class="pl-link" id="dp-prizes" type="button">獎項一覽</button>
+        <span class="ctrl-dot" aria-hidden="true">·</span>
+        <button class="pl-link" id="earn-link" type="button">去賺更多洲遊幣 →</button>
       </div>
     </div>
   </section>
@@ -626,35 +610,28 @@ $('#access-form').addEventListener('submit',e=>{
   field.value=''; field.focus();
 });
 
-/* ---------- 抽獎選擇：滑桿選投入枚數（1/3/5＝三/二/一等獎），轉盤即時變色 ---------- */
+/* ---------- 抽獎選擇：三張等級卡選投入枚數（1/3/5＝三/二/一等獎），點卡轉盤即時變色 ---------- */
 const DEG_BY_COINS={1:60, 3:30, 5:0};   // 枚數→tierDeg（三/二/一）
-// 點「開始抽獎」展開滑桿面板；取消或抽完收回，還原 CTA
-function openDrawPanel(){
-  if(spinning) return;
-  $('#spin-btn').hidden=true;
-  $('#draw-panel').hidden=false;
-  pickCoins(+$('#draw-slider').value);      // 依目前滑桿值同步等級/轉盤/可負擔狀態
-}
-function closeDrawPanel(){
-  $('#draw-panel').hidden=true;
-  $('#spin-btn').hidden=false;
-}
-// 滑桿值→設定抽獎等級：換轉盤金/銀/銅＋獎項（applyTier），並刷新面板
+// 點等級卡→設定抽獎等級：換轉盤金/銀/銅＋獎項（applyTier），並刷新控制區
 function pickCoins(coins){
   tierDeg=DEG_BY_COINS[coins] ?? 60;   // ⚠ 用 ?? 不用 ||：5 枚→deg 0(一等獎)，0 是有效值
   applyTier();          // 設 selTier、發光換圖、buildRing 換獎項、一等獎 aura、refreshDraw
 }
-// 依目前選擇刷新面板：等級名、枚數、確認鈕可負擔與差額提示
+// 依目前選擇刷新控制區：卡片選中態、主 CTA 標籤與枚數、可負擔差額提示
 function refreshDraw(){
-  const coins=+($('#draw-slider')?.value||1);
-  const dt=$('#dp-tier'); if(dt) dt.textContent=TIER_RN[selTier];
-  const dc=$('#dp-coins'); if(dc) dc.textContent=coins;
-  const btn=$('#dp-confirm'), need=$('#dp-need');
+  const coins=COST[selTier];                       // 目前等級所需枚數＝投入枚數
+  $$('.tier-card').forEach(c=>c.setAttribute('aria-checked', +c.dataset.coins===coins ? 'true':'false'));
   const afford=S.balance>=coins;
-  if(btn) btn.disabled = !afford || spinning;
+  const cta=$('#spin-btn');
+  if(cta && !spinning){
+    const main=cta.querySelector('.cta-main'), sub=cta.querySelector('.cta-sub');
+    if(afford){ cta.dataset.mode='spin'; if(main) main.textContent='開始抽獎'; if(sub) sub.textContent=`投入 ${coins} 枚 · 抽${TIER_RN[selTier]}`; }
+    else { cta.dataset.mode='earn'; if(main) main.textContent='去賺洲遊幣'; if(sub) sub.textContent=`還差 ${coins-S.balance} 枚可抽${TIER_RN[selTier]}`; }
+  }
+  const need=$('#dp-need');
   if(need) need.textContent = afford
     ? `目前有 ${S.balance} 枚洲遊幣，抽完剩 ${S.balance-coins} 枚`
-    : `洲遊幣不足，還差 ${coins-S.balance} 枚 · 可點下方去賺洲遊幣`;
+    : `洲遊幣不足 · 完成任務可賺更多洲遊幣`;
 }
 // 餘額/畫面刷新（多處沿用：抽獎後、任務、個資送出、init）
 function renderStack(){ renderBalance(); refreshDraw(); }
@@ -734,8 +711,8 @@ function spin(){
   const tier=selTier, cost=COST[tier];            // 抽獎等級＝滑桿選定（selTier 由 pickCoins 設定）
   if(S.balance < cost){ toast('洲遊幣不足'); return; }
   spinning=true;
-  closeDrawPanel();                                // 收起選擇面板
   const cta=$('#spin-btn'); cta.disabled=true; cta.innerHTML='<span class="cta-main">抽獎中…</span>';
+  $$('.tier-card').forEach(c=>c.disabled=true);    // 抽獎中鎖定等級卡
   buildRing(tier);
   const items=PRIZES[tier], n=items.length, step=360/n;
   const idx=weightedPick(items);
@@ -751,7 +728,8 @@ function spin(){
   spinState={ base, delta: turns*360 + align, start: performance.now(), dur };
   setTimeout(()=>{
     spinning=false;
-    const cta=$('#spin-btn'); cta.disabled=false; cta.innerHTML='<span class="cta-main">開始抽獎</span><span class="cta-sub">選擇投入洲遊幣枚數</span>';
+    const cta=$('#spin-btn'); cta.disabled=false; cta.innerHTML='<span class="cta-main">開始抽獎</span><span class="cta-sub"></span>';
+    $$('.tier-card').forEach(c=>c.disabled=false);   // 解鎖等級卡
     showWin(prize, tier, code, coin);
     renderBalance(); renderStack();
   }, dur+150);
@@ -772,10 +750,12 @@ $('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal()
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') $$('.modal.show').forEach(m=>m.classList.remove('show')); });
 
 // 開始抽獎＝展開滑桿選擇面板；滑桿即時換等級/轉盤；確認才抽
-$('#spin-btn').addEventListener('click', openDrawPanel);
-$('#draw-slider').addEventListener('input', e=>pickCoins(+e.target.value));
-$('#dp-confirm').addEventListener('click', spin);
-$('#dp-cancel').addEventListener('click', closeDrawPanel);
+// 點等級卡＝選投入枚數（轉盤即時變色）；主 CTA＝抽獎（餘額不足時導向賺幣）
+$$('.tier-card').forEach(card=>card.addEventListener('click',()=>{ if(!spinning) pickCoins(+card.dataset.coins); }));
+$('#spin-btn').addEventListener('click',()=>{
+  if($('#spin-btn').dataset.mode==='earn'){ renderTasks(); showScreen('tasks'); return; }
+  spin();
+});
 $('#dp-prizes').addEventListener('click', ()=>openPrizeList(selTier));
 // 常駐引導鈕：去任務頁賺更多洲遊幣
 $('#earn-link').addEventListener('click',()=>{ renderTasks(); showScreen('tasks'); });
@@ -920,8 +900,8 @@ $('#cf-no').addEventListener('click',()=>{ $('#confirm-modal').classList.remove(
 $('#confirm-modal').addEventListener('click',e=>{ if(e.target.id==='confirm-modal') $('#confirm-modal').classList.remove('show'); });
 
 /* 首頁個資卡＋表單（原型 UI，不儲存個資） */
-function renderProfileCard(){ $('#profile-card').hidden = !!S.done.profile; }
-$('#profile-card').addEventListener('click',()=>openModal($('#profile-modal')));
+function renderProfileCard(){ $('#profile-banner').hidden = !!S.done.profile; }
+$('#profile-banner').addEventListener('click',()=>openModal($('#profile-modal')));
 $('#profile-modal').addEventListener('click',e=>{ if(e.target.id==='profile-modal') $('#profile-modal').classList.remove('show'); });
 $('#pf-close').addEventListener('click',()=>$('#profile-modal').classList.remove('show'));
 /* 個資告知事項小視窗（點連結開、✕/背景關） */
