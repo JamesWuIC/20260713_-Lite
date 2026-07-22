@@ -159,6 +159,19 @@ img.li-av{background:none}
 /* 次要文字連結列（獎項一覽 · 去賺洲遊幣） */
 .ctrl-links{display:flex;align-items:center;justify-content:center;gap:var(--s2)}
 .ctrl-dot{color:var(--on-night-soft);opacity:.7}
+/* 底部條款頁腳：隱私權入口＋版本＋最終解釋權（法律文字為 AI 草稿，需法務審核） */
+.app-footer{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid rgba(201,181,131,.18);
+  text-align:center;font-family:var(--sans)}
+.af-terms{font-size:var(--t-fine);line-height:var(--lh-body);color:var(--on-night-soft);
+  max-width:34rem;margin:0 auto var(--s2);text-wrap:pretty}
+.af-links{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;
+  font-size:var(--t-fine);color:var(--on-night-soft)}
+.af-link{background:none;border:0;padding:0;font:inherit;color:var(--on-night);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:var(--tap);
+  display:inline-flex;align-items:center}
+.af-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;border-radius:4px}
+.af-dot{opacity:.5}
+.af-ver{opacity:.85}
 .pl-link{background:none;font-family:var(--serif);font-size:var(--t-label);color:var(--on-night);
   text-decoration:underline;text-underline-offset:3px;padding:6px 8px;min-height:var(--tap);display:inline-flex;align-items:center}
 .pl-link:active{opacity:.6}
@@ -490,6 +503,18 @@ img.li-av{background:none}
         <span class="ctrl-dot" aria-hidden="true">·</span>
         <button class="pl-link" id="earn-link" type="button">去賺更多洲遊幣 →</button>
       </div>
+
+      <!-- 【AI 草稿】以下法律文字需法務/公關審核；「最終解釋權」於台灣消保法定型化契約下恐受限，上線前請法務確認措辭 -->
+      <footer class="app-footer">
+        <div class="af-terms">
+          本活動之獎項、規則與細節，以主辦單位（高雄洲際酒店／臺北洲際酒店）公告為準；主辦單位保留活動內容變更、暫停或終止，及最終解釋之權利。
+        </div>
+        <div class="af-links">
+          <button class="af-link" id="footer-privacy" type="button">隱私權／個資條款</button>
+          <span class="af-dot" aria-hidden="true">·</span>
+          <span class="af-ver">洲遊幣 v0.2 · 2026.07 原型</span>
+        </div>
+      </footer>
     </div>
   </section>
 
@@ -1024,6 +1049,7 @@ $('#profile-modal').addEventListener('click',e=>{ if(e.target.id==='profile-moda
 $('#pf-close').addEventListener('click',()=>$('#profile-modal').classList.remove('show'));
 /* 個資告知事項小視窗（點連結開、✕/背景關） */
 $('#pf-notice').addEventListener('click',()=>openModal($('#notice-modal')));
+$('#footer-privacy').addEventListener('click',()=>openModal($('#notice-modal')));
 $('#notice-close').addEventListener('click',()=>$('#notice-modal').classList.remove('show'));
 $('#notice-modal').addEventListener('click',e=>{ if(e.target.id==='notice-modal') $('#notice-modal').classList.remove('show'); });
 $('#pf-submit').addEventListener('click',()=>{
