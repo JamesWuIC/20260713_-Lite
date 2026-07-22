@@ -190,6 +190,11 @@ img.li-av{background:none}
    → 舞台底邊＝螢幕底邊；高度固定 --stage-h → 轉盤下緣在所有機型一致地自然出血。 */
 .stage{position:relative;width:calc(100% + 36px);margin:6px -18px var(--s3);
   height:var(--stage-h);overflow:hidden;flex:none}
+/* 香檳金屬封邊：蓋住轉盤底部出血硬切邊（禮盒燙金封邊感） */
+.stage-hem{position:absolute;left:0;right:0;bottom:0;height:20px;z-index:10;pointer-events:none;
+  background:linear-gradient(180deg,var(--cit-hi) 0%,var(--cit-mid) 45%,var(--cit-deep) 100%);
+  border-top:1px solid var(--gold-line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55), inset 0 -3px 6px rgba(140,102,20,.45)}
 /* 🔒 disc＝整顆轉盤的「單一群組」：所有部件(方框/等級盤/軌道/獎項盤/穹頂/金字/投幣口/發光)
    都在此容器內、只吃它的位置與縮放。★內部任何部件不再單獨移動或縮放，只透過
    --wheel-x/size 整組控制★。頂端貼齊舞台頂（badge/投幣口恆可見），底部超出被裁。 */
@@ -450,6 +455,7 @@ img.li-av{background:none}
         <!-- 一等獎持續發光 -->
         <div class="tier-aura" id="tier-aura"></div>
       </div>
+      <div class="stage-hem" aria-hidden="true"></div>
     </div>
 
     <!-- 控制區：點三張等級卡選投入枚數（轉盤即時換金/銀/銅與獎項）→ 開始抽獎 -->
