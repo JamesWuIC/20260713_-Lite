@@ -92,6 +92,13 @@ img.li-av{background:none}
 .li-tag{flex:none;font-family:var(--sans);font-size:var(--t-fine);color:var(--muted);
   border:1px solid rgba(107,102,91,.35);border-radius:var(--r-pill);padding:0 5px;line-height:1.5}
 .li-tag[hidden]{display:none}
+/* 匿名中獎跑馬燈（低調文字版：頂欄下方一行、無底色、淡香檳字） */
+.winticker{text-align:center;min-height:15px;margin:-2px 0 6px;overflow:hidden}
+.wt-msg{display:inline-block;max-width:100%;font-family:var(--serif);font-size:var(--t-fine);
+  color:var(--on-night-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.82}
+.wt-msg.in{animation:wtIn .5s ease}
+@keyframes wtIn{from{opacity:0}to{opacity:.82}}
+@media (prefers-reduced-motion:reduce){ .wt-msg.in{animation:none} }
 
 /* ===== WHEEL screen ===== */
 .wheel-head{text-align:center;margin-bottom:6px}
@@ -423,6 +430,9 @@ img.li-av{background:none}
       </div>
       <div class="balance"><img src="assets/coin.png" alt="洲遊幣"><b id="bal-wheel">0</b><span>洲遊幣</span></div>
     </div>
+
+    <!-- 匿名中獎跑馬燈（低調文字，不搶主角） -->
+    <div class="winticker" id="winticker" aria-live="polite"><span class="wt-msg" id="wt-msg"></span></div>
 
     <!-- 轉盤＝主角：頂欄下方即完整現身（點等級卡會即時換金/銀/銅） -->
     <div class="stage">
@@ -1081,7 +1091,7 @@ tierDeg = 60;
   if(lvl0!==curLevel){ curLevel=lvl0;                     // 初始直接換圖，不走發光轉場
     DISC_LAYERS.forEach(([sel,name])=>{ $(sel).src=`assets/L${lvl0}/${name}.png`; }); } }
 applyTier();        // 設 selTier=三等獎、換 L3 圖、buildRing、refreshDraw
-renderBalance(); renderStack(); renderProfileCard();   // winticker 已由左上 LINE 身分晶片取代（startWinners 停用）
+renderBalance(); renderStack(); renderProfileCard(); startWinners();   // 身分晶片移左上；匿名中獎跑馬燈改頂欄下方低調文字
 renderTasks();                 // 預先渲染任務清單（含 pending 狀態）
 if(Object.keys(S.pending).length) setTimeout(verifyPending, 400);   // 同分頁跳社群回來→補發幣
 
