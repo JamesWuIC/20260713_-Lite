@@ -53,6 +53,16 @@
   --on-night-soft:#C9B583;             /* 夜色底上次要文字（≥5:1）*/
   /* 行高 */
   --lh-tight:1.15; --lh-snug:1.35; --lh-body:1.6;
+  /* App 層級 z-index scale（畫面級疊放，數值遞增）— 定義於 :root，全域可用；
+     勿與 .stage 內的轉盤內部 --z-bg…--z-glow(1–9) 混用 */
+  --z-hem:   10;   /* 轉盤底部金屬封邊 */
+  --z-coinfly:40;  /* 投幣飛行層（掛 document.body） */
+  --z-reset: 45;   /* 歸零測試鈕（fixed） */
+  --z-modal: 50;   /* 一般彈窗 */
+  --z-notice:60;   /* 告知事項彈窗（疊在其他彈窗上） */
+  --z-toast: 80;   /* 浮動提示 */
+  --z-overlay:100; /* 開獎/驗證全屏覆蓋 */
+  --z-gate:  200;  /* 訪客密碼閘 */
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -205,16 +215,7 @@ img.li-av{background:none}
   --z-slot:  1;    /* 投幣口 */
   --z-labels:5;   /* 獎品金字（恆水平正立，高於穹頂才不被蓋住） */
   --z-glow:  9;    /* 換等級發光轉場 */
-  /* App 層級 z-index scale（畫面級疊放，數值遞增；勿與上方轉盤內部 1–9 混用） */
-  --z-aura:   8;   /* 一等獎光暈 */
-  --z-hem:   10;   /* 轉盤底部金屬封邊 */
-  --z-coinfly:40;  /* 投幣飛行層 */
-  --z-reset: 45;   /* 歸零測試鈕 */
-  --z-modal: 50;   /* 一般彈窗 */
-  --z-notice:60;   /* 告知事項彈窗（疊在其他彈窗上） */
-  --z-toast: 80;   /* 浮動提示 */
-  --z-overlay:100; /* 開獎/驗證全屏覆蓋 */
-  --z-gate:  200;  /* 訪客密碼閘 */
+  --z-aura:  8;    /* 一等獎光暈（在 .disc 內，屬轉盤內部層） */
 }
 /* ⚙️ 金字擺放半徑在 <script> 的 PLATE.tr（1920 座標系，最大 960） */
 
