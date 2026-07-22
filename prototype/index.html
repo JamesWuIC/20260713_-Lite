@@ -20,6 +20,13 @@
   --bg:#EDEBE6; --surface:#F5F3EE; --ink:#2B2620; --muted:#6B665B;
   --danger:#B4471F; --shadow:0 6px 24px rgba(43,38,32,.14);
   --serif:"Noto Serif TC",serif; --display:"Cormorant Garamond",serif; --sans:"Inter",system-ui,sans-serif;
+  /* 間距刻度（4pt）與圓角/觸控刻度：全站按鈕與表單一致性依此 */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px;
+  --r-btn:14px;    /* 滿版動作鈕 */
+  --r-inline:10px; /* 小型行內鈕、輸入框 */
+  --r-pill:999px;  /* 膠囊 */
+  --r-card:22px;   /* 彈窗卡 */
+  --tap:44px;      /* 最小觸控目標 */
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -66,14 +73,14 @@ img{display:block;max-width:100%}
 /* justify:safe center → 內容裝得下時垂直置中；裝不下時靠上對齊，不會溢出蓋到頂欄跑馬燈 */
 .play-panel{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:safe center;gap:12px}
 .cta{width:100%;font-family:var(--serif);font-weight:700;font-size:19px;letter-spacing:.12em;color:#fff;
-  background:linear-gradient(180deg,#c99a3b,#9c6410);border-radius:14px;padding:16px;
+  background:linear-gradient(180deg,#c99a3b,#9c6410);border-radius:var(--r-btn);padding:16px;
   box-shadow:0 6px 18px rgba(161,98,7,.4),inset 0 1px 0 rgba(255,255,255,.4);transition:.2s}
 .cta:disabled{background:linear-gradient(180deg,#d7d1c4,#bdb6a6);box-shadow:none;color:#f5f3ee}
 .cta:not(:disabled):active{transform:scale(.98)}
 /* 常駐次要引導鈕（去任務頁賺幣）：金字描邊，不與主 CTA 搶階層 */
 .earn-link{width:100%;font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:.06em;
   color:#5A3A08;background:linear-gradient(180deg,#F6E7C0,#E6C877);border:1px solid rgba(161,98,7,.5);
-  border-radius:12px;padding:13px;box-shadow:0 4px 12px rgba(161,98,7,.25)}
+  border-radius:var(--r-btn);padding:13px;box-shadow:0 4px 12px rgba(161,98,7,.25)}
 .earn-link:active{transform:scale(.98);filter:brightness(.97)}
 .earn-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 
@@ -91,17 +98,16 @@ img{display:block;max-width:100%}
 .share-card{position:relative;padding-top:34px}
 .share-linkrow{display:flex;gap:8px;margin:0 0 12px}
 .share-linkrow input{flex:1;min-width:0;font-family:var(--sans);font-size:13px;color:var(--ink);
-  background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:10px;padding:10px 12px;margin:0}
-/* 提高特異性覆蓋 .card button 的滿版金底 */
-.card button.share-copy{flex:none;width:auto;min-height:44px;margin:0;padding:0 18px;border-radius:10px;
+  background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:var(--r-inline);padding:10px 12px;margin:0}
+/* 分享列小鈕：行內小鈕圓角 */
+.share-copy{flex:none;width:auto;min-height:var(--tap);margin:0;padding:0 18px;border-radius:var(--r-inline);
   font-family:var(--serif);font-weight:600;font-size:14px;color:#5A3A08;
-  background:linear-gradient(180deg,#F6E7C0,#E6C877);border:1px solid rgba(161,98,7,.5);box-shadow:none}
-.card button.share-line{width:100%;min-height:48px;margin:0 0 4px;padding:0;border:none;border-radius:12px;
+  background:linear-gradient(180deg,#F6E7C0,#E6C877);border:1px solid rgba(161,98,7,.5)}
+.share-line{width:100%;min-height:48px;margin:0 0 4px;padding:0;border:none;border-radius:var(--r-btn);
   font-family:var(--serif);font-weight:700;font-size:16px;color:#fff;
   background:#06C755;box-shadow:0 4px 12px rgba(6,199,85,.3)}
-.card button.share-line:active{transform:none;filter:brightness(.95)}
-.card button.share-copy:active{transform:none;filter:brightness(.97)}
-.card button.share-copy:focus-visible,.card button.share-line:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
+.share-line:active{filter:brightness(.95)}
+.share-copy:active{filter:brightness(.97)}
 .need-hint{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.06em;margin-top:3px;min-height:18px}
 #coin-stack{position:relative;height:92px;margin:4px 0;perspective:640px}
 .coin-wrap{position:absolute;top:14px;width:66px;height:66px;margin-left:-33px;
@@ -116,8 +122,9 @@ img{display:block;max-width:100%}
 @keyframes coinSpin{to{transform:rotateY(360deg)}}
 .stack-more{position:absolute;right:6px;bottom:2px;font-family:var(--display);
   font-size:15px;font-weight:700;color:var(--gold)}
-.add-coin{font-family:var(--serif);font-weight:600;font-size:14px;color:var(--gold);
-  background:var(--surface);border:1px solid rgba(161,98,7,.35);border-radius:999px;
+.add-coin{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);
+  font-family:var(--serif);font-weight:600;font-size:14px;color:var(--gold);
+  background:var(--surface);border:1px solid rgba(161,98,7,.35);border-radius:var(--r-pill);
   padding:8px 18px;box-shadow:var(--shadow);letter-spacing:.05em;transition:transform .15s}
 .add-coin:active{transform:scale(.96)}
 .disc-slot.hot{filter:drop-shadow(0 0 12px rgba(233,193,112,.95)) brightness(1.12)}
@@ -218,7 +225,7 @@ img{display:block;max-width:100%}
   text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:color-mix(in srgb,var(--ts-ink,#5a3a08) 45%,transparent)}
 #ts-label::after{content:"▤";font-size:12px;text-decoration:none}
 #tier-select button#ts-label:not(:disabled):active{opacity:.7;background:rgba(90,58,8,.08)}
-#tier-select button{width:42px;height:42px;flex:none;border:none;background:transparent;border-radius:50%;
+#tier-select button{width:var(--tap);height:var(--tap);flex:none;border:none;background:transparent;border-radius:50%;
   font-family:var(--display);font-size:24px;font-weight:700;line-height:1;color:var(--ts-ink,#5a3a08);display:grid;place-items:center}
 #tier-select button:not(:disabled):active{background:rgba(90,58,8,.14)}
 #tier-select button:disabled{color:color-mix(in srgb,var(--ts-ink,#5a3a08) 28%,transparent)}
@@ -240,7 +247,7 @@ img{display:block;max-width:100%}
 #reset-btn:active{transform:scale(.95)}
 /* 個資同意勾選 */
 .pf-terms{text-align:left;font-family:var(--sans);font-size:12px;color:var(--muted);line-height:1.6;
-  background:#faf7f0;border:1px solid rgba(161,98,7,.18);border-radius:10px;padding:10px 12px;margin:2px 0 12px;max-height:150px;overflow:auto}
+  background:#faf7f0;border:1px solid rgba(161,98,7,.18);border-radius:var(--r-inline);padding:10px 12px;margin:2px 0 12px;max-height:150px;overflow:auto}
 .pf-terms p{margin:0 0 7px}
 .pf-terms p:last-child{margin:0}
 .pf-terms b{color:var(--ink)}
@@ -248,7 +255,7 @@ img{display:block;max-width:100%}
 #notice-modal{z-index:60}
 .notice-card{position:relative;padding-top:34px}
 .notice-body{max-height:64vh;background:transparent;border:none;padding:0;margin:0}
-.pf-consent{display:flex;align-items:flex-start;gap:9px;text-align:left;margin:0 0 10px;cursor:pointer}
+.pf-consent{display:flex;align-items:flex-start;gap:9px;text-align:left;margin:0 0 var(--s3);cursor:pointer}
 .pf-consent input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:var(--gold)}
 .pf-consent span{font-family:var(--serif);font-size:13px;color:var(--ink);line-height:1.5}
 /* 同意聲明折疊：短標題常顯示，全文收在 details 內 */
@@ -260,16 +267,15 @@ img{display:block;max-width:100%}
 .pf-consent details>*:not(summary){display:block;margin-top:6px;font-size:12px;color:var(--muted);line-height:1.6}
 .pf-consent details{white-space:normal}
 /* 告知事項連結（點開小視窗） */
-/* 告知事項：純文字超連結樣式（非按鈕外觀）— 提高特異性覆蓋 .card button 金底 */
-.card button.pf-notice-link{display:block;width:auto;text-align:left;background:none;border:none;box-shadow:none;
-  padding:0;margin:2px 0 12px;font-family:var(--serif);font-weight:400;font-size:13px;color:var(--gold);
+/* 告知事項：純文字超連結樣式（非按鈕外觀）。基底金底已收斂到 .btn-fill，此處不需再打特異性戰爭 */
+.pf-notice-link{display:block;text-align:left;
+  margin:var(--s1) 0 var(--s4);font-family:var(--serif);font-weight:400;font-size:13px;color:var(--gold);
   text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.card button.pf-notice-link:active{transform:none;opacity:.6;background:none}
-.card button.pf-notice-link:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
-.pf-optnote{text-align:left;font-family:var(--sans);font-size:12px;color:var(--gold);margin:8px 0 0}
+.pf-notice-link:active{opacity:.6}
+.pf-optnote{text-align:left;font-family:var(--sans);font-size:12px;color:var(--gold);margin:var(--s2) 0 0}
 /* 可點的提示列（導向任務頁） */
 /* 任務頁 */
-.task-back{font-family:var(--serif);font-size:15px;color:var(--gold);padding:4px 6px}
+.task-back{display:inline-flex;align-items:center;min-height:var(--tap);font-family:var(--serif);font-size:15px;color:var(--gold);padding:4px 6px}
 .task-back:active{opacity:.6}
 .task-head{font-family:var(--serif);font-size:14px;color:var(--ink);letter-spacing:.04em;
   text-align:center;margin:6px 0 16px;line-height:1.6}
@@ -278,8 +284,8 @@ img{display:block;max-width:100%}
 .task-info{flex:1;text-align:left}
 .task-t{font-family:var(--serif);font-weight:600;font-size:15px;color:var(--ink)}
 .task-r{font-family:var(--sans);font-size:12px;color:var(--gold);margin-top:3px}
-.task-btn{flex:none;font-family:var(--serif);font-weight:600;font-size:14px;color:#fff;
-  background:var(--gold);border-radius:999px;padding:9px 16px}
+.task-btn{flex:none;min-height:var(--tap);font-family:var(--serif);font-weight:600;font-size:14px;color:#fff;
+  background:var(--gold);border-radius:var(--r-pill);padding:9px 16px}
 .task-btn:disabled{background:#cdc6b8;color:#f5f3ee}
 .task-btn:not(:disabled):active{transform:scale(.96)}
 .task-note{font-family:var(--sans);font-size:12px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6}
@@ -290,7 +296,7 @@ img{display:block;max-width:100%}
 /* 首頁個資卡（填資料領第一枚幣） */
 #profile-card{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;
   background:linear-gradient(180deg,#fbeecb,#e6c877);border:1px solid rgba(161,98,7,.5);
-  border-radius:14px;padding:12px;margin:0 0 12px;box-shadow:0 6px 18px rgba(161,98,7,.3);
+  border-radius:var(--r-btn);padding:12px;margin:0 0 12px;box-shadow:0 6px 18px rgba(161,98,7,.3);
   animation:cardPulse 1.8s ease-in-out infinite}
 #profile-card .pc-t{font-family:var(--serif);font-weight:700;font-size:17px;color:#5a3a08;letter-spacing:.06em}
 #profile-card .pc-s{font-family:var(--serif);font-size:13px;color:#7a5410}
@@ -300,32 +306,36 @@ img{display:block;max-width:100%}
 /* 瀏覽獎品小按鈕（浮在轉盤底部） */
 /* 瀏覽獎品：純文字，浮在投幣口右側 */
 /* 個資表單欄位 */
-.pf-field{text-align:left;margin:0 0 10px}
-.pf-field label{display:block;font-family:var(--serif);font-size:12px;color:var(--muted);margin-bottom:4px}
-.pf-field input{width:100%;font-family:var(--sans);font-size:16px;color:var(--ink);
-  background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:10px;padding:10px 12px}
+.pf-field{text-align:left;margin:0 0 var(--s3)}
+.pf-field label{display:block;font-family:var(--serif);font-size:12px;color:var(--muted);margin-bottom:var(--s1)}
+.pf-field input{width:100%;min-height:var(--tap);font-family:var(--sans);font-size:16px;color:var(--ink);
+  background:#fff;border:1px solid rgba(161,98,7,.3);border-radius:var(--r-inline);padding:10px 12px}
 /* 單一金環（border+同色 ring 貼合），避免 outline 與圓角框形成雙層框 */
 .pf-field input:focus{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .pf-field input:focus-visible{outline:none}
-.pf-note{font-family:var(--sans);font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
-.card button.ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid rgba(138,132,119,.4);margin-top:8px}
+.pf-note{font-family:var(--sans);font-size:12px;color:var(--muted);margin-top:var(--s3);line-height:1.6}
+/* 次級（描邊）動作鈕：與 .btn-fill 同尺寸，僅去金底 */
+.card button.ghost{width:100%;margin-top:var(--s2);padding:13px;border-radius:var(--r-btn);
+  font-family:var(--serif);font-weight:600;font-size:16px;
+  background:transparent;color:var(--muted);border:1px solid rgba(138,132,119,.4)}
+.card button.ghost:active{transform:scale(.97)}
 @media (prefers-reduced-motion:reduce){ #profile-card{animation:none}
   #tier-select,.tier-aura.show,#tier-hit.canup,#tier-hint.show,.disc-slot.swallow{animation:none} }
 /* 個資表單關閉鈕 */
 #profile-modal .card{position:relative;padding-top:34px}
-/* .card button.pf-close 特意提高特異性，覆蓋 .card button 的滿版金底樣式 */
-.card button.pf-close{position:absolute;top:8px;right:8px;width:40px;height:40px;margin:0;padding:0;
-  border-radius:50%;background:transparent;color:var(--muted);font-size:18px;font-weight:400;
-  box-shadow:none;display:grid;place-items:center;z-index:2}
-.card button.pf-close:active{transform:none;background:rgba(43,38,32,.08)}
+/* 圓形關閉鈕：44px 觸控目標（基底金底已收斂到 .btn-fill，無需覆蓋樣式） */
+.pf-close{position:absolute;top:8px;right:8px;width:var(--tap);height:var(--tap);
+  border-radius:50%;color:var(--muted);font-size:18px;font-weight:400;
+  display:grid;place-items:center;z-index:2}
+.pf-close:active{background:rgba(43,38,32,.08)}
 
 /* 獎項一覽彈窗 */
 .prizelist-card{position:relative;padding-top:30px;--pl-accent:#9C6B0E}
 .pl-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px}
-.card button.pl-arrow{width:44px;height:44px;flex:none;margin:0;padding:0;border-radius:50%;
-  background:transparent;color:var(--pl-accent);font-family:var(--display);font-size:30px;font-weight:700;
-  line-height:1;box-shadow:none;display:grid;place-items:center}
-.card button.pl-arrow:active{transform:none;background:rgba(43,38,32,.06)}
+.pl-arrow{width:var(--tap);height:var(--tap);flex:none;border-radius:50%;
+  color:var(--pl-accent);font-family:var(--display);font-size:30px;font-weight:700;
+  line-height:1;display:grid;place-items:center}
+.pl-arrow:active{background:rgba(43,38,32,.06)}
 .pl-title{flex:1;text-align:center;font-family:var(--serif);font-weight:700;font-size:20px;
   letter-spacing:.08em;color:var(--pl-accent)}
 .pl-items{list-style:none;margin:0;padding:0;max-height:46vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
@@ -381,9 +391,11 @@ img{display:block;max-width:100%}
   border-radius:999px;padding:3px 14px;font-size:13px;letter-spacing:.1em}
 .card .code{margin-top:16px;font-family:var(--sans);font-size:12px;color:var(--muted)}
 .card .code b{display:block;font-size:18px;color:var(--ink);letter-spacing:.15em;margin-top:3px;font-weight:600}
-.card button{margin-top:20px;width:100%;font-family:var(--serif);font-weight:600;font-size:16px;color:#fff;
-  background:var(--gold);border-radius:12px;padding:13px}
-.card button:active{transform:scale(.97)}
+/* 滿版金色主鈕：只套在明確標記 .btn-fill 的按鈕上（不再貪婪套用到 .card 內所有 button，
+   避免逼出一堆高特異性覆蓋——特異性戰爭的根源） */
+.card button.btn-fill{margin-top:var(--s5);width:100%;font-family:var(--serif);font-weight:600;font-size:16px;color:#fff;
+  background:var(--gold);border-radius:var(--r-btn);padding:13px}
+.card button.btn-fill:active{transform:scale(.97)}
 
 .toast{position:fixed;top:calc(env(safe-area-inset-top) + 20px);left:50%;transform:translateX(-50%) translateY(-80px);
   background:var(--ink);color:#fff;padding:11px 20px;border-radius:999px;font-family:var(--serif);font-size:14px;
@@ -403,9 +415,9 @@ img{display:block;max-width:100%}
 .access-brand{font-family:var(--display);font-size:25px;letter-spacing:.08em;color:#f4d489}
 .access-copy{margin:10px auto 22px;font-family:var(--serif);font-size:15px;line-height:1.7;color:#f7f2e8}
 .access-field{width:100%;min-height:48px;padding:12px 14px;color:#2b2620;background:#fffaf0;
-  border:1px solid transparent;border-radius:10px;font:500 16px var(--sans);letter-spacing:.12em;text-align:center}
+  border:1px solid transparent;border-radius:var(--r-inline);font:500 16px var(--sans);letter-spacing:.12em;text-align:center}
 .access-field:focus{outline:2px solid #e8c98a;outline-offset:2px}
-.access-submit{width:100%;min-height:48px;margin-top:12px;border-radius:10px;color:#fff;
+.access-submit{width:100%;min-height:48px;margin-top:var(--s3);border-radius:var(--r-btn);color:#fff;
   background:linear-gradient(180deg,#c99a3b,#9c6410);font:700 16px var(--serif);letter-spacing:.08em}
 .access-submit:active{transform:scale(.98)}
 .access-error{min-height:1.5em;margin-top:10px;font:13px var(--serif);color:#ffd8c7}
@@ -500,7 +512,7 @@ img{display:block;max-width:100%}
       <div class="prize" id="win-prize">—</div>
       <div class="tier-tag" id="win-tier">I</div>
       <div class="code">兌換碼（請至櫃台核銷）<b id="win-code">—</b></div>
-      <button onclick="closeModal()">收下獎品</button>
+      <button class="btn-fill" onclick="closeModal()">收下獎品</button>
     </div>
   </div>
 
@@ -509,14 +521,14 @@ img{display:block;max-width:100%}
     <div class="card">
       <button class="pf-close" id="pf-close" type="button" aria-label="關閉">✕</button>
       <div class="win-lbl">填 寫 個 人 資 料</div>
-      <div class="prize" style="font-size:20px;margin:8px 0 14px">領取你的第一枚洲遊幣</div>
+      <div class="prize" style="font-size:20px;margin:var(--s2) 0 var(--s4)">領取你的第一枚洲遊幣</div>
       <div class="pf-field"><label>姓名</label><input id="pf-name" type="text" placeholder="您的姓名"></div>
       <div class="pf-field"><label>手機</label><input id="pf-phone" type="tel" placeholder="09xx-xxx-xxx"></div>
       <div class="pf-field"><label>Email</label><input id="pf-email" type="email" placeholder="you@example.com"></div>
       <button class="pf-notice-link" id="pf-notice" type="button">個人資料蒐集、處理及利用告知事項（點閱）</button>
       <label class="pf-consent"><input type="checkbox" id="pf-kh"><span>我同意<b>高雄洲際酒店</b>蒐集、處理及利用本人個資，並接受其行銷資訊。<details><summary>詳全文</summary>我已閱讀並瞭解上述告知事項，同意高雄洲際酒店（遠洋投資股份有限公司高雄分公司）於前述目的範圍內蒐集、處理及利用本人姓名、手機、Email 及 LINE 相關資料，並同意透過 EDM、簡訊、LINE 官方帳號推播、電話等方式提供會員資訊、活動通知及行銷資訊；本同意屬自由選擇、得隨時撤回，不影響撤回前已完成之利用。</details></span></label>
       <label class="pf-consent"><input type="checkbox" id="pf-tp"><span>我同意<b>臺北洲際酒店</b>蒐集、處理及利用本人個資，並接受其行銷資訊。<details><summary>詳全文</summary>我已閱讀並瞭解上述告知事項，同意臺北洲際酒店（遠雄巨蛋事業股份有限公司逸仙酒店分公司）於前述目的範圍內蒐集、處理及利用本人姓名、手機、Email 及 LINE 相關資料，並同意透過 EDM、簡訊、LINE 官方帳號推播、電話等方式提供會員資訊、活動通知及行銷資訊；本同意屬自由選擇、得隨時撤回，不影響撤回前已完成之利用。</details></span></label>
-      <button id="pf-submit" type="button">送出 · 領取 1 枚洲遊幣</button>
+      <button id="pf-submit" class="btn-fill" type="button">送出 · 領取 1 枚洲遊幣</button>
       <div class="pf-optnote">未勾選任一行銷同意，仍可參加本活動及抽獎；僅無法透過「填寫資料領取洲遊幣」方式取得該活動獎勵，詳見活動規則。</div>
       <div class="pf-note">本公司依個人資料保護法及上述告知事項蒐集、處理及利用您的個人資料，並採取適當之安全維護措施；您得隨時撤回同意或行使個資權利。</div>
     </div>
@@ -549,7 +561,7 @@ img{display:block;max-width:100%}
       <div class="win-lbl">確 認 抽 獎</div>
       <div class="prize" id="cf-prize" style="font-size:20px;margin:10px 0 4px">確定使用 <b>1</b> 枚洲遊幣抽三等獎嗎？</div>
       <div class="code" id="cf-sub" style="margin-top:6px">投入更多洲遊幣，可提升到二等獎、一等獎，抽出更大獎品。</div>
-      <button id="cf-yes" type="button">確定抽三等獎</button>
+      <button id="cf-yes" class="btn-fill" type="button">確定抽三等獎</button>
       <button id="cf-no" type="button" class="ghost">去賺更多洲遊幣 →</button>
     </div>
   </div>
