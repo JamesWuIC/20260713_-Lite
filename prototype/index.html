@@ -206,18 +206,18 @@ img{display:block;max-width:100%}
 /* 已投入＋抽獎 合併浮鈕（浮在投幣口上方，取代主 CTA） */
 /* 等級選擇器浮鈕：金色膠囊，左右箭頭選等級，中間顯示「您正在抽X等獎」 */
 #tier-select{position:absolute;z-index:46;transform:translate(-50%,-100%);white-space:nowrap;
-  display:inline-flex;align-items:center;gap:4px;
+  display:inline-flex;align-items:stretch;gap:2px;
   background:linear-gradient(180deg,#f6d989,#dca948);border:1px solid rgba(161,98,7,.6);
-  border-radius:999px;padding:3px 6px;box-shadow:0 5px 14px rgba(161,98,7,.45);
+  border-radius:999px;padding:2px 4px;box-shadow:0 5px 14px rgba(161,98,7,.45);
   animation:drawFloat 1.6s ease-in-out infinite}
-/* 中間標題＝可點按鈕：開獎項一覽（高特異性覆蓋下方圓形箭頭規則） */
-#tier-select button#ts-label{width:auto;height:auto;flex:none;border:none;background:none;border-radius:0;box-shadow:none;
-  display:inline-flex;align-items:center;gap:4px;padding:2px 4px;
+/* 中間標題＝可點按鈕：開獎項一覽（高特異性覆蓋下方圓形箭頭規則）；撐滿高度＝加大點擊區 */
+#tier-select button#ts-label{width:auto;height:auto;flex:none;border:none;background:none;border-radius:8px;box-shadow:none;
+  display:inline-flex;align-items:center;gap:4px;padding:0 6px;
   font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;color:#5a3a08;
   text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:rgba(90,58,8,.4)}
 #ts-label::after{content:"▤";font-size:12px;text-decoration:none}
-#tier-select button#ts-label:not(:disabled):active{opacity:.7;background:none}
-#tier-select button{width:34px;height:34px;flex:none;border:none;background:transparent;border-radius:50%;
+#tier-select button#ts-label:not(:disabled):active{opacity:.7;background:rgba(90,58,8,.08)}
+#tier-select button{width:42px;height:42px;flex:none;border:none;background:transparent;border-radius:50%;
   font-family:var(--display);font-size:24px;font-weight:700;line-height:1;color:#5a3a08;display:grid;place-items:center}
 #tier-select button:not(:disabled):active{background:rgba(90,58,8,.14)}
 #tier-select button:disabled{color:rgba(90,58,8,.28)}
