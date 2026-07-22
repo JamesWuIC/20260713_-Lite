@@ -207,20 +207,21 @@ img{display:block;max-width:100%}
 /* 等級選擇器浮鈕：金色膠囊，左右箭頭選等級，中間顯示「您正在抽X等獎」 */
 #tier-select{position:absolute;z-index:46;transform:translate(-50%,-100%);white-space:nowrap;
   display:inline-flex;align-items:stretch;gap:2px;
-  background:linear-gradient(180deg,#f6d989,#dca948);border:1px solid rgba(161,98,7,.6);
+  background:var(--ts-grad,linear-gradient(180deg,#f6d989,#dca948));border:1px solid var(--ts-border,rgba(161,98,7,.6));
+  transition:background .35s ease,border-color .35s ease;
   border-radius:999px;padding:2px 4px;box-shadow:0 5px 14px rgba(161,98,7,.45);
   animation:drawFloat 1.6s ease-in-out infinite}
 /* 中間標題＝可點按鈕：開獎項一覽（高特異性覆蓋下方圓形箭頭規則）；撐滿高度＝加大點擊區 */
 #tier-select button#ts-label{width:auto;height:auto;flex:none;border:none;background:none;border-radius:8px;box-shadow:none;
   display:inline-flex;align-items:center;gap:4px;padding:0 6px;
-  font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;color:#5a3a08;
-  text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:rgba(90,58,8,.4)}
+  font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.03em;color:var(--ts-ink,#5a3a08);
+  text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:color-mix(in srgb,var(--ts-ink,#5a3a08) 45%,transparent)}
 #ts-label::after{content:"▤";font-size:12px;text-decoration:none}
 #tier-select button#ts-label:not(:disabled):active{opacity:.7;background:rgba(90,58,8,.08)}
 #tier-select button{width:42px;height:42px;flex:none;border:none;background:transparent;border-radius:50%;
-  font-family:var(--display);font-size:24px;font-weight:700;line-height:1;color:#5a3a08;display:grid;place-items:center}
+  font-family:var(--display);font-size:24px;font-weight:700;line-height:1;color:var(--ts-ink,#5a3a08);display:grid;place-items:center}
 #tier-select button:not(:disabled):active{background:rgba(90,58,8,.14)}
-#tier-select button:disabled{color:rgba(90,58,8,.28)}
+#tier-select button:disabled{color:color-mix(in srgb,var(--ts-ink,#5a3a08) 28%,transparent)}
 #tier-select button:focus-visible{outline:2px solid #9c6410;outline-offset:1px}
 @keyframes drawFloat{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 6px))}}
 /* 一等獎持續發光光暈 */
@@ -376,7 +377,7 @@ img{display:block;max-width:100%}
 @keyframes pop{from{transform:scale(.85);opacity:0}}
 .card .win-lbl{font-family:var(--serif);font-size:13px;color:var(--muted);letter-spacing:.2em}
 .card .prize{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--gold);margin:10px 0 6px}
-.card .tier-tag{display:inline-block;font-family:var(--display);font-weight:700;color:#fff;background:var(--gold);
+.card .tier-tag{display:inline-block;font-family:var(--display);font-weight:700;color:#fff;background:var(--tag-bg,var(--gold));
   border-radius:999px;padding:3px 14px;font-size:13px;letter-spacing:.1em}
 .card .code{margin-top:16px;font-family:var(--sans);font-size:12px;color:var(--muted)}
 .card .code b{display:block;font-size:18px;color:var(--ink);letter-spacing:.15em;margin-top:3px;font-weight:600}
@@ -733,6 +734,8 @@ const TS_ORDER=[60,30,0];   // tierDeg：三等獎→二等獎→一等獎
 function updateTierSelect(){
   const lbl=$('#ts-label'); if(!lbl) return;
   lbl.textContent=`您正在抽${TIER_RN[selTier]}`;
+  const m=TIER_METAL[selTier], pill=$('#tier-select');       // 膠囊染上該等級金屬色（金/銀/銅）
+  if(pill && m){ pill.style.setProperty('--ts-grad',m.grad); pill.style.setProperty('--ts-ink',m.ink); pill.style.setProperty('--ts-border',m.border); }
   lbl.disabled = spinning;                                   // 抽獎中不能開獎項一覽
   const i=TS_ORDER.indexOf(tierDeg);
   $('#ts-prev').disabled = spinning || i<=0;                 // 已在三等獎→不能再降
@@ -786,6 +789,13 @@ let currentTier=1, ringAngle=0, selTier=1, currentItems=[];
 const COST={1:1, 3:3, 5:5};   // 各等級抽一次所需洲遊幣
 // 獎品金字顏色隨等級：I 金／II 銀／III 銅（略偏深以維持在淺盤面上的可讀性）
 const LABEL_COLOR={5:'#9C6B0E', 3:'#6E767C', 1:'#A15A33'};   // 一等獎金/二等獎銀/三等獎銅
+// 等級金屬識別：貫穿等級選擇器膠囊與中獎徽章，讓「正在抽哪一等」有一致的金/銀/銅色覺
+// grad＝膠囊漸層、ink＝膠囊字色（皆過對比檢查）、border＝膠囊描邊、tag＝中獎徽章底（白字用）
+const TIER_METAL={
+  5:{grad:'linear-gradient(180deg,#f6d989,#dca948)', ink:'#5a3a08', border:'rgba(161,98,7,.6)',  tag:'#9C6B0E'},  // 金
+  3:{grad:'linear-gradient(180deg,#eef1f4,#c6ccd2)', ink:'#333a41', border:'rgba(84,100,111,.55)',tag:'#5C646B'},  // 銀
+  1:{grad:'linear-gradient(180deg,#f2d2ba,#d99b71)', ink:'#5f3418', border:'rgba(140,74,35,.6)',  tag:'#A15A33'}   // 銅
+};
 // 估算字串寬度單位（中日文≈1，半形/符號≈0.55）→ 依格弧寬自動縮字
 function textUnits(s){ let w=0; for(const ch of s){ w += (ch.charCodeAt(0)<0x2E80?0.55:1); } return w; }
 // wheelDeg＝盤面(#prize)當下旋轉角；每格文字位置＝基準角+wheelDeg，字角度以圓心為基準
@@ -866,7 +876,8 @@ function spin(force){
 }
 function showWin(prize,tier,code,coin){
   $('#win-prize').textContent=prize;
-  $('#win-tier').textContent=TIER_RN[tier];
+  const wt=$('#win-tier'); wt.textContent=TIER_RN[tier];
+  wt.style.setProperty('--tag-bg', (TIER_METAL[tier]||{}).tag || 'var(--gold)');   // 徽章底＝該等級金屬色
   $('#modal .code').innerHTML = coin
     ? `獎勵已直接存入你的錢包<b>＋${coin} 枚洲遊幣</b>`
     : `兌換碼（請至櫃台核銷）<b>${code}</b>`;
