@@ -117,8 +117,7 @@ img{display:block;max-width:100%}
   background:#06C755;box-shadow:0 4px 12px rgba(6,199,85,.3)}
 .share-line:active{filter:brightness(.95)}
 .share-copy:active{filter:brightness(.97)}
-/* 首次引導：素雅文字連結（與「去賺更多洲遊幣」同款 .pl-link），置中、不與主 CTA 搶主角 */
-#profile-banner{align-self:center}
+/* 首次引導：與「去賺洲遊幣」earn-mode 同款香檳金 CTA 鈕（沿用 .cta 樣式） */
 #profile-banner[hidden]{display:none}
 /* 三張等級卡（1/3/5 枚＝三/二/一等獎）：點卡即時換轉盤金/銀/銅；選中＝香檳金實心 */
 .tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
@@ -435,7 +434,7 @@ img{display:block;max-width:100%}
     <!-- 控制區：點三張等級卡選投入枚數（轉盤即時換金/銀/銅與獎項）→ 開始抽獎 -->
     <div class="controls">
       <!-- 首次引導：細長橫幅（填資料領第一枚幣），不與主 CTA 搶主角 -->
-      <button id="profile-banner" class="pl-link" type="button" hidden>填資料領第一枚洲遊幣<span aria-hidden="true"> →</span></button>
+      <button id="profile-banner" class="cta" type="button" hidden><span class="cta-main">填資料領第一枚洲遊幣</span><span class="cta-sub">填完立即獲得 1 枚洲遊幣</span></button>
 
       <div class="tier-cards" role="radiogroup" aria-label="選擇抽獎等級與投入枚數">
         <button class="tier-card" type="button" data-coins="1" role="radio" aria-checked="true">
