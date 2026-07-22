@@ -146,8 +146,8 @@ img.li-av{background:none}
 /* 三張等級卡（1/3/5 枚＝三/二/一等獎）：點卡即時換轉盤金/銀/銅；選中＝香檳金實心 */
 .tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
 .tier-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;
-  border-radius:var(--r-inline);border:1px solid var(--cit-deep);background:rgba(196,169,48,.10);
-  color:var(--cit-ink-soft);transition:transform .15s,background .2s}
+  border-radius:var(--r-inline);border:1px solid var(--cit-deep);background:rgba(196,169,48,.14);
+  color:var(--on-night);transition:transform .15s,background .2s,color .2s}
 .tc-name{font-family:var(--serif);font-weight:var(--w-label);font-size:var(--t-body)}
 .tc-cost{font-family:var(--sans);font-size:var(--t-cap)}
 .tier-card[aria-checked="true"]{color:var(--cit-ink);border-color:var(--cit-deep);
@@ -205,6 +205,16 @@ img.li-av{background:none}
   --z-slot:  1;    /* 投幣口 */
   --z-labels:5;   /* 獎品金字（恆水平正立，高於穹頂才不被蓋住） */
   --z-glow:  9;    /* 換等級發光轉場 */
+  /* App 層級 z-index scale（畫面級疊放，數值遞增；勿與上方轉盤內部 1–9 混用） */
+  --z-aura:   8;   /* 一等獎光暈 */
+  --z-hem:   10;   /* 轉盤底部金屬封邊 */
+  --z-coinfly:40;  /* 投幣飛行層 */
+  --z-reset: 45;   /* 歸零測試鈕 */
+  --z-modal: 50;   /* 一般彈窗 */
+  --z-notice:60;   /* 告知事項彈窗（疊在其他彈窗上） */
+  --z-toast: 80;   /* 浮動提示 */
+  --z-overlay:100; /* 開獎/驗證全屏覆蓋 */
+  --z-gate:  200;  /* 訪客密碼閘 */
 }
 /* ⚙️ 金字擺放半徑在 <script> 的 PLATE.tr（1920 座標系，最大 960） */
 
@@ -214,7 +224,7 @@ img.li-av{background:none}
 .stage{position:relative;width:calc(100% + 36px);margin:6px -18px var(--s3);
   height:var(--stage-h);overflow:hidden;flex:none}
 /* 香檳金屬封邊（銘牌條）：蓋住轉盤底部出血硬切邊，並承載匿名中獎跑馬燈 */
-.stage-hem{position:absolute;left:0;right:0;bottom:0;height:24px;z-index:10;pointer-events:none;
+.stage-hem{position:absolute;left:0;right:0;bottom:0;height:24px;z-index:var(--z-hem);pointer-events:none;
   display:flex;align-items:center;justify-content:center;padding:0 12px;
   background:linear-gradient(180deg,var(--hem-top) 0%,var(--hem-mid) 45%,var(--hem-end) 100%);
   border-top:1px solid var(--gold-line);
@@ -244,7 +254,7 @@ img.li-av{background:none}
 .disc-slot.hit{animation:slotHit .24s ease-out}
 @keyframes slotHit{50%{filter:brightness(1.7) drop-shadow(0 0 10px rgba(255,224,150,.9))}}
 /* 投幣飛行層：固定定位覆蓋層，避開 .stage/#wheel 的 overflow:hidden 裁切 */
-.coin-fly-layer{position:fixed;inset:0;z-index:40;pointer-events:none}
+.coin-fly-layer{position:fixed;inset:0;z-index:var(--z-coinfly);pointer-events:none}
 .fly-coin{position:fixed;width:24px;height:24px;will-change:transform,opacity;
   filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
 @media (prefers-reduced-motion:reduce){ .disc-slot.hit{animation:none} }
@@ -258,15 +268,16 @@ img.li-av{background:none}
 .dl-tier{transition:transform .3s ease;transform-origin:50% 50%}
 
 /* 一等獎持續發光光暈 */
-.tier-aura{position:absolute;inset:-8%;border-radius:50%;pointer-events:none;opacity:0;z-index:8;
+.tier-aura{position:absolute;inset:-8%;border-radius:50%;pointer-events:none;opacity:0;z-index:var(--z-aura);
   mix-blend-mode:screen;
   background:radial-gradient(circle at 50% 50%,rgba(255,228,150,.6),rgba(255,205,110,.28) 46%,transparent 0%)}
 .tier-aura.show{opacity:1;animation:auraPulse 2.4s ease-in-out infinite}
 @keyframes auraPulse{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
 /* 右下角歸零（原型測試用，正式版移除） */
-#reset-btn{position:fixed;right:12px;bottom:12px;z-index:45;font-family:var(--sans);font-size:var(--t-cap);
+#reset-btn{position:fixed;right:12px;bottom:12px;z-index:var(--z-reset);font-family:var(--sans);font-size:var(--t-cap);
   color:#fff;background:rgba(43,38,32,.75);border:1px solid rgba(255,255,255,.2);border-radius:999px;
-  padding:7px 13px;backdrop-filter:blur(3px)}
+  min-height:var(--tap);padding:0 16px;display:inline-flex;align-items:center;backdrop-filter:blur(3px)}
+#reset-btn[hidden]{display:none}
 #reset-btn:active{transform:scale(.95)}
 /* 個資同意勾選 */
 .pf-terms{text-align:left;font-family:var(--sans);font-size:var(--t-label);color:var(--muted);line-height:var(--lh-body);
@@ -275,7 +286,7 @@ img.li-av{background:none}
 .pf-terms p:last-child{margin:0}
 .pf-terms b{color:var(--ink)}
 /* 告知事項小視窗：疊在個資表單之上，內文可捲動 */
-#notice-modal{z-index:60}
+#notice-modal{z-index:var(--z-notice)}
 .notice-card{position:relative;padding-top:34px}
 .notice-body{max-height:64vh;background:transparent;border:none;padding:0;margin:0}
 .pf-consent{display:flex;align-items:flex-start;gap:9px;text-align:left;margin:0 0 var(--s3);cursor:pointer}
@@ -352,7 +363,7 @@ img.li-av{background:none}
 .pl-note{font-family:var(--sans);font-size:var(--t-fine);color:var(--muted);margin-top:12px}
 
 /* 金幣獎勵動畫（個資送出） */
-.reward{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
+.reward{position:fixed;inset:0;z-index:var(--z-overlay);display:none;flex-direction:column;align-items:center;justify-content:center;
   gap:22px;background:rgba(30,26,20,.6);backdrop-filter:blur(4px)}
 .reward.show{display:flex;animation:fade .3s}
 .reward-coin{width:140px;height:140px;position:relative;transform-style:preserve-3d;
@@ -373,7 +384,7 @@ img.li-av{background:none}
 }
 
 /* 假驗證過場 */
-.verify{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;
+.verify{position:fixed;inset:0;z-index:var(--z-overlay);display:none;flex-direction:column;align-items:center;justify-content:center;
   gap:18px;background:rgba(30,26,20,.6);backdrop-filter:blur(4px)}
 .verify.show{display:flex;animation:fade .3s}
 .verify-spin{width:52px;height:52px;border-radius:50%;border:4px solid rgba(244,212,137,.28);
@@ -385,7 +396,7 @@ img.li-av{background:none}
 /* result modal */
 /* 卡片以 margin:auto 置中；高過視窗（如手機鍵盤彈出）時整層可捲動，送出鈕不會被裁掉 */
 .modal{position:fixed;inset:0;background:rgba(30,26,20,.55);display:none;
-  z-index:50;padding:24px;backdrop-filter:blur(3px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+  z-index:var(--z-modal);padding:24px;backdrop-filter:blur(3px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .modal.show{display:flex;animation:fade .3s}
 @keyframes fade{from{opacity:0}}
 .card{width:100%;max-width:320px;margin:auto;background:var(--surface);border-radius:22px;padding:28px 24px;text-align:center;
@@ -406,12 +417,12 @@ img.li-av{background:none}
 
 .toast{position:fixed;top:calc(env(safe-area-inset-top) + 20px);left:50%;transform:translateX(-50%) translateY(-80px);
   background:var(--ink);color:#fff;padding:11px 20px;border-radius:999px;font-family:var(--serif);font-size:var(--t-body);
-  z-index:80;opacity:0;transition:.35s;display:flex;align-items:center;gap:7px;box-shadow:var(--shadow)}
+  z-index:var(--z-toast);opacity:0;transition:.35s;display:flex;align-items:center;gap:7px;box-shadow:var(--shadow)}
 .toast img{width:20px;height:20px}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* 訪客入口：公開原型的輕量存取門檻（正式保護應改由後端驗證） */
-#access-gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+#access-gate{position:fixed;inset:0;z-index:var(--z-gate);display:flex;align-items:center;justify-content:center;
   padding:24px;background:linear-gradient(rgba(31,27,20,.56),rgba(31,27,20,.72)),url('assets/bg.png') center/cover}
 #access-gate[hidden],#app[hidden]{display:none}
 .access-panel{width:min(100%,360px);padding:34px 26px 28px;text-align:center;color:#fff;
@@ -451,14 +462,15 @@ img.li-av{background:none}
 
   <!-- ===== WHEEL ===== -->
   <section id="wheel" class="screen active">
-    <div class="topbar">
+    <h1 class="sr-only">洲遊幣中秋抽獎轉盤</h1>
+    <header class="topbar">
       <div class="lineid" id="lineid" aria-label="LINE 登入身分">
         <span class="li-av" id="li-av" aria-hidden="true">訪</span>
         <span class="li-name" id="li-name">預覽訪客</span>
         <span class="li-tag" id="li-tag">示意</span>
       </div>
-      <div class="balance"><img src="assets/coin.png" alt="洲遊幣"><b id="bal-wheel">0</b><span>洲遊幣</span></div>
-    </div>
+      <div class="balance"><img src="assets/coin.png" alt="洲遊幣" width="24" height="24"><b id="bal-wheel">0</b><span>洲遊幣</span></div>
+    </header>
 
     <!-- 轉盤＝主角：頂欄下方即完整現身（點等級卡會即時換金/銀/銅） -->
     <div class="stage">
@@ -531,7 +543,7 @@ img.li-av{background:none}
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="抽獎結果">
     <div class="card">
-      <div class="win-lbl">恭喜中獎</div>
+      <div class="win-lbl" role="heading" aria-level="2">恭喜中獎</div>
       <div class="prize" id="win-prize">—</div>
       <div class="tier-tag" id="win-tier">I</div>
       <div class="code">兌換碼（請至櫃台核銷）<b id="win-code">—</b></div>
@@ -543,7 +555,7 @@ img.li-av{background:none}
   <div class="modal" id="profile-modal" role="dialog" aria-modal="true" aria-label="填寫個人資料">
     <div class="card">
       <button class="pf-close" id="pf-close" type="button" aria-label="關閉">✕</button>
-      <div class="win-lbl">填寫個人資料</div>
+      <div class="win-lbl" role="heading" aria-level="2">填寫個人資料</div>
       <div class="prize" style="font-size:var(--t-lead);margin:var(--s2) 0 var(--s4)">領取你的第一枚洲遊幣</div>
       <div class="pf-field"><label>姓名</label><input id="pf-name" type="text" placeholder="您的姓名"></div>
       <div class="pf-field"><label>手機</label><input id="pf-phone" type="tel" placeholder="09xx-xxx-xxx"></div>
@@ -581,7 +593,7 @@ img.li-av{background:none}
   <!-- 只投 1 枚抽獎確認 -->
   <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-label="確認抽獎">
     <div class="card">
-      <div class="win-lbl">確認抽獎</div>
+      <div class="win-lbl" role="heading" aria-level="2">確認抽獎</div>
       <div class="prize" id="cf-prize" style="font-size:var(--t-lead);margin:10px 0 4px">確定使用 <b>1</b> 枚洲遊幣抽三等獎嗎？</div>
       <div class="code" id="cf-sub" style="margin-top:6px">投入更多洲遊幣，可提升到二等獎、一等獎，抽出更大獎品。</div>
       <button id="cf-yes" class="btn-fill" type="button">確定抽三等獎</button>
@@ -593,7 +605,7 @@ img.li-av{background:none}
   <div class="modal" id="share-modal" role="dialog" aria-modal="true" aria-label="分享活動">
     <div class="card share-card">
       <button class="pf-close" id="share-close" type="button" aria-label="關閉">✕</button>
-      <div class="win-lbl">分享活動</div>
+      <div class="win-lbl" role="heading" aria-level="2">分享活動</div>
       <div class="prize" style="font-size:var(--t-lead);margin:8px 0 12px">邀好友一起蒐集洲遊幣</div>
       <div class="share-linkrow"><input id="share-url" type="text" readonly><button id="share-copy" class="share-copy" type="button">複製</button></div>
       <button id="share-line" type="button" class="share-line">用 LINE 分享</button>
@@ -607,7 +619,7 @@ img.li-av{background:none}
       <button class="pf-close" id="pl-close" type="button" aria-label="關閉">✕</button>
       <div class="pl-head">
         <button class="pl-arrow" id="pl-prev" type="button" aria-label="上一個等級">‹</button>
-        <div class="pl-title" id="pl-title">獎項一覽</div>
+        <div class="pl-title" id="pl-title" role="heading" aria-level="2">獎項一覽</div>
         <button class="pl-arrow" id="pl-next" type="button" aria-label="下一個等級">›</button>
       </div>
       <ul class="pl-items" id="pl-items"></ul>
@@ -1082,8 +1094,8 @@ $('#reward').addEventListener('click',()=>{ clearTimeout(rwT); $('#reward').clas
 
 /* 非 PROD：任務說明改回原型示意版（社群網址待行銷確認） */
 if(!PROD){ const tn=$('#task-note'); if(tn) tn.textContent='【原型示意】點「前往完成」開啟社群頁面，返回後自動驗證發幣；社群網址待行銷確認。'; }
-/* 右下角歸零（測試用，正式對外前再關）：一律顯示並綁確認後清資料重載 */
-$('#reset-btn').hidden=false;
+/* 右下角歸零（測試用）：正式版(PROD)自動隱藏，僅原型/測試環境顯示；綁確認後清資料重載 */
+$('#reset-btn').hidden = PROD;
 $('#reset-btn').addEventListener('click',()=>{
   if(!confirm('確定歸零？將清空洲遊幣、中獎與填答紀錄（測試用）。')) return;
   localStorage.removeItem(LS); location.reload();
