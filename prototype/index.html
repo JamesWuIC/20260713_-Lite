@@ -63,6 +63,7 @@
   --z-toast: 80;   /* 浮動提示 */
   --z-overlay:100; /* 開獎/驗證全屏覆蓋 */
   --z-gate:  200;  /* 訪客密碼閘 */
+  --z-intro: 210;  /* 開場影片覆蓋層（最上層） */
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -444,9 +445,30 @@ img.li-av{background:none}
 .access-error{min-height:1.5em;margin-top:10px;font-family:var(--serif);font-size:var(--t-label);color:#ffd8c7}
 @media (prefers-reduced-motion:reduce){.access-submit{transition:none}}
 .access-note{margin-top:14px;font-family:var(--sans);font-size:var(--t-fine);color:rgba(244,212,137,.55);letter-spacing:.02em}
+
+/* 開場影片：密碼通關後播「鑰匙轉動開門」→ 淡到黑 → 揭示遊戲（每 session 一次、可跳過） */
+#intro{position:fixed;inset:0;z-index:var(--z-intro);background:#000;
+  display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .45s ease}
+#intro[hidden]{display:none}
+#intro.fade-out{opacity:0}                    /* 影片→黑後，整層淡出露出遊戲 */
+#intro-video{width:100%;height:100%;object-fit:cover;transition:opacity .34s ease}
+#intro.to-black #intro-video{opacity:0}       /* 影片結束：先淡到黑底 */
+#intro-skip{position:absolute;right:16px;bottom:16px;min-height:var(--tap);
+  display:inline-flex;align-items:center;padding:0 16px;border-radius:var(--r-pill);
+  font-family:var(--sans);font-size:var(--t-cap);color:#fff;
+  background:rgba(43,38,32,.6);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(3px)}
+#intro-skip:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){ #intro,#intro-video{transition:none} }
 </style>
 </head>
 <body>
+<!-- 開場影片覆蓋層（密碼通關後播放；每 session 一次；playsinline+muted 才能行動自動播放） -->
+<div id="intro" hidden>
+  <video id="intro-video" playsinline muted preload="auto" poster="assets/intro-poster.jpg">
+    <source src="assets/intro-door.mp4" type="video/mp4">
+  </video>
+  <button id="intro-skip" type="button" aria-label="跳過開場影片">跳過 ›</button>
+</div>
 <main id="access-gate" aria-labelledby="access-title">
   <form class="access-panel" id="access-form">
     <div class="access-mark" aria-hidden="true">✦</div>
@@ -682,11 +704,51 @@ function toast(msg){ $('#toast-msg').textContent=msg; $('#toast').classList.add(
 /* ---------- visitor access gate ---------- */
 const ACCESS_PASSWORD='20260815';
 const ACCESS_SESSION_KEY='intercoins_access_granted';
+const INTRO_KEY='intercoins_intro_seen';
+// 用 hoisted 函式取代全域 const REDUCE（後者宣告在後面，自動 grant 路徑會落在其 TDZ 前）
+function prefersReduced(){ try{ return matchMedia('(prefers-reduced-motion:reduce)').matches; }catch(e){ return false; } }
+function revealApp(){ $('#app').hidden=false; initLiff(); }
 function grantAccess(){
   sessionStorage.setItem(ACCESS_SESSION_KEY,'1');
   $('#access-gate').hidden=true;
-  $('#app').hidden=false;
-  initLiff();
+  // 每 session 一次；減少動態偏好者直接跳過影片
+  if(sessionStorage.getItem(INTRO_KEY)==='1' || prefersReduced()){ revealApp(); return; }
+  playIntro();
+}
+
+/* ---------- 開場影片：鑰匙轉動開門 → 淡到黑 → 揭示遊戲 ----------
+   不阻塞、不困住使用者：跳過/播完/錯誤/卡頓逾時 任一皆進遊戲。 */
+function playIntro(){
+  const intro=$('#intro'), v=$('#intro-video');
+  if(!intro || !v){ revealApp(); return; }   // 保險：無元素直接進遊戲
+  intro.hidden=false;
+  let done=false;
+  const teardown=()=>{ try{ v.pause(); v.removeAttribute('src'); while(v.firstChild) v.removeChild(v.firstChild); v.load(); }catch(e){} };
+  const finish=()=>{
+    if(done) return; done=true;
+    sessionStorage.setItem(INTRO_KEY,'1');
+    revealApp();                              // 遊戲在黑幕下就緒
+    if(prefersReduced()){ intro.hidden=true; teardown(); return; }
+    intro.classList.add('fade-out');          // 整層淡出露出遊戲
+    let gone=false;
+    const hide=()=>{ if(gone) return; gone=true; intro.hidden=true; teardown(); };
+    intro.addEventListener('transitionend', hide, {once:true});
+    setTimeout(hide, 700);                     // 安全網
+  };
+  const toBlackThenFinish=()=>{
+    if(prefersReduced()){ finish(); return; }
+    intro.classList.add('to-black');          // 影片先淡到黑底
+    setTimeout(finish, 340);
+  };
+  v.addEventListener('ended', toBlackThenFinish, {once:true});
+  v.addEventListener('error', finish, {once:true});
+  $('#intro-skip').addEventListener('click', finish, {once:true});
+  // 卡頓守門：4.5s 內未開始播放（慢網/無法解碼）→ 直接進遊戲
+  let started=false;
+  v.addEventListener('timeupdate', ()=>{ started=true; }, {once:true});
+  setTimeout(()=>{ if(!started) finish(); }, 4500);
+  const pr=v.play();
+  if(pr && pr.catch) pr.catch(()=>{ /* 自動播放被擋：靠跳過鈕與逾時守門，不 trap */ });
 }
 
 /* ---------- LINE LIFF 身分（左上晶片；提升可信度） ----------
@@ -722,7 +784,12 @@ async function initLiff(){
     }
   }catch(e){ /* 任何失敗都保持示意 fallback，不中斷抽獎主流程 */ }
 }
-if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1') grantAccess();
+if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1'){
+  grantAccess();
+}else if(sessionStorage.getItem(INTRO_KEY)!=='1' && !prefersReduced()){
+  // 停在密碼閘且開場影片將播 → 趁使用者輸入密碼時預先緩衝(faststart 少量即可起播)
+  try{ $('#intro-video').load(); }catch(e){}
+}
 $('#access-form').addEventListener('submit',e=>{
   e.preventDefault();
   const field=$('#access-password'), error=$('#access-error');
