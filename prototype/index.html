@@ -467,6 +467,12 @@ img.li-av{background:none}
   font-family:var(--sans);font-size:var(--t-cap);color:#fff;
   background:rgba(43,38,32,.6);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(3px)}
 #intro-skip:active{transform:scale(.96)}
+#intro-sound{position:absolute;left:16px;bottom:16px;min-height:var(--tap);
+  display:inline-flex;align-items:center;gap:4px;padding:0 14px;border-radius:var(--r-pill);
+  font-family:var(--sans);font-size:var(--t-cap);color:#fff;
+  background:rgba(43,38,32,.6);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(3px)}
+#intro-sound[aria-pressed="true"]{background:rgba(147,93,8,.72);border-color:rgba(235,217,138,.6)}
+#intro-sound:active{transform:scale(.96)}
 @media (prefers-reduced-motion:reduce){ #intro,#intro-video{transition:none} }
 </style>
 </head>
@@ -476,6 +482,7 @@ img.li-av{background:none}
   <video id="intro-video" playsinline muted preload="auto" poster="assets/intro-poster.jpg">
     <source src="assets/intro-door.mp4" type="video/mp4">
   </video>
+  <button id="intro-sound" type="button" aria-pressed="false" aria-label="開啟開場影片聲音">🔇 開聲音</button>
   <button id="intro-skip" type="button" aria-label="跳過開場影片">跳過 ›</button>
 </div>
 <main id="access-gate" aria-labelledby="access-title">
@@ -758,6 +765,15 @@ function playIntro(){
   v.addEventListener('ended', toBlackThenFinish, {once:true});
   v.addEventListener('error', finish, {once:true});
   $('#intro-skip').addEventListener('click', finish, {once:true});
+  // 聲音切換：影片一律靜音自動播（保證播出）；點小喇叭才開聲（點擊＝手勢，允許有聲）
+  const snd=$('#intro-sound');
+  if(snd){
+    const setSnd=on=>{ v.muted=!on; snd.setAttribute('aria-pressed', on?'true':'false');
+      snd.textContent = on?'🔊 聲音開':'🔇 開聲音'; snd.setAttribute('aria-label', on?'關閉開場影片聲音':'開啟開場影片聲音'); };
+    setSnd(false);   // 起始靜音
+    snd.addEventListener('click', ()=>{ const turnOn=v.muted; setSnd(turnOn);
+      if(turnOn){ v.volume=1; const pr=v.play(); if(pr&&pr.catch) pr.catch(()=>{}); } });
+  }
   // 卡頓守門：4.5s 內未開始播放（慢網/無法解碼）→ 直接進遊戲
   let started=false;
   v.addEventListener('timeupdate', ()=>{ started=true; }, {once:true});
