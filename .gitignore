@@ -3,3 +3,13 @@
 
 # Local Cloudflare Wrangler state.
 .wrangler/
+
+# macOS 垃圾檔
+.DS_Store
+
+# 原始影片素材（大檔，本機保留；上線只需 prototype/assets 壓縮檔）
+01_Video/
+
+# impeccable 工具快取與評估快照（可重生，不需版控）
+.impeccable/hook.cache.json
+.impeccable/critique/
