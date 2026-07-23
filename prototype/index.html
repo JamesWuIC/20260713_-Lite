@@ -66,8 +66,9 @@
   --z-intro: 210;  /* 開場影片覆蓋層（最上層） */
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{font-family:var(--sans);background:var(--night-deep);color:var(--ink);display:flex;justify-content:center}
+html{height:100%}
+/* body 用 min-height 而非固定 100%：內容比視窗高時(例：行動瀏覽器底部工具列縮小可視高)可自然捲動，footer 不被裁 */
+body{min-height:100%;font-family:var(--sans);background:var(--night-deep);color:var(--ink);display:flex;justify-content:center}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 button:focus-visible,input:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px}
 /* 去粗：<b> 一律不吃瀏覽器預設 bold(700)，改繼承所在元素字重（全站無真粗體）*/
@@ -83,11 +84,12 @@ img{display:block;max-width:100%}
     radial-gradient(140% 52% at 50% 3%, var(--moon), rgba(247,225,160,0) 46%),
     radial-gradient(125% 82% at 50% -8%, var(--night-top) 0%, var(--night-mid) 32%, #241408 64%, var(--night-deep) 100%);
   background-attachment:local;
-  overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.35)}
-.screen{display:none;flex-direction:column;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 14px) 18px 24px}
+  overflow-x:clip;box-shadow:0 0 40px rgba(0,0,0,.35)}   /* clip(非 hidden)只夾左右不建立捲動容器→垂直維持 visible，內容過高時整頁自然捲動，footer 不被裁 */
+.screen{display:none;flex-direction:column;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom, 0px) + 40px)}
 .screen.active{display:flex}
-/* 轉盤頁鎖定單屏：不捲動，舞台吃剩餘空間釘在底部（任務頁維持可捲動） */
-#wheel{height:100dvh;overflow:hidden}
+/* 轉盤頁預設單屏（舞台吃剩餘空間）；但用 min-height 而非固定高＋overflow-x:clip：
+   視窗夠高時＝單屏不捲動；視窗偏矮(行動瀏覽器工具列縮小可視高)時內容可自然捲動，footer 不被裁 */
+#wheel{min-height:100dvh;overflow-x:clip}
 
 /* header */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
