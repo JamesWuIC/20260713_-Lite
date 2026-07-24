@@ -412,6 +412,15 @@ img.li-av{background:none}
 .card .tier-tag{display:inline-block;font-family:var(--serif);font-weight:var(--w-label);color:#fff;background:var(--tag-bg,var(--gold));
   border-radius:999px;padding:3px 14px;font-size:var(--t-label);letter-spacing:.04em}
 .card .code{margin-top:16px;font-family:var(--sans);font-size:var(--t-cap);color:var(--muted)}
+/* 中獎後領獎須知：常態收合，點開看完整規則（稅務/期限/資格） */
+.win-notice{margin-top:14px;text-align:left;font-family:var(--sans)}
+.win-notice summary{cursor:pointer;font-size:var(--t-cap);color:var(--gold);list-style:none;text-align:center}
+.win-notice summary::-webkit-details-marker{display:none}
+.win-notice summary::after{content:" ▾"}
+.win-notice[open] summary::after{content:" ▴"}
+.win-notice .wn-body{margin-top:8px;max-height:40vh;overflow-y:auto}
+.win-notice .wn-body p{font-size:var(--t-cap);color:var(--muted);line-height:var(--lh-body);margin:6px 0}
+.win-notice .wn-draft{color:var(--muted);opacity:.75;font-style:italic;margin-top:10px}
 .card .code b{display:block;font-size:var(--t-lead);color:var(--ink);letter-spacing:.15em;margin-top:3px;font-weight:var(--w-label)}
 /* 滿版金色主鈕：只套在明確標記 .btn-fill 的按鈕上（不再貪婪套用到 .card 內所有 button，
    避免逼出一堆高特異性覆蓋——特異性戰爭的根源） */
@@ -462,6 +471,7 @@ img.li-av{background:none}
   50%{box-shadow:0 6px 18px var(--cit-shadow),0 0 12px 1px rgba(235,217,138,.34),inset 0 1px 0 rgba(255,255,255,.55)}}
 .cta.glow{animation:ctaGlowPulse 1.7s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){ .stage.rise,.cta.glow{animation:none} }
+#intro{cursor:pointer}                        /* 點畫面任一處即跳過 */
 #intro-video{width:100%;height:100%;object-fit:cover;transition:opacity .34s ease}
 #intro.to-black #intro-video{opacity:0}       /* 影片結束：先淡到黑底 */
 #intro-skip{position:absolute;right:16px;bottom:16px;min-height:var(--tap);
@@ -469,12 +479,6 @@ img.li-av{background:none}
   font-family:var(--sans);font-size:var(--t-cap);color:#fff;
   background:rgba(43,38,32,.6);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(3px)}
 #intro-skip:active{transform:scale(.96)}
-#intro-sound{position:absolute;left:16px;bottom:16px;min-height:var(--tap);
-  display:inline-flex;align-items:center;gap:4px;padding:0 14px;border-radius:var(--r-pill);
-  font-family:var(--sans);font-size:var(--t-cap);color:#fff;
-  background:rgba(43,38,32,.6);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(3px)}
-#intro-sound[aria-pressed="true"]{background:rgba(147,93,8,.72);border-color:rgba(235,217,138,.6)}
-#intro-sound:active{transform:scale(.96)}
 @media (prefers-reduced-motion:reduce){ #intro,#intro-video{transition:none} }
 </style>
 </head>
@@ -484,7 +488,6 @@ img.li-av{background:none}
   <video id="intro-video" playsinline muted preload="auto" poster="assets/intro-poster.jpg">
     <source src="assets/intro-door.mp4" type="video/mp4">
   </video>
-  <button id="intro-sound" type="button" aria-pressed="false" aria-label="開啟開場影片聲音">🔇 開聲音</button>
   <button id="intro-skip" type="button" aria-label="跳過開場影片">跳過 ›</button>
 </div>
 <main id="access-gate" aria-labelledby="access-title">
@@ -563,6 +566,8 @@ img.li-av{background:none}
           本活動之獎項、規則與細節，以主辦單位（高雄洲際酒店／臺北洲際酒店）公告為準；主辦單位保留活動內容變更、暫停或終止，及最終解釋之權利。
         </div>
         <div class="af-links">
+          <button class="af-link" id="footer-rules" type="button">活動規則</button>
+          <span class="af-dot" aria-hidden="true">·</span>
           <button class="af-link" id="footer-privacy" type="button">隱私權／個資條款</button>
           <span class="af-dot" aria-hidden="true">·</span>
           <span class="af-ver">洲遊幣 v0.2 · 2026.07 原型</span>
@@ -588,6 +593,19 @@ img.li-av{background:none}
       <div class="prize" id="win-prize">—</div>
       <div class="tier-tag" id="win-tier">I</div>
       <div class="code">兌換碼（請至櫃台核銷）<b id="win-code">—</b></div>
+      <!-- 【AI 草稿】領獎須知：需主管／公關／法務／財務審核後始可對外發布；稅務門檻為待查證值 -->
+      <details class="win-notice" id="win-notice">
+        <summary>領獎須知（點閱）</summary>
+        <div class="wn-body">
+          <p><b>領獎方式</b>：憑上方兌換碼於活動期間至您選擇之洲際酒店（高雄／臺北）櫃台出示核銷；實物獎項以現場提供或另行通知為準。</p>
+          <p><b>領獎期限</b>：請於【領獎期限：待補】內完成領取，逾期未領視同放棄，恕不補發。</p>
+          <p><b>身分核對與稅務</b>：本活動獎項屬機會中獎所得。領獎須出示本人身分證明；獎項價值達稅法門檻者，得獎人須配合提供姓名、身分證字號、地址等資料並簽署領據，並依法負擔應扣繳稅款（境內居住者 10%／非境內 20%，確切金額以主管機關公告及主辦單位核算為準）。未配合者視同放棄資格。未滿 18 歲須由法定代理人陪同並同意。</p>
+          <p><b>獎項限制</b>：獎項不得更換款式、規格、顏色，不得折換現金、找零、轉讓或轉售；如遇缺貨或不可抗力，得以同等值獎項替代。</p>
+          <p><b>資格查核</b>：資料不實、不全或無法聯繫、逾期未領、或以不正當方式（重複帳號、外掛、舞弊）參加者，主辦單位得取消資格並收回獎項。</p>
+          <p><b>得獎公布</b>：中獎結果將以去識別化方式公布；完整活動規則與個資條款詳見頁尾連結。</p>
+          <p class="wn-draft">【AI 草稿】需主管／公關／法務／財務審核後始可對外發布</p>
+        </div>
+      </details>
       <button class="btn-fill" onclick="closeModal()">收下獎品</button>
     </div>
   </div>
@@ -627,6 +645,29 @@ img.li-av{background:none}
         <p><b>【不提供或不同意之影響】</b>提供個資及同意行銷均屬您的自由選擇。<b>您不同意行銷，仍可依活動規則參加活動及抽獎</b>；未勾選同意者，僅無法透過「填寫資料領取洲遊幣」取得該活動獎勵，亦不會收到後續行銷資訊。</p>
         <p><b>【個人資料安全】</b>本公司將採取適當之技術及管理措施，保護您的個人資料，避免未經授權之存取、洩漏、竄改、毀損或其他侵害。</p>
         <p><b>【權利行使方式】</b>如欲查詢、閱覽、複製、更正、停止利用、刪除或撤回同意，請透過各酒店官方客服管道（詳見活動頁公告）與相應酒店聯繫，本公司將依法協助辦理。停止接收行銷：EDM 點退訂連結、簡訊依指示退訂、LINE 官方帳號取消訂閱或封鎖。兩家酒店為獨立蒐集者，您得分別對任一酒店行使權利，不影響另一酒店已取得之合法授權。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 活動規則彈窗（由頁尾「活動規則」開啟）；【AI 草稿】需主管／公關／法務／財務審核後始可對外發布 -->
+  <div class="modal" id="rules-modal" role="dialog" aria-modal="true" aria-label="活動規則">
+    <div class="card notice-card">
+      <button class="pf-close" id="rules-close" type="button" aria-label="關閉">✕</button>
+      <div class="pf-terms notice-body">
+        <p><b>洲遊幣中秋活動 活動規則</b></p>
+        <p><b>【活動期間】</b>2026 年 9 月 1 日至 11 月 30 日。主辦單位保留於活動期間內調整之權利，並以活動頁公告為準。</p>
+        <p><b>【主辦單位】</b>高雄洲際酒店（遠洋投資股份有限公司高雄分公司）／臺北洲際酒店（遠雄巨蛋事業股份有限公司逸仙酒店分公司）。</p>
+        <p><b>【參加資格】</b>限年滿 18 歲之個人；未滿 18 歲者須經法定代理人（或監護人）同意並陪同領獎。每位參加者以本人 LINE 帳號參加，不得以不正當方式（重複帳號、外掛程式等）參加。</p>
+        <p><b>【參加辦法】</b>透過活動頁面完成指定任務（如填寫資料、追蹤官方社群等）即可獲得「洲遊幣」；累積洲遊幣後，於轉盤投入 1／3／5 枚，分別抽三等／二等／一等獎。</p>
+        <p><b>【抽獎方式與中獎規則】</b>本活動採線上轉盤即時抽獎，各獎項依系統設定之機率加權隨機產生，轉盤含「銘謝惠顧」等未中獎欄位。<b>本活動為機會中獎，參與不代表即可獲得特定獎項。</b>各等級獎項與數量詳見「獎項一覽」。</p>
+        <p><b>【中獎通知與名單公布】</b>中獎結果於抽獎當下即時顯示於畫面；如有另行公布名單，將於【公布日期／管道：待補】以去識別化方式（如部分遮蔽姓名）公布。</p>
+        <p><b>【領獎方式與期限】</b>憑遊戲頁面顯示之兌換碼，於活動期間至您所選擇之洲際酒店（高雄／臺北）櫃台出示核銷領取；兌換碼須於【領獎期限：待補】內完成領取，逾期未領視同放棄，恕不補發。</p>
+        <p><b>【稅務（機會中獎所得）】</b>本活動獎項屬所得稅法所稱機會中獎所得。獎項價值達稅法門檻者，主辦單位為扣繳義務人須辦理列單申報或代扣繳；得獎人須配合出示身分證明並提供姓名、身分證字號、地址等資料、簽署領據，並依法負擔應繳納稅款（境內居住者 10%／非境內個人 20%，確切金額門檻以主管機關公告及主辦單位核算為準）。未於指定期限配合辦理者，視同放棄得獎資格。</p>
+        <p><b>【獎項限制】</b>獎項以實物或指定券別為準，不得要求更換款式、規格、顏色，不得折換現金、找零、轉讓或轉售；獎項如遇缺貨或不可抗力，主辦單位得以同等值獎項替代。</p>
+        <p><b>【喪失資格】</b>有資料不實、不全或無法聯繫、逾期未領、以不正當方式參加或不符參加資格等情形之一者，主辦單位得取消其得獎資格並收回獎項或追償等值價款。</p>
+        <p><b>【個人資料】</b>本活動個人資料之蒐集、處理及利用，依「隱私權／個資條款」告知事項辦理。</p>
+        <p><b>【其他】</b>如有未盡事宜，主辦單位得補充公告；活動內容如有變更、暫停或終止，以主辦單位於活動頁公告為準。<b>【最終解釋權措辭待法務確認】</b></p>
+        <p style="opacity:.75;font-style:italic">【AI 草稿】需主管／公關／法務／財務審核後始可對外發布；其中稅務門檻與扣繳數值為待查證值。</p>
       </div>
     </div>
   </div>
@@ -767,15 +808,7 @@ function playIntro(){
   v.addEventListener('ended', toBlackThenFinish, {once:true});
   v.addEventListener('error', finish, {once:true});
   $('#intro-skip').addEventListener('click', finish, {once:true});
-  // 聲音切換：影片一律靜音自動播（保證播出）；點小喇叭才開聲（點擊＝手勢，允許有聲）
-  const snd=$('#intro-sound');
-  if(snd){
-    const setSnd=on=>{ v.muted=!on; snd.setAttribute('aria-pressed', on?'true':'false');
-      snd.textContent = on?'🔊 聲音開':'🔇 開聲音'; snd.setAttribute('aria-label', on?'關閉開場影片聲音':'開啟開場影片聲音'); };
-    setSnd(false);   // 起始靜音
-    snd.addEventListener('click', ()=>{ const turnOn=v.muted; setSnd(turnOn);
-      if(turnOn){ v.volume=1; const pr=v.play(); if(pr&&pr.catch) pr.catch(()=>{}); } });
-  }
+  intro.addEventListener('click', finish, {once:true});   // 點畫面任一處即直接跳過
   // 卡頓守門：4.5s 內未開始播放（慢網/無法解碼）→ 直接進遊戲
   let started=false;
   v.addEventListener('timeupdate', ()=>{ started=true; }, {once:true});
@@ -993,6 +1026,7 @@ function showWin(prize,tier,code,coin){
   $('#modal .code').innerHTML = coin
     ? `獎勵已直接存入你的錢包<b>＋${coin} 枚洲遊幣</b>`
     : `兌換碼（請至櫃台核銷）<b>${code}</b>`;
+  const wn=$('#win-notice'); if(wn){ wn.open=false; wn.hidden=!!coin; }   // 洲遊幣獎勵無實體領獎，隱藏領獎須知
   openModal($('#modal'));
 }
 function openModal(m){ m.classList.add('show');
@@ -1164,6 +1198,8 @@ $('#pf-close').addEventListener('click',()=>$('#profile-modal').classList.remove
 $('#pf-notice').addEventListener('click',()=>openModal($('#notice-modal')));
 $('#footer-privacy').addEventListener('click',()=>openModal($('#notice-modal')));
 $('#notice-close').addEventListener('click',()=>$('#notice-modal').classList.remove('show'));
+$('#footer-rules').addEventListener('click',()=>openModal($('#rules-modal')));
+$('#rules-close').addEventListener('click',()=>$('#rules-modal').classList.remove('show'));
 $('#notice-modal').addEventListener('click',e=>{ if(e.target.id==='notice-modal') $('#notice-modal').classList.remove('show'); });
 $('#pf-submit').addEventListener('click',()=>{
   // 基本驗證：姓名／手機／Email（原型層級的格式檢查）
